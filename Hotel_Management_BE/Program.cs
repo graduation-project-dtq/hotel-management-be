@@ -116,12 +116,9 @@ if (app.Environment.IsDevelopment())
 
 // Cấu hình các middleware
 app.UseHttpsRedirection();
-
-// Đặt UseAuthentication trước UseAuthorization
-app.UseAuthentication();  // Xác thực người dùng trước
-app.UseAuthorization();   // Kiểm tra quyền truy cập
-
+app.UseRouting();
+app.UseAuthentication(); // Xác thực người dùng trước
+app.UseAuthorization();
 app.MapControllers();
-
 // Chạy ứng dụng
 app.Run();

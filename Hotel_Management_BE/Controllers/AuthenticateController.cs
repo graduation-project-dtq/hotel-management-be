@@ -17,7 +17,7 @@ namespace Hotel_API.Controllers
             _configuration = configuration;
         }
         [HttpPost("SignIn")]
-        public async Task<IActionResult> SignIn([FromBody] SignInViewModel signInViewModel)
+        public async Task<IActionResult> SignIn(SignInViewModel signInViewModel)
         {
             var result = await _accountService.SignInAsync(signInViewModel);
             if (string.IsNullOrEmpty(result))
@@ -27,18 +27,8 @@ namespace Hotel_API.Controllers
             return Ok(result);
         }
 
-        //[HttpPost("SignUp")]
-        //public async Task<IActionResult> SignUp([FromBody] SignUpViewModel signUpViewModel)
-        //{
-        //    var result = await _accountService.SignUpAsync(signUpViewModel);
-        //    if (result.Succeeded)
-        //    {
-        //        return Ok(result.Succeeded);
-        //    }
-        //    return BadRequest(result.Errors);
-        //}
         [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody] SignUpViewModel signUpViewModel)
+        public async Task<IActionResult> SignUp(SignUpViewModel signUpViewModel)
         {
             var result = await _accountService.SignUpAsync(signUpViewModel);
             if (result.Succeeded)

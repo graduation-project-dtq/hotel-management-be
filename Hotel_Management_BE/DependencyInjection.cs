@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Hotel.Contract.Repositories.IUOW;
 using Hotel.Repositories.UOW;
+using Hotel.Core.App;
 
 namespace Hotel_API
 {
@@ -22,6 +23,8 @@ namespace Hotel_API
             services.AddIdentity();
             services.AddServices();
             services.AddModifiedAuthentication(configuration);
+         
+
         }
 
         public static void ConfigRoute(this IServiceCollection services)
@@ -69,32 +72,36 @@ namespace Hotel_API
         {
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IAccountService, AccountService>();
-
+            services.AddScoped<IRoomCategoryService, RoomCategoryService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         }
 
         public static void AddModifiedAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAuthentication(options =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+          .AddJwtBearer(options =>
+          {
+              options.TokenValidationParameters = new TokenValidationParameters
+              {
+                  ValidateIssuer = true,
+                  ValidateAudience = true,
+                  ValidateLifetime = true,
+                  ValidateIssuerSigningKey = true,
+                  ValidIssuer = configuration["JWT:ValidIssuer"],
+                  ValidAudience = configuration["JWT:ValidAudience"],
+                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+              };
+          });
+
+            services.AddAuthorization(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["JWT:ValidIssuer"],
-                    ValidAudience = configuration["JWT:ValidAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-                };
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole(AppRole.Administrator));
+                options.AddPolicy("RequireDefaultRole", policy => policy.RequireRole(AppRole.DefaultRole));
+                options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole(AppRole.Customer));
             });
         }
+      
+
     }
 }
