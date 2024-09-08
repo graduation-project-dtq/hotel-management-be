@@ -2,6 +2,8 @@
 using Hotel.Repositories.UOW;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Hotel.Contract.Services.IService;
+using Hotel.Services.Service;
 
 
 namespace Hotel.Services
@@ -21,7 +23,7 @@ namespace Hotel.Services
 
         public static void AddServices(this IServiceCollection services)
         {
-           
+           services.AddScoped<IRoomService,RoomService>();
         }
     }
 }

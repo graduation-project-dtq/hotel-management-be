@@ -1,15 +1,19 @@
 ﻿using AutoMapper;
 using Hotel.Contract.Repositories.Entity;
-using Hotel.Contract.Services;
+using Hotel.Contract.Services.IService;
+using Hotel.Core.App;
 using Hotel.ModelViews.RoomModelView;
 using Hotel.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Hotel_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = AppRole.DefaultRole + "," + AppRole.Administrator)]
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
@@ -20,10 +24,11 @@ namespace Hotel_API.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories()
+        [Authorize(Roles = AppRole.DefaultRole + "," + AppRole.Administrator)]
+        public async Task<IActionResult> GetAllRoom()
         {
-            IList<Room> categories = await _roomService.GetAll();
-            return Ok(categories);
+            IList<Room> rooms = await _roomService.GetAll();
+            return Ok(rooms);
         }
         [HttpPost]
         public async Task<IActionResult> AddRoom(RoomModelView room)

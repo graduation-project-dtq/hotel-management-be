@@ -1,7 +1,7 @@
 ﻿using Hotel.Contract.Repositories.Entity;
 using Task = System.Threading.Tasks.Task;
 
-namespace Hotel.Contract.Services
+namespace Hotel.Contract.Services.IService
 {
     public interface IRoomService
     {

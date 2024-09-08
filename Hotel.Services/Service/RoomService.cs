@@ -1,6 +1,6 @@
 ﻿using Hotel.Contract.Repositories.Entity;
 using Hotel.Contract.Repositories.IUOW;
-using Hotel.Contract.Services;
+using Hotel.Contract.Services.IService;
 
 
 namespace Hotel.Services.Service
