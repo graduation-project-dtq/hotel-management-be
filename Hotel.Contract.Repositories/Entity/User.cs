@@ -1,28 +1,35 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Hotel.Contract.Repositories.Entity;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 
-namespace XuongMay_BE.Contract.Repositories.Entities
+namespace Hotel.Contract.Repositories.Entity
 {
     public class User : IdentityUser
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
-            //Orders = new HashSet<Order>();
-            //ProductionLines = new HashSet<ProductionLine>();
         }
 
         [Required]
         public string Fullname { get; set; }
 
         [Required]
-        public string Image { get; set; }
+        public string ? Image { get; set; }
 
         [Key]
-        [StringLength(450)]
+        [StringLength(50)]
         public override string Id { get; set; }
+
+
+        [StringLength(50)]
+        public string? EmployeeId { get; set; }
+
+        [StringLength(50)]
+        public string? CustomerId { get; set; }
+
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }
         public string? DeletedBy { get; set; }
@@ -30,6 +37,8 @@ namespace XuongMay_BE.Contract.Repositories.Entities
         public DateTimeOffset UpdatedAt { get; set; }
         public DateTimeOffset DeletedAt { get; set; }
 
+        public virtual Customer Customer { get; set; }
 
+        public virtual Employee Employee { get; set; }
     }
 }
