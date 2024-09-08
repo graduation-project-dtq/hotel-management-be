@@ -39,23 +39,14 @@ namespace Hotel.Services.Service
             var user = await _userManager.FindByEmailAsync(signInViewModel.UserName);
             if (user == null)
             {
-                return string.Empty; // Hoặc thông báo lỗi phù hợp
+                return "User not found";
             }
 
             var passwordValid = await _userManager.CheckPasswordAsync(user, signInViewModel.Password);
             if (!passwordValid)
             {
-                return string.Empty; // Hoặc thông báo lỗi phù hợp
+                return "Password not validated"; // Hoặc thông báo lỗi phù hợp
             }
-
-            // Kiểm tra xem người dùng đã có token hợp lệ chưa
-            var existingToken = await GetTokenAsync(user);
-            if (!string.IsNullOrEmpty(existingToken))
-            {
-                // Nếu token đã tồn tại và hợp lệ, trả về token hiện tại
-                return existingToken;
-            }
-
             // Tạo danh sách các claims (quyền hạn)
             var authClaims = new List<Claim>
             {
@@ -70,19 +61,39 @@ namespace Hotel.Services.Service
 
             }
 
-            // Tạo token JWT
+            // Kiểm tra xem người dùng đã có token hợp lệ chưa
+            var existingToken = await GetTokenAsync(user);
+
+            // Kiểm tra thời gian hết hạn của token hiện tại (Nếu token không có thông tin về thời gian hết hạn, bạn cần thêm vào cơ sở dữ liệu)
+            if (!string.IsNullOrEmpty(existingToken))
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token1 = tokenHandler.ReadJwtToken(existingToken);
+                var exp = token1.ValidTo;
+
+                // Nếu token còn hiệu lực, trả về token hiện tại
+                if (exp > DateTime.UtcNow)
+                {
+                    return existingToken;
+                }
+            }
+            // Tạo token mới
             var authenticationKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(7),
-                claims: authClaims,
+                expires: DateTime.UtcNow.AddHours(7), // Thay đổi thời gian hết hạn theo nhu cầu
+                claims: new List<Claim>
+                {
+            new Claim(ClaimTypes.Email, signInViewModel.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+                }.Union(await GetUserClaims(user)),
                 signingCredentials: new SigningCredentials(authenticationKey, SecurityAlgorithms.HmacSha512Signature)
             );
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-            // Lưu token vào cơ sở dữ liệu
+            // Lưu token mới vào cơ sở dữ liệu
             await SaveTokenAsync(user, tokenString);
 
             return tokenString;
@@ -105,6 +116,19 @@ namespace Hotel.Services.Service
         {
             var token = await _userManager.GetAuthenticationTokenAsync(user, "JWT", "Token");
             return token;
+        }
+        // Tạo các claims cho người dùng
+        private async Task<IEnumerable<Claim>> GetUserClaims(User user)
+        {
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var claims = new List<Claim>();
+
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            return claims;
         }
 
         // Đăng ký người dùng mới
@@ -146,5 +170,71 @@ namespace Hotel.Services.Service
             }
             return result;
         }
+        //#region TEST
+        //public async Task<string> SignInAsync(SignInViewModel signInViewModel)
+        //{
+        //    var user = await _userManager.FindByEmailAsync(signInViewModel.UserName);
+        //    var passwordValid = await _userManager.CheckPasswordAsync(user, signInViewModel.Password);
+
+        //    if (!passwordValid || user is null)
+        //    {
+        //        return string.Empty;
+        //    }
+
+        //    var authClaims = new List<Claim>
+        //    {
+        //        new Claim(ClaimTypes.Email, signInViewModel.UserName),
+        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+        //    };
+
+        //    var userRoles = await _userManager.GetRolesAsync(user);
+        //    foreach (var role in userRoles)
+        //    {
+        //        authClaims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+        //    }
+
+        //    var authenticationKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+        //    var token = new JwtSecurityToken(
+        //        issuer: _configuration["JWT:ValidIssuer"],
+        //        audience: _configuration["JWT:ValidAudience"],
+        //        expires: DateTime.Now.AddHours(7),
+        //        claims: authClaims,
+        //        signingCredentials: new SigningCredentials(authenticationKey, SecurityAlgorithms.HmacSha512Signature)
+        //        );
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
+
+        //public async Task<IdentityResult> SignUpAsync(SignUpViewModel signUpViewModel)
+        //{
+        //    var user = new User
+        //    {
+        //        Id = Guid.NewGuid().ToString("N"),
+        //        Fullname = signUpViewModel.FullName,
+        //        Email = signUpViewModel.Email,
+        //        UserName = signUpViewModel.Email
+        //    };
+
+        //    var result = await _userManager.CreateAsync(user, signUpViewModel.Password);
+
+        //    if (result.Succeeded)
+        //    {
+        //        // Kiểm tra các Role đã tồn tại
+        //        if (!await _roleManager.RoleExistsAsync(AppRole.Administrator))
+        //        {
+        //            await _roleManager.CreateAsync(new IdentityRole(AppRole.Administrator));
+        //        }
+        //        if (!await _roleManager.RoleExistsAsync(AppRole.Customer))
+        //        {
+        //            await _roleManager.CreateAsync(new IdentityRole(AppRole.Customer));
+        //        }
+        //        if (!await _roleManager.RoleExistsAsync(AppRole.DefaultRole))
+        //        {
+        //            await _roleManager.CreateAsync(new IdentityRole(AppRole.DefaultRole));
+        //        }
+        //        await _userManager.AddToRoleAsync(user, AppRole.DefaultRole);
+        //    }
+        //    return result;
+        //}
+        //#endregion
     }
 }

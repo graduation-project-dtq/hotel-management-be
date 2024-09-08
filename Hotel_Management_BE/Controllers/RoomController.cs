@@ -13,7 +13,7 @@ namespace Hotel_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = AppRole.DefaultRole + "," + AppRole.Administrator)]
+  
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
@@ -24,7 +24,6 @@ namespace Hotel_API.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        [Authorize(Roles = AppRole.DefaultRole + "," + AppRole.Administrator)]
         public async Task<IActionResult> GetAllRoom()
         {
             IList<Room> rooms = await _roomService.GetAll();

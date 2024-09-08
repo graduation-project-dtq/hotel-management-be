@@ -24,6 +24,7 @@ namespace Hotel.Services
         public static void AddServices(this IServiceCollection services)
         {
            services.AddScoped<IRoomService,RoomService>();
+            services.AddScoped<IRoomCategoryService, RoomCategoryService>();
         }
     }
 }
