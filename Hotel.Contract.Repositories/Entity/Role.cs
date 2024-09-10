@@ -9,11 +9,14 @@ using System.Threading.Tasks;
 
 namespace Hotel.Contract.Repositories.Entity
 {
-    [Table("Floor")]
-    public class Floor : BaseEntity
+    [Table("Role")]
+    public class Role:BaseEntity
     {
+       
         public string Name { get; set; }
-        public virtual ICollection<Room> Rooms { get; set; }
+
+        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<RoleDisplay> RoleDisplays { get; set; }
 
     }
 }

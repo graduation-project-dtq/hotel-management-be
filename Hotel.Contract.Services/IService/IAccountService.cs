@@ -5,8 +5,7 @@ namespace Hotel.Contract.Services.IService
 {
     public interface IAccountService
     {
-        Task<string> SignInAsync(SignInViewModel signInViewModel);
-        Task<IdentityResult> SignUpAsync(SignUpViewModel signUpViewModel);
-       
+        Task<IdentityResult> SignUp(SignUpModelView model);
+        Task<string> SignIn(SignInModelView model);
     }
 }

@@ -10,22 +10,18 @@ using System.Threading.Tasks;
 namespace Hotel.Contract.Repositories.Entity
 {
     [Table("CustomerVoucher")]
-    public class CustomerVoucher : BaseEntity
+    public class CustomerVoucher 
     {
 
-        [Column(Order = 0)]
         [StringLength(50)]
         public string CustomerId { get; set; }
 
-   
-        [Column(Order = 1)]
         [StringLength(50)]
         public string VoucherId { get; set; }
-
         public DateTime? UsedDate { get; set; }
 
         public virtual Customer Customer { get; set; }
-
         public virtual Voucher Voucher { get; set; }
+
     }
 }

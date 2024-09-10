@@ -72,5 +72,12 @@ namespace Hotel.Core.Base
             {
             }
         }
+        public class ForeignKeyViolationException : ErrorException
+        {
+            public ForeignKeyViolationException(string message)
+                : base(400, "foreign_key_violation", message) // HTTP Status Code 400 Bad Request
+            {
+            }
+        }
     }
 }

@@ -29,6 +29,7 @@ namespace Hotel_API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = AppRole.DefaultRole)]
         public async Task<IActionResult> GetAllRooms()
         {
             try

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hotel.ModelViews.AccountModelView
 {
-    public class SignInViewModel
+    public class SignInModelView
     {
         [Required]
         public string UserName { get; set; }

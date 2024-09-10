@@ -14,18 +14,13 @@ namespace Hotel.Contract.Repositories.Entity
     {
         [StringLength(50)]
         public string RoomPriceId { get; set; }
-
         [StringLength(50)]
         public string PriceAdjustmentPlanId { get; set; }
-
-        [Column(TypeName = "date")]
-        public DateTime? StartDate { get; set; }
-
-        [Column(TypeName = "date")]
-        public DateTime? EndDate { get; set; }
-
-        public virtual PriceAdjustmentPlan PriceAdjustmentPlan { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         public virtual RoomPrice RoomPrice { get; set; }
+        public virtual PriceAdjustmentPlan PriceAdjustmentPlan { get; set; }
+
     }
 }

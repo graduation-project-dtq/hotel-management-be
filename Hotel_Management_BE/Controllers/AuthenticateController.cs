@@ -1,6 +1,13 @@
-﻿using Hotel.Contract.Services.IService;
+﻿using Hotel.Contract.Repositories.Entity;
+using Hotel.Contract.Services.IService;
 using Hotel.ModelViews.AccountModelView;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Hotel_API.Controllers
 {
@@ -10,45 +17,50 @@ namespace Hotel_API.Controllers
     {
         private readonly IAccountService _accountService;
 
-        public AuthenticateController(IAccountService accountService)
+        private readonly ILogger<AuthenticateController> _logger;
+        public AuthenticateController(IAccountService accountService,ILogger<AuthenticateController> logger)
         {
             _accountService = accountService;
+            _logger= logger;
+        }
+        [HttpPost("signin")]
+        public async Task<IActionResult> SignIn([FromBody] SignInModelView model)
+        {
+            var token = await _accountService.SignIn(model);
+
+            if (token != null)
+            {
+                return Ok(new { Token = token });
+            }
+
+            return Unauthorized("Invalid username or password");
         }
 
-        [HttpPost("SignIn")]
-        public async Task<IActionResult> SignIn([FromBody] SignInViewModel signInViewModel)
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp([FromBody] SignUpModelView model)
         {
-            if (!ModelState.IsValid)
+            if (model == null)
             {
-                return BadRequest(new { Message = "Invalid data", Errors = ModelState });
+                return BadRequest(new { message = "Invalid request payload" });
             }
 
-            var result = await _accountService.SignInAsync(signInViewModel);
-
-            if (string.IsNullOrEmpty(result))
+            // Kiểm tra xem email có hợp lệ không
+            var emailValidationResult = new EmailAddressAttribute().IsValid(model.Email);
+            if (!emailValidationResult)
             {
-                return Unauthorized(new { Message = "Invalid username or password" });
+                return BadRequest(new { code = "InvalidEmail", description = "Email is invalid." });
             }
 
-            return Ok(new { Value = result });
-        }
-
-        [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody] SignUpViewModel signUpViewModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { Message = "Invalid data", Errors = ModelState });
-            }
-
-            var result = await _accountService.SignUpAsync(signUpViewModel);
+            var result = await _accountService.SignUp(model);
 
             if (result.Succeeded)
             {
-                return Ok(new { Message = "User registered successfully" });
+                return Ok(new { message = "User registered successfully" });
             }
 
-            return BadRequest(new { Message = "Registration failed", Errors = result.Errors.Select(e => e.Description) });
+            return BadRequest(result.Errors);
         }
+
+
     }
 }
