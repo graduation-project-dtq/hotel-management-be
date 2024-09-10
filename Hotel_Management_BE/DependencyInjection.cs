@@ -1,16 +1,17 @@
-﻿using Hotel.Repositories.Context;
+﻿using Hotel.Contract.Repositories.Entity;
+using Hotel.Repositories.Context;
 using Hotel.Services;
 using Hotel.Services.Service;
 using Hotel.Contract.Services.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Hotel.Contract.Repositories.IUOW;
 using Hotel.Repositories.UOW;
 using Hotel.Core.App;
-using Hotel.Contract.Repositories.Entity;
 
 namespace Hotel_API
 {
@@ -72,7 +73,6 @@ namespace Hotel_API
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoomCategoryService, RoomCategoryService>();
-
             services.AddScoped<IRoomTypeDetailService, RoomTypeDetailService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
@@ -80,19 +80,19 @@ namespace Hotel_API
         public static void AddModifiedAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+                .AddJwtBearer(options =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["JWT:ValidIssuer"],
-                    ValidAudience = configuration["JWT:ValidAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-                };
-            });
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = configuration["JWT:ValidIssuer"],
+                        ValidAudience = configuration["JWT:ValidAudience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+                    };
+                });
 
             services.AddAuthorization(options =>
             {

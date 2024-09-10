@@ -14,17 +14,13 @@ namespace Hotel.Contract.Repositories.Entity
     {
         [StringLength(50)]
         public string CustomerId { get; set; }
-
         [StringLength(50)]
         public string RoomTypeDetailId { get; set; }
-
-        [StringLength(255)]
         public string Comment { get; set; }
-
-        public double? Starts { get; set; }
+        public int Starts { get; set; }
 
         public virtual Customer Customer { get; set; }
-
         public virtual RoomTypeDetail RoomTypeDetail { get; set; }
+
     }
 }

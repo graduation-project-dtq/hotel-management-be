@@ -9,20 +9,12 @@ using System.Threading.Tasks;
 
 namespace Hotel.Contract.Repositories.Entity
 {
-    [Table("BookingDetail")]
-    public class BookingDetail 
+    [Table("ViewHotel")]
+    public class ViewHotel : BaseEntity
     {
-        [StringLength(50)]    
-        public string BookingId { get; set; }
-
-        [StringLength(50)]
-
-        public string RoomId { get; set; }
+        public string Name { get; set; }
         public decimal Price { get; set; }
-
-        public virtual Booking Booking { get; set; }
-        public virtual Room Room { get; set; }
-
+        public virtual ICollection<RoomView> RoomViews { get; set; }
 
     }
 }

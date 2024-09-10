@@ -2,11 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Data;
-using System.Security;
-
-
 
 namespace Hotel.Repositories.Context
 {
@@ -14,22 +9,9 @@ namespace Hotel.Repositories.Context
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer(
-                    "DbConnect",
-                    options => options.MigrationsAssembly("Hotel_API"));
-            }
-        }
-        //public DbSet<User> Users { get; set; }
-        //public DbSet<Room> Rooms { get; set; }
 
-        public virtual DbSet<Bill> Bills { get; set; }
-        public virtual DbSet<BillDetail> BillDetails { get; set; }
+        // Define DbSet properties for all your entities
         public virtual DbSet<Booking> Bookings { get; set; }
         public virtual DbSet<BookingDetail> BookingDetails { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
@@ -45,651 +27,210 @@ namespace Hotel.Repositories.Context
         public virtual DbSet<RoomPriceAdjustment> RoomPriceAdjustments { get; set; }
         public virtual DbSet<RoomTypeDetail> RoomTypeDetails { get; set; }
         public virtual DbSet<Service> Services { get; set; }
-        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Voucher> Vouchers { get; set; }
+        public virtual DbSet<Facilities> Facilities { get; set; }
+        public virtual DbSet<FacilitiesRoom> FacilitiesRooms { get; set; }
+        public virtual DbSet<ServiceBooking> ServiceBookings { get; set; }
 
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Bill>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Bill>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Bill>()
-        //        .Property(e => e.EmployeeId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Bill>()
-        //        .Property(e => e.BookingId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Bill>()
-        //        .Property(e => e.TotalAmount)
-        //        .HasPrecision(12, 2);
-
-        //    modelBuilder.Entity<BillDetail>()
-        //        .Property(e => e.BillId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<BillDetail>()
-        //        .Property(e => e.ServiceId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Booking>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Booking>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Booking>()
-        //        .Property(e => e.EmployeeId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Booking>()
-        //        .Property(e => e.CustomerId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Booking>()
-        //        .Property(e => e.RoomTypeDetailId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Booking>()
-        //        .Property(e => e.TotalAmount)
-        //        .HasPrecision(12, 2);
-
-        //    modelBuilder.Entity<BookingDetail>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<BookingDetail>()
-        //        .Property(e => e.BookingId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<BookingDetail>()
-        //        .Property(e => e.RoomId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<BookingDetail>()
-        //        .Property(e => e.Price)
-        //        .HasPrecision(12, 2);
-
-        //    modelBuilder.Entity<Customer>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Customer>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Customer>()
-        //        .Property(e => e.Phone)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Customer>()
-        //        .Property(e => e.Email)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Customer>()
-        //     .HasMany(e => e.CustomerVouchers)
-        //     .WithOne(e => e.Customer)
-        //     .HasForeignKey(e => e.CustomerId)
-        //     .OnDelete(DeleteBehavior.Restrict);
-
-        //    modelBuilder.Entity<Customer>()
-        //     .HasMany(e => e.Favorites)
-        //     .WithOne(e => e.Customer)  // Sử dụng WithOne để biểu thị quan hệ một-một hoặc một-nhiều.
-        //     .HasForeignKey(e => e.RoomTypeDetailId)
-        //     .IsRequired(false); // Đặt IsRequired(false) để làm cho khóa ngoại là tùy chọn (optional)
-
-
-        //    modelBuilder.Entity<CustomerVoucher>()
-        //        .Property(e => e.CustomerId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<CustomerVoucher>()
-        //        .Property(e => e.VoucherId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Employee>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Employee>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Employee>()
-        //        .Property(e => e.IdentityCard)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Employee>()
-        //        .Property(e => e.Phone)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Employee>()
-        //        .Property(e => e.Email)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Evaluation>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Evaluation>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Evaluation>()
-        //        .Property(e => e.CustomerId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Evaluation>()
-        //        .Property(e => e.RoomTypeDetailId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Favorite>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Favorite>()
-        //        .Property(e => e.RoomTypeDetailId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Favorite>()
-        //        .Property(e => e.CustomerId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Floor>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-
-        //    modelBuilder.Entity<PriceAdjustmentPlan>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<PriceAdjustmentPlan>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<PriceAdjustmentPlan>()
-        //        .Property(e => e.AdjustmentValue)
-        //        .HasPrecision(12, 2);
-
-
-        //    modelBuilder.Entity<Room>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Room>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Room>()
-        //        .Property(e => e.FloorId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Room>()
-        //        .Property(e => e.RoomTypeDetailId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomCategory>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomCategory>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomPrice>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomPrice>()
-        //        .Property(e => e.RoomTypeDetailId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomPrice>()
-        //        .Property(e => e.BasePrice)
-        //        .HasPrecision(12, 2);
-
-        //    modelBuilder.Entity<RoomPriceAdjustment>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomPriceAdjustment>()
-        //        .Property(e => e.RoomPriceId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomPriceAdjustment>()
-        //        .Property(e => e.PriceAdjustmentPlanId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomTypeDetail>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomTypeDetail>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomTypeDetail>()
-        //        .Property(e => e.RoomCategoryId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<RoomTypeDetail>()
-        //        .Property(e => e.Area)
-        //        .HasPrecision(12, 2);
-
-
-
-        //    modelBuilder.Entity<Service>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Service>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Service>()
-        //        .Property(e => e.Price)
-        //        .HasPrecision(12, 2);
-
-        //    modelBuilder.Entity<Service>()
-        //        .Property(e => e.Image)
-        //        .IsUnicode(false);
-
-
-
-        //    modelBuilder.Entity<User>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<User>()
-        //        .Property(e => e.EmployeeId)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<User>()
-        //        .Property(e => e.CustomerId)
-        //        .IsUnicode(false);
-
-
-
-        //    modelBuilder.Entity<Voucher>()
-        //        .Property(e => e.Id)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Voucher>()
-        //        .Property(e => e.InternalCode)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Voucher>()
-        //        .Property(e => e.Code)
-        //        .IsUnicode(false);
-
-        //    modelBuilder.Entity<Voucher>()
-        //        .Property(e => e.DiscountAmount)
-        //        .HasPrecision(12, 2);
-
-        //    modelBuilder.Entity<Voucher>()
-        //      .HasMany(e => e.CustomerVouchers)
-        //      .WithOne(e => e.Voucher)
-        //      .HasForeignKey(e => e.VoucherId) // Chỉ định khóa ngoại
-        //      .OnDelete(DeleteBehavior.Restrict); // Ngăn chặn cascade delete
-        //    ///Khai báo khoá chính có nhiều thuộc tính
-        //    modelBuilder.Entity<BillDetail>()
-        //       .HasKey(b => new { b.BillId, b.ServiceId }); // Khóa chính kết hợp
-        //    modelBuilder.Entity<BookingDetail>()
-        //     .HasKey(b => new { b.BookingId, b.RoomId }); // Khóa chính kết hợp
-        //                                                  // Cấu hình khóa chính cho IdentityUserLogin
-        //    modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(l => new { l.LoginProvider, l.ProviderKey });
-
-        //    // Cấu hình khóa chính cho IdentityUserRole
-        //    modelBuilder.Entity<IdentityUserRole<string>>().HasKey(r => new { r.UserId, r.RoleId });
-
-        //    // Cấu hình khóa chính cho IdentityUserToken
-        //    modelBuilder.Entity<IdentityUserToken<string>>().HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
-        //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Cấu hình cho bảng Bill
-            modelBuilder.Entity<Bill>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+            base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Bill>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
 
-            modelBuilder.Entity<Bill>()
-                .Property(e => e.EmployeeId)
-                .IsUnicode(false);
+            // Cấu hình các thực thể khác
+           
+            // Cấu hình mối quan hệ và khóa ngoại của Identity
+            modelBuilder.Entity<IdentityUserRole<string>>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
 
-            modelBuilder.Entity<Bill>()
-                .Property(e => e.BookingId)
-                .IsUnicode(false);
+            modelBuilder.Entity<IdentityUserRole<string>>()
+                .HasOne<IdentityUser<string>>()
+                .WithMany()
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Bill>()
-                .Property(e => e.TotalAmount)
-                .HasPrecision(12, 2);
+            modelBuilder.Entity<IdentityUserRole<string>>()
+                .HasOne<IdentityRole<string>>()
+                .WithMany()
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Cấu hình cho bảng BillDetail
-            modelBuilder.Entity<BillDetail>()
-                .Property(e => e.BillId)
-                .IsUnicode(false);
+          
+            modelBuilder.Entity<IdentityUserClaim<string>>()
+                .HasOne<IdentityUser<string>>()
+                .WithMany()
+                .HasForeignKey(uc => uc.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<BillDetail>()
-                .Property(e => e.ServiceId)
-                .IsUnicode(false);
+          
+            modelBuilder.Entity<IdentityUserLogin<string>>()
+                .HasOne<IdentityUser<string>>()
+                .WithMany()
+                .HasForeignKey(ul => ul.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Khóa chính kết hợp cho bảng BillDetail
-            modelBuilder.Entity<BillDetail>()
-                .HasKey(b => new { b.BillId, b.ServiceId });
+            modelBuilder.Entity<IdentityUserToken<string>>()
+                .HasOne<IdentityUser<string>>()
+                .WithMany()
+                .HasForeignKey(ut => ut.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Cấu hình cho bảng Booking
+            // Cấu hình các thực thể khác
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Customer)
+                .WithMany(c => c.Users)
+                .HasForeignKey(u => u.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Employee)
+                .WithMany(e => e.Users)
+                .HasForeignKey(u => u.EmployeeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Booking>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .HasOne(b => b.Customer)
+                .WithMany(c => c.Bookings)
+                .HasForeignKey(b => b.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Booking>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
+                .HasOne(b => b.Employee)
+                .WithMany(e => e.Bookings)
+                .HasForeignKey(b => b.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Booking>()
-                .Property(e => e.EmployeeId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Booking>()
-                .Property(e => e.CustomerId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Booking>()
-                .Property(e => e.RoomTypeDetailId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Booking>()
-                .Property(e => e.TotalAmount)
-                .HasPrecision(12, 2);
-
-            // Cấu hình cho bảng BookingDetail
-            modelBuilder.Entity<BookingDetail>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .HasOne(b => b.RoomTypeDetail)
+                .WithMany(r => r.Bookings)
+                .HasForeignKey(b => b.RoomTypeDetailId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BookingDetail>()
-                .Property(e => e.BookingId)
-                .IsUnicode(false);
+                .HasKey(bd => new { bd.BookingId, bd.RoomId });
 
             modelBuilder.Entity<BookingDetail>()
-                .Property(e => e.RoomId)
-                .IsUnicode(false);
+                .HasOne(bd => bd.Booking)
+                .WithMany(b => b.BookingDetails)
+                .HasForeignKey(bd => bd.BookingId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BookingDetail>()
-                .Property(e => e.Price)
-                .HasPrecision(12, 2);
-
-            // Khóa chính kết hợp cho bảng BookingDetail
-            modelBuilder.Entity<BookingDetail>()
-                .HasKey(b => new { b.BookingId, b.RoomId });
-
-            // Cấu hình khóa ngoại BookingDetail - Room
-            modelBuilder.Entity<BookingDetail>()
-                .HasOne(b => b.Room)
+                .HasOne(bd => bd.Room)
                 .WithMany(r => r.BookingDetails)
-                .HasForeignKey(b => b.RoomId)
-                .OnDelete(DeleteBehavior.Restrict); // Tránh sử dụng cascade delete để tránh xung đột
+                .HasForeignKey(bd => bd.RoomId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Cấu hình khóa ngoại BookingDetail - Booking
-            modelBuilder.Entity<BookingDetail>()
-                .HasOne(b => b.Booking)
-                .WithMany(bk => bk.BookingDetails)
-                .HasForeignKey(b => b.BookingId)
-                .OnDelete(DeleteBehavior.Cascade); // Chỉ dùng cascade delete với một khóa ngoại
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasKey(cv => new { cv.CustomerId, cv.VoucherId });
 
-            // Cấu hình cho bảng Customer
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasOne(cv => cv.Customer)
+                .WithMany(c => c.CustomerVouchers)
+                .HasForeignKey(cv => cv.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasOne(cv => cv.Voucher)
+                .WithMany(v => v.CustomerVouchers)
+                .HasForeignKey(cv => cv.VoucherId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.Phone)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.Email)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Customer>()
-                .HasMany(e => e.CustomerVouchers)
-                .WithOne(e => e.Customer)
+            modelBuilder.Entity<Evaluation>()
+                .HasOne(e => e.Customer)
+                .WithMany(c => c.Evaluations)
                 .HasForeignKey(e => e.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Customer>()
-                .HasMany(e => e.Favorites)
-                .WithOne(e => e.Customer)
+            modelBuilder.Entity<Evaluation>()
+                .HasOne(e => e.RoomTypeDetail)
+                .WithMany(r => r.Evaluations)
                 .HasForeignKey(e => e.RoomTypeDetailId)
-                .IsRequired(false);
-
-            // Cấu hình cho bảng CustomerVoucher
-            modelBuilder.Entity<CustomerVoucher>()
-                .Property(e => e.CustomerId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<CustomerVoucher>()
-                .Property(e => e.VoucherId)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng Employee
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.IdentityCard)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.Phone)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Employee>()
-                .Property(e => e.Email)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng Evaluation
-            modelBuilder.Entity<Evaluation>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Evaluation>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Evaluation>()
-                .Property(e => e.CustomerId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Evaluation>()
-                .Property(e => e.RoomTypeDetailId)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng Favorite
-            modelBuilder.Entity<Favorite>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Favorite>()
-                .Property(e => e.RoomTypeDetailId)
-                .IsUnicode(false);
+                .HasOne(f => f.Customer)
+                .WithMany(c => c.Favorites)
+                .HasForeignKey(f => f.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Favorite>()
-                .Property(e => e.CustomerId)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng Floor
-            modelBuilder.Entity<Floor>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng PriceAdjustmentPlan
-            modelBuilder.Entity<PriceAdjustmentPlan>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<PriceAdjustmentPlan>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<PriceAdjustmentPlan>()
-                .Property(e => e.AdjustmentValue)
-                .HasPrecision(12, 2);
-
-            // Cấu hình cho bảng Room
-            modelBuilder.Entity<Room>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .HasOne(f => f.RoomTypeDetail)
+                .WithMany(r => r.Favorites)
+                .HasForeignKey(f => f.RoomTypeDetailId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Room>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
+                .HasOne(r => r.Floor)
+                .WithMany(f => f.Rooms)
+                .HasForeignKey(r => r.FloorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Room>()
-                .Property(e => e.FloorId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Room>()
-                .Property(e => e.RoomTypeDetailId)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng RoomCategory
-            modelBuilder.Entity<RoomCategory>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<RoomCategory>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng RoomPrice
-            modelBuilder.Entity<RoomPrice>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .HasOne(r => r.RoomTypeDetail)
+                .WithMany(rtd => rtd.Rooms)
+                .HasForeignKey(r => r.RoomTypeDetailId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoomPrice>()
-                .Property(e => e.RoomTypeDetailId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<RoomPrice>()
-                .Property(e => e.BasePrice)
-                .HasPrecision(12, 2);
-
-            // Cấu hình cho bảng RoomPriceAdjustment
-            modelBuilder.Entity<RoomPriceAdjustment>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .HasOne(rp => rp.RoomTypeDetail)
+                .WithMany(rtd => rtd.RoomPrices)
+                .HasForeignKey(rp => rp.RoomTypeDetailId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoomPriceAdjustment>()
-                .Property(e => e.RoomPriceId)
-                .IsUnicode(false);
+                .HasOne(rpa => rpa.RoomPrice)
+                .WithMany(rp => rp.RoomPriceAdjustments)
+                .HasForeignKey(rpa => rpa.RoomPriceId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoomPriceAdjustment>()
-                .Property(e => e.PriceAdjustmentPlanId)
-                .IsUnicode(false);
-
-            // Cấu hình cho bảng RoomTypeDetail
-            modelBuilder.Entity<RoomTypeDetail>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+                .HasOne(rpa => rpa.PriceAdjustmentPlan)
+                .WithMany(pap => pap.RoomPriceAdjustments)
+                .HasForeignKey(rpa => rpa.PriceAdjustmentPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoomTypeDetail>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
+                .HasOne(rtd => rtd.RoomCategory)
+                .WithMany(rc => rc.RoomTypeDetails)
+                .HasForeignKey(rtd => rtd.RoomCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<RoomTypeDetail>()
-                .Property(e => e.RoomCategoryId)
-                .IsUnicode(false);
+            modelBuilder.Entity<ServiceBooking>()
+                .HasKey(sb => new { sb.ServiceID, sb.BookingID });
 
-            modelBuilder.Entity<RoomTypeDetail>()
-                .Property(e => e.Area)
-                .HasPrecision(12, 2);
+            modelBuilder.Entity<ServiceBooking>()
+                .HasOne(sb => sb.Booking)
+                .WithMany(b => b.ServiceBookings)
+                .HasForeignKey(sb => sb.BookingID)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Cấu hình cho bảng Service
-            modelBuilder.Entity<Service>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+            modelBuilder.Entity<ServiceBooking>()
+                .HasOne(sb => sb.Service)
+                .WithMany(s => s.ServiceBookings)
+                .HasForeignKey(sb => sb.ServiceID)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Service>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
+            modelBuilder.Entity<FacilitiesRoom>()
+                .HasKey(fr => new { fr.FacilitiesID, fr.RoomID });
 
-            modelBuilder.Entity<Service>()
-                .Property(e => e.Price)
-                .HasPrecision(12, 2);
+            modelBuilder.Entity<FacilitiesRoom>()
+                .HasOne(fr => fr.Facilities)
+                .WithMany(f => f.FacilitiesRooms)
+                .HasForeignKey(fr => fr.FacilitiesID)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Service>()
-                .Property(e => e.Image)
-                .IsUnicode(false);
+            modelBuilder.Entity<FacilitiesRoom>()
+                .HasOne(fr => fr.Room)
+                .WithMany(r => r.FacilitiesRooms)
+                .HasForeignKey(fr => fr.RoomID)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Cấu hình cho bảng User
-            modelBuilder.Entity<User>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
+            modelBuilder.Entity<RoomView>()
+               .HasKey(ur => new { ur.RoomId, ur.ViewHotelId });
 
-            modelBuilder.Entity<User>()
-                .Property(e => e.EmployeeId)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<User>()
-                .Property(e => e.CustomerId)
-                .IsUnicode(false);
-            modelBuilder.Entity<User>()
-               .Property(u => u.Image)
-               .IsRequired(false); 
-            // Cấu hình cho bảng Voucher
-            modelBuilder.Entity<Voucher>()
-                .Property(e => e.Id)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Voucher>()
-                .Property(e => e.InternalCode)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Voucher>()
-                .Property(e => e.Code)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Voucher>()
-                .Property(e => e.DiscountAmount)
-                .HasPrecision(12, 2);
-
-            // Cấu hình khóa chính cho IdentityUserLogin
-            modelBuilder.Entity<IdentityUserLogin<string>>()
-                .HasKey(l => new { l.LoginProvider, l.ProviderKey });
-
-            // Cấu hình khóa chính cho IdentityUserRole
-            modelBuilder.Entity<IdentityUserRole<string>>()
-                .HasKey(r => new { r.UserId, r.RoleId });
-
-            // Cấu hình khóa chính cho IdentityUserToken
-            modelBuilder.Entity<IdentityUserToken<string>>()
-                .HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
-
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<RoomView>()
+              .HasKey(ur => new { ur.RoomId, ur.ViewHotelId });
         }
-
     }
 }

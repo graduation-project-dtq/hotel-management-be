@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Castle.Core.Logging;
+using Hotel.Contract.Repositories.Entity;
+using Hotel.Contract.Services.IService;
+using Hotel.Core.App;
+using Hotel.ModelViews.AccountModelView;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
-using Hotel.Contract.Repositories.Entity;
-using Hotel.Core.App;
-using Hotel.ModelViews.AccountModelView;
-using Hotel.Contract.Services.IService;
+using System.Threading.Tasks;
 
 namespace Hotel.Services.Service
 {
@@ -17,132 +20,107 @@ namespace Hotel.Services.Service
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
-
-        public AccountService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        private readonly ILogger<AccountService> _logger;
+        public AccountService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,ILogger<AccountService> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _logger = logger;
         }
 
-        public async Task<string> SignInAsync(SignInViewModel signInViewModel)
+        public async Task<IdentityResult> SignUp(SignUpModelView model)
         {
-            var user = await _userManager.FindByNameAsync(signInViewModel.UserName);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, signInViewModel.Password))
-            {
-                return null;
-            }
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var authClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-
-            authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-            var token = CreateToken(authClaims);
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            await SaveTokenAsync(user, tokenString);
-
-            return tokenString;
-        }
-
-
-        public async Task<IdentityResult> SignUpAsync(SignUpViewModel signUpViewModel)
-        {
-            var user = new User
-            {
-                UserName = signUpViewModel.Email,
-                Email = signUpViewModel.Email,
-                Fullname = signUpViewModel.FullName
-            };
-
-            var result = await _userManager.CreateAsync(user, signUpViewModel.Password);
-
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, AppRole.DefaultRole);
-            }
-
-            return result;
-        }
-
-        public async Task SaveTokenAsync(User user, string token)
-        {
-            var result = await _userManager.SetAuthenticationTokenAsync(user, "JWT", "AccessToken", token);
-            if (!result.Succeeded)
-            {
-                // Log or handle failure
-                throw new Exception("Failed to save authentication token.");
-            }
-        }
-
-
-        public async Task<string> GetTokenAsync(User user)
-        {
-            return await _userManager.GetAuthenticationTokenAsync(user, "JWT", "AccessToken");
-        }
-
-        public async Task<bool> ValidateTokenAsync(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                return false;
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]);
-
-
             try
             {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                var user = new User
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = _configuration["JWT:ValidIssuer"],
-                    ValidateAudience = true,
-                    ValidAudience = _configuration["JWT:ValidAudience"],
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    IsActive = true
+                };
 
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public async Task InitializeRolesAsync()
-        {
-            string[] roleNames = { AppRole.Administrator, AppRole.Customer, AppRole.DefaultRole };
-
-            foreach (var roleName in roleNames)
-            {
-                var roleExist = await _roleManager.RoleExistsAsync(roleName);
-                if (!roleExist)
+                // Tạo người dùng
+                var result = await _userManager.CreateAsync(user, model.Password);
+                
+                if (result.Succeeded)
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(roleName));
+                    // Kiểm tra và tạo vai trò nếu chưa tồn tại
+                    if (!await _roleManager.RoleExistsAsync(AppRole.Customer))
+                    {
+                        var roleResult = await _roleManager.CreateAsync(new IdentityRole(AppRole.Customer));
+                        if (!roleResult.Succeeded)
+                        {
+                            // Log lỗi khi tạo vai trò không thành công
+                            _logger.LogError("Failed to create role: {Errors}", string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+                            return IdentityResult.Failed(new IdentityError { Description = "An error occurred while creating the role." });
+                        }
+                    }
+
+                    // Thêm vai trò cho người dùng
+                    var addRoleResult = await _userManager.AddToRoleAsync(user, AppRole.Customer);
+                    if (!addRoleResult.Succeeded)
+                    {
+                        // Log lỗi khi thêm vai trò không thành công
+                        _logger.LogError("Failed to add role to user: {Errors}", string.Join(", ", addRoleResult.Errors.Select(e => e.Description)));
+                        return IdentityResult.Failed(new IdentityError { Description = "An error occurred while assigning the role." });
+                    }
                 }
+                else
+                {
+                    // Log lỗi khi tạo người dùng không thành công
+                    _logger.LogError("Failed to create user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi chung
+                _logger.LogError(ex, "An error occurred while signing up a new user.");
+                return IdentityResult.Failed(new IdentityError { Description = "An error occurred while processing your request." });
             }
         }
 
-        private JwtSecurityToken CreateToken(List<Claim> authClaims)
-        {
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
-            return new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.UtcNow.AddHours(7),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha512Signature)
-            );
+        public async Task<string> SignIn(SignInModelView model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.UserName);
+
+            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                // Lấy danh sách các vai trò của người dùng
+                var roles = await _userManager.GetRolesAsync(user);
+
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email)
+                };
+
+                // Thêm các vai trò vào claims
+                foreach (var role in roles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(authClaims),
+                    Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JWT:TokenExpirationInMinutes"])),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                    Issuer = _configuration["JWT:ValidIssuer"],
+                    Audience = _configuration["JWT:ValidAudience"]
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                return tokenHandler.WriteToken(token);
+            }
+
+            return null;
         }
     }
 }

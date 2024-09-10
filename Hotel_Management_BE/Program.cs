@@ -44,7 +44,6 @@ builder.Services.AddSwaggerGen(c => {
 });
 
 // Cấu hình AutoMapper
-//builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Thêm các dịch vụ mặc định
@@ -60,16 +59,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.Use(async (context, next) =>
+using (var scope = app.Services.CreateScope())
 {
-    Console.WriteLine($"Request path: {context.Request.Path}");
-    Console.WriteLine($"User authenticated: {context.User.Identity.IsAuthenticated}");
-    if (context.User.Identity.IsAuthenticated)
-    {
-        Console.WriteLine($"User roles: {string.Join(", ", context.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}");
-    }
-    await next();
-});
+    var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await DbInitializer.InitializeAsync(context, userManager, roleManager);
+}
 
 // Cấu hình các middleware
 app.UseHttpsRedirection();
