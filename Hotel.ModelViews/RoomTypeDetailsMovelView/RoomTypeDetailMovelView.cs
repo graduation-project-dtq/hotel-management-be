@@ -9,7 +9,7 @@ namespace Hotel.ModelViews.RoomTypeDetailsMovelView
 {
     public class RoomTypeDetailMovelView
     {
-        public string Id {  get; set; }
+        public string InternalCode {  get; set; }
         public string RoomCategoryId { get; set; }
         public string Name { get; set; }
         public int CapacityMax { get; set; }

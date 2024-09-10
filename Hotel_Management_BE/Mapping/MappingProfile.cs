@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hotel.Contract.Repositories.Entity;
+using Hotel.ModelViews.RoomCategoryModelView;
 using Hotel.ModelViews.RoomModelView;
 using Hotel.ModelViews.RoomTypeDetailsMovelView;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -16,6 +17,10 @@ namespace Hotel_API.Mapping
             // Mapping  RoomTypeDetail to RoomTypeDetailModelView
             CreateMap<RoomTypeDetail, RoomTypeDetailMovelView>();
             CreateMap<RoomTypeDetailMovelView, RoomTypeDetail>();
+
+            //Mapping RoomCategory to RoomCategoryModelView
+            CreateMap<RoomCategoryModelView, RoomCategory>();
+            CreateMap<RoomCategory, RoomCategoryModelView>();
 
         }
        

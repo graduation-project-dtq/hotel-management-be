@@ -44,7 +44,8 @@ builder.Services.AddSwaggerGen(c => {
 });
 
 // Cấu hình AutoMapper
-builder.Services.AddAutoMapper(typeof(Program));
+//builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Thêm các dịch vụ mặc định
 builder.Services.AddControllers();

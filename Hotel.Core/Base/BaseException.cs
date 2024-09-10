@@ -65,5 +65,12 @@ namespace Hotel.Core.Base
 
             public object? ErrorMessage { get; set; }
         }
+        public class DuplicateInternalCodeException : ErrorException
+        {
+            public DuplicateInternalCodeException(string message)
+                : base(409, "duplicate_internal_code", message) // HTTP Status Code 409 Conflict
+            {
+            }
+        }
     }
 }

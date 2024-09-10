@@ -12,5 +12,6 @@ namespace Hotel.Contract.Services.IService
         Task<IList<RoomTypeDetail>> GetAll();
         Task<IList<RoomTypeDetail>> GetAllActive();
         Task<RoomTypeDetail?> GetById(object id);
+        Task Add(RoomTypeDetail roomTypeDetail);
     }
 }
