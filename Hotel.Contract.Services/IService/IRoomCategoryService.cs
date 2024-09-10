@@ -6,6 +6,7 @@ namespace Hotel.Contract.Services.IService
     public interface IRoomCategoryService
     {
         Task<IList<RoomCategory>> GetAll();
+        Task<IList<RoomCategory>> GetAllActive();
         Task<RoomCategory?> GetById(object id);
         Task Add(RoomCategory roomCategory);
         Task Update(RoomCategory roomCategory);

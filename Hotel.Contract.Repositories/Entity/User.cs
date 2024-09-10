@@ -23,6 +23,7 @@ namespace Hotel.Contract.Repositories.Entity
         [StringLength(50)]
         public override string Id { get; set; }
 
+   
 
         [StringLength(50)]
         public string? EmployeeId { get; set; }
@@ -33,9 +34,9 @@ namespace Hotel.Contract.Repositories.Entity
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }
         public string? DeletedBy { get; set; }
-        public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset UpdatedAt { get; set; }
-        public DateTimeOffset DeletedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset DeletedAt { get; set; } = DateTimeOffset.Now;
 
         public virtual Customer Customer { get; set; }
 

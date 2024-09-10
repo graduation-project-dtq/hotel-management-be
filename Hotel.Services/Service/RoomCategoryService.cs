@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hotel.Services.Service
 {
-    public class RoomCategoryService:IRoomCategoryService
+    public class RoomCategoryService : IRoomCategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
         public RoomCategoryService(IUnitOfWork unitOfWork)
@@ -35,7 +35,12 @@ namespace Hotel.Services.Service
         {
             return _unitOfWork.GetGenericRepository<RoomCategory>().GetAllAsync();
         }
-
+        //Get all RoomTypeDetails 
+        public Task<IList<RoomCategory>> GetAllActive()
+        {
+            return _unitOfWork.GetGenericRepository<RoomCategory>()
+                              .GetWhereAsync(r => r.DeletedTime == null);
+        }
         public Task<RoomCategory?> GetById(object id)
         {
             return _unitOfWork.GetGenericRepository<RoomCategory>().GetByIdAsync(id);
