@@ -23,6 +23,8 @@ namespace Hotel.Contract.Repositories.IUOW
 
         // async
         Task<IList<T>> GetAllAsync();
+        Task<IList<T>> GetWhereAsync(Func<T, bool> predicate);
+
         Task<BasePaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);
         Task<T?> GetByIdAsync(object id);
         Task InsertAsync(T obj);

@@ -1,16 +1,16 @@
 ﻿using Hotel.Repositories.Context;
-using Microsoft.EntityFrameworkCore;
 using Hotel.Services;
 using Hotel.Services.Service;
 using Hotel.Contract.Services.IService;
-using Hotel.Contract.Repositories.Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Hotel.Contract.Repositories.IUOW;
 using Hotel.Repositories.UOW;
 using Hotel.Core.App;
+using Hotel.Contract.Repositories.Entity;
 
 namespace Hotel_API
 {
@@ -23,8 +23,6 @@ namespace Hotel_API
             services.AddIdentity();
             services.AddServices();
             services.AddModifiedAuthentication(configuration);
-         
-
         }
 
         public static void ConfigRoute(this IServiceCollection services)
@@ -48,7 +46,7 @@ namespace Hotel_API
         {
             services.AddIdentity<User, IdentityRole>(options =>
             {
-                // Cấu hình tùy chọn Identity nếu cần
+                // Cấu hình tùy chọn Identity
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
@@ -65,6 +63,7 @@ namespace Hotel_API
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             })
             .AddEntityFrameworkStores<DatabaseContext>()
+            .AddRoleManager<RoleManager<IdentityRole>>()  // Đăng ký RoleManager
             .AddDefaultTokenProviders();
         }
 
@@ -73,26 +72,27 @@ namespace Hotel_API
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoomCategoryService, RoomCategoryService>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            services.AddScoped<IRoomTypeDetailService, RoomTypeDetailService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         public static void AddModifiedAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-          .AddJwtBearer(options =>
-          {
-              options.TokenValidationParameters = new TokenValidationParameters
-              {
-                  ValidateIssuer = true,
-                  ValidateAudience = true,
-                  ValidateLifetime = true,
-                  ValidateIssuerSigningKey = true,
-                  ValidIssuer = configuration["JWT:ValidIssuer"],
-                  ValidAudience = configuration["JWT:ValidAudience"],
-                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
-              };
-          });
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["JWT:ValidIssuer"],
+                    ValidAudience = configuration["JWT:ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+                };
+            });
 
             services.AddAuthorization(options =>
             {
@@ -101,7 +101,5 @@ namespace Hotel_API
                 options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole(AppRole.Customer));
             });
         }
-      
-
     }
 }

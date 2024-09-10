@@ -1,5 +1,4 @@
-﻿
-using Hotel.Contract.Services.IService;
+﻿using Hotel.Contract.Services.IService;
 using Hotel.ModelViews.AccountModelView;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,33 +9,46 @@ namespace Hotel_API.Controllers
     public class AuthenticateController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly IConfiguration _configuration;
-        public AuthenticateController(IAccountService accountService, IConfiguration configuration)
+
+        public AuthenticateController(IAccountService accountService)
         {
             _accountService = accountService;
-            _configuration = configuration;
         }
+
         [HttpPost("SignIn")]
-        public async Task<IActionResult> SignIn(SignInViewModel signInViewModel)
+        public async Task<IActionResult> SignIn([FromBody] SignInViewModel signInViewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message = "Invalid data", Errors = ModelState });
+            }
+
             var result = await _accountService.SignInAsync(signInViewModel);
+
             if (string.IsNullOrEmpty(result))
             {
-                return Unauthorized();
+                return Unauthorized(new { Message = "Invalid username or password" });
             }
-            return Ok(result);
+
+            return Ok(new { Value = result });
         }
 
         [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp(SignUpViewModel signUpViewModel)
+        public async Task<IActionResult> SignUp([FromBody] SignUpViewModel signUpViewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message = "Invalid data", Errors = ModelState });
+            }
+
             var result = await _accountService.SignUpAsync(signUpViewModel);
+
             if (result.Succeeded)
             {
-                return Ok(result.Succeeded);
+                return Ok(new { Message = "User registered successfully" });
             }
-            return BadRequest(result.Errors);
-        }
 
+            return BadRequest(new { Message = "Registration failed", Errors = result.Errors.Select(e => e.Description) });
+        }
     }
 }

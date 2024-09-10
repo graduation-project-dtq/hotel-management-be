@@ -65,6 +65,10 @@ namespace Hotel.Repositories.UOW
         {
             return await _dbSet.ToListAsync();
         }
+        public async Task<IList<T>> GetWhereAsync(Func<T, bool> predicate)
+        {
+            return await Task.FromResult(_dbSet.Where(predicate).ToList());
+        }
 
         public async Task<T?> GetByIdAsync(object id)
         {

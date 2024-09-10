@@ -3,48 +3,69 @@ using Hotel.Contract.Repositories.Entity;
 using Hotel.Contract.Services.IService;
 using Hotel.Core.App;
 using Hotel.ModelViews.RoomModelView;
-using Hotel.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hotel_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-  
+ 
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
-        public RoomController(IRoomService roomService, IMapper mapper)
+        private readonly ILogger<RoomController> _logger;
+
+        public RoomController(IRoomService roomService, IMapper mapper, ILogger<RoomController> logger)
         {
-            _roomService = roomService;
-            _mapper = mapper;
+            _roomService = roomService ?? throw new ArgumentNullException(nameof(roomService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         [HttpGet]
-        public async Task<IActionResult> GetAllRoom()
-        {
-            IList<Room> rooms = await _roomService.GetAll();
-            return Ok(rooms);
-        }
-        [HttpPost]
-        public async Task<IActionResult> AddRoom(RoomModelView room)
+        public async Task<IActionResult> GetAllRooms()
         {
             try
             {
-                // Map từ RoomCreateModelView sang Room
-                var roomEntity = _mapper.Map<Room>(room);
-
-                await _roomService.Add(roomEntity);
-                IList<Room> categories = await _roomService.GetAll();
-                return Ok(categories);
+                _logger.LogInformation("GetAllRooms method called");
+                IList<Room> rooms = await _roomService.GetAll();
+                return Ok(rooms);
             }
             catch (Exception ex)
             {
-                throw ex;
+                _logger.LogError(ex, "Error occurred in GetAllRooms");
+                return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
+        [HttpPost]
+     
+        public async Task<IActionResult> AddRoom([FromBody] RoomModelView roomModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var roomEntity = _mapper.Map<Room>(roomModel);
+                await _roomService.Add(roomEntity);
+                return CreatedAtAction(nameof(GetAllRooms), new { id = roomEntity.Id }, roomEntity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in AddRoom");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        // Thêm các action methods khác nếu cần
     }
 }
