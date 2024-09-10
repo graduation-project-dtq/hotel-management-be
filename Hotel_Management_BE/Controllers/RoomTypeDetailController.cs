@@ -5,6 +5,9 @@ using Hotel.ModelViews.RoomTypeDetailsMovelView;
 using Hotel.Services.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using static Hotel.Core.Base.BaseException;
 
 namespace Hotel_API.Controllers
 {
@@ -54,6 +57,42 @@ namespace Hotel_API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in GetAllRoomTypeDetail");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Add([FromBody] RoomTypeDetailMovelView roomTypeDetailMovel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var roomTypeDetail = _mapper.Map<RoomTypeDetail>(roomTypeDetailMovel);
+                await _roomTypeDetailService.Add(roomTypeDetail);
+
+                // Trả về mã trạng thái 201 Created cùng với thông tin về mục mới được tạo
+                return CreatedAtAction(nameof(GetAllActivate), new { id = roomTypeDetail.Id }, roomTypeDetail);
+            }
+            catch (DuplicateInternalCodeException ex)
+            {
+                _logger.LogWarning(ex, "RoomTypeDetail with the same InternalCode already exists.");
+                return Conflict(new { message = ex.Message }); // Trả về mã lỗi 409 Conflict
+            }
+            catch (ForeignKeyViolationException ex)
+            {
+                _logger.LogWarning(ex, "Foreign key violation occurred.");
+                return BadRequest(new { message = ex.Message }); // Trả về mã lỗi 400 Bad Request
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
+            {
+                _logger.LogError(sqlEx, "Database update error occurred.");
+                return StatusCode(500, "Database update error occurred.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in AddRoomTypeDetail");
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }

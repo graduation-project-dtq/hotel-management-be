@@ -31,5 +31,6 @@ namespace Hotel.Contract.Repositories.IUOW
         Task UpdateAsync(T obj);
         Task DeleteAsync(object id);
         Task SaveAsync();
+        Task<bool> ExistsAsync(Func<T, bool> predicate);
     }
 }

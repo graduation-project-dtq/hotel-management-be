@@ -74,6 +74,10 @@ namespace Hotel.Repositories.UOW
         {
             return await _dbSet.FindAsync(id);
         }
+        public async Task<bool> ExistsAsync(Func<T, bool> predicate)
+        {
+            return await Task.FromResult(_dbSet.Any(predicate));
+        }
 
         public async Task InsertAsync(T obj)
         {
