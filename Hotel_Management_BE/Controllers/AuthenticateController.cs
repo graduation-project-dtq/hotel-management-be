@@ -23,41 +23,25 @@ namespace Hotel_API.Controllers
             _accountService = accountService;
             _logger= logger;
         }
-        [HttpPost("signin")]
-        public async Task<IActionResult> SignIn([FromBody] SignInModelView model)
+        [HttpPost("SignIn")]
+        public async Task<IActionResult> SignIn(SignInModelView signInViewModel)
         {
-            var token = await _accountService.SignIn(model);
-
-            if (token != null)
+            var result = await _accountService.SignInAsync(signInViewModel);
+            if (string.IsNullOrEmpty(result))
             {
-                return Ok(new { Token = token });
+                return Unauthorized();
             }
-
-            return Unauthorized("Invalid username or password");
+            return Ok(result);
         }
 
-        [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] SignUpModelView model)
+        [HttpPost("SignUp")]
+        public async Task<IActionResult> SignUp(SignUpModelView signUpViewModel)
         {
-            if (model == null)
-            {
-                return BadRequest(new { message = "Invalid request payload" });
-            }
-
-            // Kiểm tra xem email có hợp lệ không
-            var emailValidationResult = new EmailAddressAttribute().IsValid(model.Email);
-            if (!emailValidationResult)
-            {
-                return BadRequest(new { code = "InvalidEmail", description = "Email is invalid." });
-            }
-
-            var result = await _accountService.SignUp(model);
-
+            var result = await _accountService.SignUpAsync(signUpViewModel);
             if (result.Succeeded)
             {
-                return Ok(new { message = "User registered successfully" });
+                return Ok(result.Succeeded);
             }
-
             return BadRequest(result.Errors);
         }
 
