@@ -11,8 +11,17 @@ namespace Hotel.Repositories.Context
     {
         public static async Task InitializeAsync(DatabaseContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            // Tạo các vai trò nếu chưa tồn tại
+            // Tạo các vai trò mặc định
+            await CreateRolesAsync(roleManager);
+
+            // Tạo người dùng mặc định
+            await CreateDefaultUserAsync(userManager, roleManager);
+        }
+
+        private static async Task CreateRolesAsync(RoleManager<IdentityRole> roleManager)
+        {
             var roles = new[] { AppRole.Administrator, AppRole.Customer, AppRole.DefaultRole };
+
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -24,10 +33,13 @@ namespace Hotel.Repositories.Context
                     }
                 }
             }
+        }
 
-            // Tạo một người dùng mặc định nếu chưa tồn tại
+        private static async Task CreateDefaultUserAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        {
             var defaultUserEmail = "admin@admin.com";
             var defaultUser = await userManager.FindByEmailAsync(defaultUserEmail);
+
             if (defaultUser == null)
             {
                 defaultUser = new User
@@ -41,23 +53,28 @@ namespace Hotel.Repositories.Context
                 var userResult = await userManager.CreateAsync(defaultUser, "Admin123@");
                 if (userResult.Succeeded)
                 {
-                    // Chỉ thêm vai trò cho người dùng khi vai trò đã được tạo thành công
-                    foreach (var role in roles)
-                    {
-                        if (await roleManager.RoleExistsAsync(role) && !await userManager.IsInRoleAsync(defaultUser, role))
-                        {
-                            var roleAddResult = await userManager.AddToRoleAsync(defaultUser, role);
-                            if (!roleAddResult.Succeeded)
-                            {
-                                Console.WriteLine($"Error adding role {role} to user {defaultUserEmail}: {string.Join(", ", roleAddResult.Errors.Select(e => e.Description))}");
-                            }
-                        }
-                    }
+                    await AddUserToRolesAsync(userManager, roleManager, defaultUser);
                 }
                 else
                 {
-                    // Xử lý lỗi nếu người dùng không được tạo thành công
                     Console.WriteLine($"Error creating user {defaultUserEmail}: {string.Join(", ", userResult.Errors.Select(e => e.Description))}");
+                }
+            }
+        }
+
+        private static async Task AddUserToRolesAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, User defaultUser)
+        {
+            var roles = new[] { AppRole.Administrator, AppRole.Customer, AppRole.DefaultRole };
+
+            foreach (var role in roles)
+            {
+                if (await roleManager.RoleExistsAsync(role) && !await userManager.IsInRoleAsync(defaultUser, role))
+                {
+                    var roleAddResult = await userManager.AddToRoleAsync(defaultUser, role);
+                    if (!roleAddResult.Succeeded)
+                    {
+                        Console.WriteLine($"Error adding role {role} to user {defaultUser.Email}: {string.Join(", ", roleAddResult.Errors.Select(e => e.Description))}");
+                    }
                 }
             }
         }
