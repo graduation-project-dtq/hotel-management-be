@@ -1,5 +1,5 @@
-﻿using Hotel.Core.Store;
-using Hotel.Core.Utils;
+﻿using Hotel.Core.Constants;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,38 +11,56 @@ namespace Hotel.Core.Base
     public class BaseResponse<T>
     {
         public T? Data { get; set; }
+        public object? AdditionalData { get; set; }
         public string? Message { get; set; }
-        public StatusCodeHelper StatusCode { get; set; }
-        public string? Code { get; set; }
-        public BaseResponse(StatusCodeHelper statusCode, string code, T? data, string? message)
+        public int StatusCode { get; set; }
+        public string Code { get; set; }
+
+        public BaseResponse(int statusCode, string code, T? data, object? additionalData = null, string? message = null)
         {
-            Data = data;
-            Message = message;
-            StatusCode = statusCode;
-            Code = code;
+            this.StatusCode = statusCode;
+            this.Code = code;
+            this.Data = data;
+            this.AdditionalData = additionalData;
+            this.Message = message;
         }
 
-        public BaseResponse(StatusCodeHelper statusCode, string code, T? data)
+        public BaseResponse(int statusCode, string code, string? message)
         {
-            Data = data;
-            StatusCode = statusCode;
-            Code = code;
+            this.StatusCode = statusCode;
+            this.Code = code;
+            this.Message = message;
         }
 
-        public BaseResponse(StatusCodeHelper statusCode, string code, string? message)
+        public static BaseResponse<T> OkResponseModel(T data, object? additionalData = null, string code = ResponseCodeConstants.SUCCESS)
         {
-            Message = message;
-            StatusCode = statusCode;
-            Code = code;
+            return new BaseResponse<T>(StatusCodes.Status200OK, code, data, additionalData);
         }
 
-        public static BaseResponse<T> OkResponse(T? data)
+        public static BaseResponse<T> NotFoundResponseModel(T? data, object? additionalData = null, string code = ResponseCodeConstants.NOT_FOUND)
         {
-            return new BaseResponse<T>(StatusCodeHelper.OK, StatusCodeHelper.OK.Name(), data);
+            return new BaseResponse<T>(StatusCodes.Status404NotFound, code, data, additionalData);
         }
-        public static BaseResponse<T> OkResponse(string? mess)
+
+        public static BaseResponse<T> BadRequestResponseModel(T? data, object? additionalData = null, string code = ResponseCodeConstants.FAILED)
         {
-            return new BaseResponse<T>(StatusCodeHelper.OK, StatusCodeHelper.OK.Name(), mess);
+            return new BaseResponse<T>(StatusCodes.Status400BadRequest, code, data, additionalData);
+        }
+
+        public static BaseResponse<T> InternalErrorResponseModel(T? data, object? additionalData = null, string code = ResponseCodeConstants.FAILED)
+        {
+            return new BaseResponse<T>(StatusCodes.Status500InternalServerError, code, data, additionalData);
+        }
+    }
+
+    public class BaseResponse : BaseResponse<object>
+    {
+        public BaseResponse(int statusCode, string code, object? data, object? additionalData = null, string? message = null) : base(statusCode, code, data, additionalData, message)
+        {
+        }
+
+        public BaseResponse(int statusCode, string code, string? message) : base(statusCode, code, message)
+        {
         }
     }
 }
