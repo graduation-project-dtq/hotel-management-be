@@ -8,8 +8,8 @@ namespace Hotel.Domain.Entities
 {
     public  class Customer : BaseEntity
     {
-        [ForeignKey("ApplicationUser")]
-        public string ApplicationUserID { get; set; }
+        [ForeignKey("Account")]
+        public string AccountID { get; set; }
         public string Name { get; set; }
         public int? IdentityCard { get; set; }
         public string Sex { get; set; } 
@@ -18,7 +18,8 @@ namespace Hotel.Domain.Entities
         public string Email { get; set; }
         public string Address { get; set; }
         public int? CredibilityScore { get; set; }
+        public virtual Account ? Account {  get; set; }
 
-        public virtual ApplicationUser ? ApplicationUser { get; set; }
+        public virtual ICollection<Booking>? Bookings { get; set; }
     }
 }

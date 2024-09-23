@@ -5,7 +5,7 @@ namespace Hotel.Domain.Interfaces
     {
         IQueryable<T> Entities { get; }
         Task<IList<T>> GetAllAsync();
-        Task<T> GetByIdAsync(int id);
+        Task<T> GetByIdAsync(string id);
         Task InsertAsync(T entity);
         Task DeleteAsync(int id);
         Task UpdateAsync(T entity);

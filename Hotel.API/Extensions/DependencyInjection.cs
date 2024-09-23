@@ -18,7 +18,7 @@ namespace Hotel.API.Extensions
             ConfigureCors(services);
             ConfigureAuthentication(services, configuration);
             AddDatabases(services, configuration);
-            AddIdentity(services); // Thêm Identity vào đây
+         
             AddSwagger(services);
             AddInitialiseDatabase(services);
         }
@@ -108,21 +108,7 @@ namespace Hotel.API.Extensions
         }
 
 
-        // Add Identity
-        public static void AddIdentity(this IServiceCollection services)
-        {
-            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-            {
-                // Cấu hình Identity (tùy chọn)
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-            })
-            .AddEntityFrameworkStores<HotelDBContext>()
-            .AddDefaultTokenProviders();
-        }
+       
 
         // Add Swagger
         public static void AddSwagger(this IServiceCollection services)

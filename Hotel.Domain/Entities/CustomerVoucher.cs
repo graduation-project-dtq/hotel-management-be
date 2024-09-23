@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Hotel.Core.Base;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class CustomerVoucher
+    public class CustomerVoucher : BaseEntity
     {
         [ForeignKey("Customer")]
         public string CustomerId { get; set; }
