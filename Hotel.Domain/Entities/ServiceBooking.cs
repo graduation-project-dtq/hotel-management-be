@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hotel.Core.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hotel.Domain.Entities
 {
-    public class ServiceBooking 
+    public class ServiceBooking : BaseEntity
     {
         [ForeignKey("Booking")]
         public string BookingID { get; set; }

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Hotel.Core.Base;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class Room
+    public class Room : BaseEntity
     {
         [ForeignKey("Floor")]
         public string FloorId { get; set; }

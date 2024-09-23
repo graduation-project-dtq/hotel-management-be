@@ -25,7 +25,8 @@ namespace Hotel.Domain.Entities
         public virtual Customer ? Customer { get; set; }
         public virtual Employee ? Employee { get; set; }
         public virtual RoomTypeDetail ? RoomTypeDetail { get; set; }
-        public virtual ICollection<BookingDetail> BookingDetails { get; set; }
-        public virtual ICollection<ServiceBooking> ServiceBookings { get; set; }
+        public virtual ICollection<BookingDetail> ? BookingDetails { get; set; }
+        public virtual ICollection<ServiceBooking> ? ServiceBookings { get; set; }
+        public virtual ICollection<Punish>  ? Punishes { get; set; }
     }
 }

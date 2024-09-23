@@ -1,10 +1,11 @@
 ﻿
+using Hotel.Core.Base;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class BookingDetail
+    public class BookingDetail : BaseEntity
     {
         [ForeignKey("Booking")]
         public string BookingId { get; set; }

@@ -1,4 +1,7 @@
 using System.Reflection;
+using Hotel.Application.Interfaces;
+using Hotel.Application.Services;
+using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Hotel.Infrastructure.IOW;
 using Hotel.Infrastructure.Repository;
@@ -30,7 +33,20 @@ namespace Hotel.Aplication.Extensions
         public static void AddService(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpContextAccessor();
+            // Đăng ký AuthService
+            services.AddScoped<IAuthService, AuthService>();
 
+            // Đăng ký TokenService (nếu cần)
+            services.AddScoped<ITokenService, TokenService>();
+
+            //Customer
+            services.AddScoped<ICustomerService,CustomerService>();
+
+            //Employee
+            services.AddScoped<IEmployeeService, EmployeeService>();
+            
+            //RoomType
+            services.AddScoped<IRoomTypeService, RoomTypeService>();
         }
 
         //Đăng ký mapper
