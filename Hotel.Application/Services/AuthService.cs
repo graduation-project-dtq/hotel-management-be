@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.Data;
 
 namespace Hotel.Application.Services
@@ -60,53 +61,62 @@ namespace Hotel.Application.Services
            
             await _unitOfWork.GetRepository<Account>().InsertAsync(account);
             await _unitOfWork.SaveChangesAsync();
+            //Add thêm khách hàng vào đây
+            //await AssignRoleSpecificService(account.Id, registerRequestDto);
+        }
 
-            await AssignRoleSpecificService(account.Id, registerRequestDto);
-        }
-      
         //Kiểm tra role và gọi service tương ứng
-        private async Task AssignRoleSpecificService(string accountId, RegisterRequestDto registerRequestDto)
-        {
-            try
-            {
-                string roleName = registerRequestDto.RoleName;
-                if (roleName == string.Empty)
-                {
-                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Role name is required");
-                }
-                switch (roleName)
-                {
-                    case CLAIMS_VALUES.ROLE_TYPE.CUSTOMER:
-                        CreateCustomerDTO createCustomer = new CreateCustomerDTO()
-                        {
-                            AccountId = accountId,
-                            Name = registerRequestDto.Name,
-                            Email = registerRequestDto.Email,
-                            NumberPhone = registerRequestDto.NumberPhone,
-                        };
-                        await _customerService.CreateCustomerAsync(createCustomer);
-                        break;
-                    case CLAIMS_VALUES.ROLE_TYPE.ADMIN:
-                    case CLAIMS_VALUES.ROLE_TYPE.EMPLOYEE:
-                        CreateEmployeeDTO createReviewerDto = new CreateEmployeeDTO()
-                        {
-                            AccountId = accountId,
-                            Name = registerRequestDto.Name,
-                            NumberPhone = registerRequestDto.NumberPhone,
-                        };
-                        await _employeeService.CreateEmployeeAsync(createReviewerDto);
-                        break;
-                   
-                    default:
-                        throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Role name is invalid");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error when assign role specific service");
-                throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "An internal server error occurred. Please try again later.");
-            }
-        }
+        //private async Task AssignRoleSpecificService(string accountId, RegisterRequestDto registerRequestDto)
+        //{
+        //    try
+        //    {
+        //        string roleName = registerRequestDto.RoleName;
+        //        if (string.IsNullOrEmpty(roleName))
+        //        {
+        //            throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Role name is required");
+        //        }
+
+        //        _logger.LogInformation($"Assigning role '{roleName}' for account ID: {accountId}");
+
+        //        switch (roleName)
+        //        {
+        //            case CLAIMS_VALUES.ROLE_TYPE.CUSTOMER:
+        //                CreateCustomerDTO createCustomer = new CreateCustomerDTO()
+        //                {
+        //                    AccountId = accountId,
+        //                    Name = registerRequestDto.Name,
+        //                    Email = registerRequestDto.Email,
+        //                    NumberPhone = registerRequestDto.NumberPhone,
+        //                };
+
+        //                _logger.LogInformation($"Creating customer with details: {JsonConvert.SerializeObject(createCustomer)}");
+        //                await _customerService.CreateCustomerAsync(createCustomer);
+        //                break;
+
+        //            case CLAIMS_VALUES.ROLE_TYPE.ADMIN:
+        //            case CLAIMS_VALUES.ROLE_TYPE.EMPLOYEE:
+        //                CreateEmployeeDTO createEmployee = new CreateEmployeeDTO()
+        //                {
+        //                    AccountId = accountId,
+        //                    Name = registerRequestDto.Name,
+        //                    NumberPhone = registerRequestDto.NumberPhone,
+        //                };
+
+        //                _logger.LogInformation($"Creating employee with details: {JsonConvert.SerializeObject(createEmployee)}");
+        //                await _employeeService.CreateEmployeeAsync(createEmployee);
+        //                break;
+
+        //            default:
+        //                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Role name is invalid");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error when assigning role specific service for account ID: {AccountId}", accountId);
+        //        throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "An internal server error occurred. Please try again later.");
+        //    }
+        //}
+
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequestDto)
         {
             Account account = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == loginRequestDto.Email && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Email or password is incorrect");
