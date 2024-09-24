@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hotel.Application.DTOs.RoomType
+namespace Hotel.Application.DTOs.RoomTypeDTO
 {
-    public class CreateRoomType
+    public class CreateRoomTypeDTO
     {
         [Required]
         public string Name { get; set; }

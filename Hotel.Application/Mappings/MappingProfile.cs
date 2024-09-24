@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Hotel.Application.DTOs.CustomerDTO;
 using Hotel.Application.DTOs.EmployeeDTO;
-using Hotel.Application.DTOs.RoomType;
+using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Domain.Entities;
 
@@ -22,7 +22,7 @@ namespace Hotel.Application.Mappings
 
             //RoomType
 
-            CreateMap<CreateRoomType,RoomType>();
+            CreateMap<CreateRoomTypeDTO,RoomType>();
 
         }
     

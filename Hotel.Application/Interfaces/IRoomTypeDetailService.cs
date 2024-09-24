@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Hotel.Application.DTOs.RoomTypeDTO;
+using Hotel.Domain.Entities;
+
 
 namespace Hotel.Application.Interfaces
 {
     public interface IRoomTypeDetailService
     {
+        Task<List<GetRoomTypeDTO>> GetAllRoomType();
     }
 }
