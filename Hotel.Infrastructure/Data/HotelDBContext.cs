@@ -105,6 +105,18 @@ namespace Hotel.Infrastructure.Data
                   .Property(p => p.Fine)
                   .HasColumnType("decimal(18,2)");
 
+            modelBuilder.Entity<PriceAdjustmentPlan>()
+               .Property(f => f.AdjustmentValue)
+               .HasColumnType("decimal(18, 2)");
+
+            modelBuilder.Entity<RoomTypeDetail>()
+              .Property(f => f.Area)
+              .HasColumnType("decimal(18, 2)");
+
+            modelBuilder.Entity<Voucher>()
+             .Property(f => f.DiscountAmount)
+             .HasColumnType("decimal(18, 2)");
+
             // Định nghĩa cho bảng Booking
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Employee)
