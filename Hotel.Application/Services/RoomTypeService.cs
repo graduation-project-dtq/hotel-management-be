@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
-using Hotel.Application.DTOs.RoomType;
+using Hotel.Application.DTOs.CustomerDTO;
+using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
@@ -23,13 +24,14 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<List<RoomType>> GetAllRoomType()
+        public async Task<List<GetRoomTypeDTO>> GetAllRoomType()
         {
+            List<GetRoomTypeDTO> roomTypes= _mapper.Map<List<GetRoomTypeDTO>>(_unitOfWork.GetRepository<RoomType>()
+                .Entities.Where(r => r.DeletedTime == null).ToList());
             //Get all roomtype 
-            return _unitOfWork.GetRepository<RoomType>()
-                .Entities.Where(r=>r.DeletedTime==null).ToList();
+            return roomTypes;
         }
-        public async Task<RoomType> CreateRoomType(CreateRoomType model)
+        public async Task<RoomType> CreateRoomType(CreateRoomTypeDTO model)
         {
             try
             {
