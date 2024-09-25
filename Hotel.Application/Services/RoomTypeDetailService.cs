@@ -1,12 +1,15 @@
 ﻿
 using AutoMapper;
+using Hotel.Application.DTOs.RoomTypeDetailDTO;
+using Hotel.Application.DTOs.RoomTypeDTO;
+using Hotel.Application.Interfaces;
 using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Hotel.Application.Services
 {
-    public class RoomTypeDetailService
+    public class RoomTypeDetailService : IRoomTypeDetailService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -17,9 +20,11 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _logger = logger;
         }
-        public async Task<List<RoomTypeDetail>> GetAllRoomType()
+        public async Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail()
         {
-            return null;
+            List<GetRoomTypeDetailDTO> roomTypeDetails = _mapper.Map<List<GetRoomTypeDetailDTO>>(_unitOfWork.GetRepository<RoomTypeDetail>()
+              .Entities.Where(r => r.DeletedTime == null).ToList());
+            return roomTypeDetails;
         }
     }
 }

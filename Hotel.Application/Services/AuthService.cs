@@ -58,13 +58,22 @@ namespace Hotel.Application.Services
             account.Password = passwordHasher.HashPassword(account, account.Password);
             account.RoleId = role.Id;
             account.IsActive = true;
-           
+
+            //Add Customer
+            Customer customer = new Customer()
+            {
+                AccountID = account.Id,
+                Name = account.Name,
+                Email = account.Email
+            };
+            await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);
             await _unitOfWork.GetRepository<Account>().InsertAsync(account);
             await _unitOfWork.SaveChangesAsync();
             //Add thêm khách hàng vào đây
             //await AssignRoleSpecificService(account.Id, registerRequestDto);
         }
 
+      
         //Kiểm tra role và gọi service tương ứng
         //private async Task AssignRoleSpecificService(string accountId, RegisterRequestDto registerRequestDto)
         //{

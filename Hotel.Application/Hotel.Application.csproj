@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="DTOs\AuthDTO\" />
+    <Folder Include="DTOs\RoomDTO\" />
   </ItemGroup>
 
 </Project>
