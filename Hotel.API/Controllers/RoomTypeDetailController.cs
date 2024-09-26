@@ -27,7 +27,7 @@ namespace Hotel.API.Controllers
             return Ok(new BaseResponse<string>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
-                data: "Register success "));
+                data: "Get RoomType success "));
         }
     }
 }
