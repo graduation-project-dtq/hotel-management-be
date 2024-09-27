@@ -4,6 +4,8 @@ using Hotel.Application.Services;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
+using Hotel.Domain.Base;
+using Hotel.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,11 +30,15 @@ namespace Hotel.API.Controllers
             var roomTypes = await _roomTypeService.GetAllRoomType();
             return Ok(roomTypes);
         }
-        [HttpGet("All")]
-        public async Task<IActionResult> Get()
-        { 
-            var roomTypes = await _roomTypeService.Get();
-            return Ok(roomTypes);
+        [HttpGet("{id}")]
+        public async Task<IActionResult>GetRoomTypeById(string id)
+        {
+            var roomType = await _roomTypeService.GetRoomTypeById(id);
+            return Ok(new BaseResponseModel<GetRoomTypeDTO>(
+                   statusCode: StatusCodes.Status200OK,
+                   code: ResponseCodeConstants.SUCCESS,
+                   data: roomType
+               ));
         }
         // Tạo RoomType mới
         [HttpPost]

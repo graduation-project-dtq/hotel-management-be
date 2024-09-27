@@ -7,9 +7,9 @@ namespace Hotel.Application.Interfaces
 {
     public interface IRoomTypeService
     {
-        Task<List<RoomType>> GetAllRoomType();
+        Task<List<GetRoomTypeDTO>> GetAllRoomType();
         Task<RoomType> CreateRoomType(CreateRoomTypeDTO model);
         Task DeleteRoomType(string id);
-        Task<List<GetRoomTypeDTO>> Get();
+        Task<GetRoomTypeDTO> GetRoomTypeById(string id);
     }
 }
