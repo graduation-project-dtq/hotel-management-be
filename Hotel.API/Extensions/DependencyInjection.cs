@@ -18,11 +18,24 @@ namespace Hotel.API.Extensions
             ConfigureCors(services);
             ConfigureAuthentication(services, configuration);
             AddDatabases(services, configuration);
-         
+            AddCustomHttpClient(services); // Thêm HttpClient
             AddSwagger(services);
             AddInitialiseDatabase(services);
         }
-
+        public static void AddCustomHttpClient(this IServiceCollection services)
+        {
+            services.AddHttpClient("CustomHttpClient", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7227/api"); // Địa chỉ base URL của API
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                return new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true // Bỏ qua xác thực SSL
+                };
+            });
+        }
         // JWT Setting
         public static void JwtSetting(this IServiceCollection services, IConfiguration configuration)
         {

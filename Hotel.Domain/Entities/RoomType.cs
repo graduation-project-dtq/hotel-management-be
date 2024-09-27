@@ -9,5 +9,7 @@ namespace Hotel.Domain.Entities
         public string Description { get; set; }
 
         public virtual ICollection<RoomTypeDetail> ? RoomTypeDetails { get; set; }
+
+        public virtual ICollection<ImageRoomType> ImageRoomTypes { get; set; }
     }
 }

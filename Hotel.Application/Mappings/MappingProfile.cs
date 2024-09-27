@@ -4,31 +4,39 @@ using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.DTOs.FloorDTO;
 using Hotel.Application.DTOs.RoomTypeDetailDTO;
 using Hotel.Application.DTOs.RoomTypeDTO;
-using Hotel.Application.DTOs.UserDTO;
+using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Domain.Entities;
+using Hotel.Application.DTOs.UserDTO;
 
 namespace Hotel.Application.Mappings
 {
     public class MappingProfile : Profile
     {
-        public MappingProfile() 
+        public MappingProfile()
         {
-            //Accout
+            // Accout
             CreateMap<RegisterRequestDto, Account>();
 
-            //Customer
+            // Customer
             CreateMap<CreateCustomerDTO, Customer>();
 
-            //Employee
+            // Employee
             CreateMap<CreateEmployeeDTO, Employee>();
 
-            //RoomType
-            CreateMap<CreateRoomTypeDTO,RoomType>();
+       
 
-            CreateMap<GetRoomTypeDetailDTO,RoomTypeDetail>();
+            // Ánh xạ ImageRoomType sang GetImageRoomTypeDTO
+            CreateMap<ImageRoomType, GetImageRoomTypeDTO>()
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.Image.URL)); // Cập nhật ở đây
 
-            CreateMap<GetFloorDTO,Floor>();
+            // Ánh xạ RoomTypeDetail sang GetRoomTypeDetailDTO
+            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>();
+
+            // Ánh xạ RoomTypeDetail sang GetRoomTypeDetailDTO
+            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>();
+
+            // RoomTypeDetail
+            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>();
         }
-    
     }
 }

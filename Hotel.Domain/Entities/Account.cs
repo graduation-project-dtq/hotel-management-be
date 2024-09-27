@@ -19,6 +19,7 @@ namespace Hotel.Domain.Entities
         [StringLength(255)]
         public string Password { get; set; }
         [ForeignKey("Role")]
+        public string ? Name {  get; set; }
         public string RoleId { get; set; }
         public bool IsActive { get; set; }
         

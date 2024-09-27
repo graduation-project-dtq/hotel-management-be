@@ -21,7 +21,7 @@ namespace Hotel.Core.Base
         public string Id { get; set; }
 
         public string? InternalCode {  get; set; }
-        public string Name { get; set; } = string.Empty;
+        //public string Name { get; set; } = string.Empty;
         public string? CreatedBy { get; set; }
         public string? LastUpdatedBy { get; set; }
         public string? DeletedBy { get; set; }

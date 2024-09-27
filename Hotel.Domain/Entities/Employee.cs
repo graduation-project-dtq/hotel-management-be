@@ -22,7 +22,6 @@ namespace Hotel.Domain.Entities
         public string Address { get; set; } 
         public DateTime HireDate { get; set; }
         public virtual Account? Account { get; set; }
-
         public virtual ICollection<Booking> ? Bookings { get; set; }
     }
 }

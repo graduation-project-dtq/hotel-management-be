@@ -10,7 +10,7 @@ namespace Hotel.Domain.Entities
         public string CustomerId { get; set; }
         [ForeignKey("RoomTypeDetail")]
         public string RoomTypeDetailId { get; set; }
-        public string Image {  get; set; }
+       
         public string Comment { get; set; }
         public int Starts { get; set; }
         public virtual Customer ? Customer { get; set; }
