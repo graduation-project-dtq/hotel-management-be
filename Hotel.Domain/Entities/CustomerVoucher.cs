@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class CustomerVoucher : BaseEntity
+    public class CustomerVoucher 
     {
         [ForeignKey("Customer")]
         public string CustomerId { get; set; }

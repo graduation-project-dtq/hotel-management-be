@@ -52,6 +52,26 @@ namespace Hotel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "HouseType",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HouseType", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Images",
                 columns: table => new
                 {
@@ -109,6 +129,27 @@ namespace Hotel.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoomPrices",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomPrices", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -202,20 +243,12 @@ namespace Hotel.Infrastructure.Migrations
                 name: "ImageFacilities",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FacilitiesID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImageFacilities", x => x.Id);
+                    table.PrimaryKey("PK_ImageFacilities", x => new { x.ImageID, x.FacilitiesID });
                     table.ForeignKey(
                         name: "FK_ImageFacilities_Facilities_FacilitiesID",
                         column: x => x.FacilitiesID,
@@ -240,6 +273,7 @@ namespace Hotel.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
                     InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -260,24 +294,42 @@ namespace Hotel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ImageRoomTypes",
+                name: "RoomPriceAdjustments",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoomTypeID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    URL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    RoomPriceId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PriceAdjustmentPlanId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImageRoomTypes", x => x.Id);
+                    table.PrimaryKey("PK_RoomPriceAdjustments", x => new { x.RoomPriceId, x.PriceAdjustmentPlanId });
+                    table.ForeignKey(
+                        name: "FK_RoomPriceAdjustments_PriceAdjustmentPlans_PriceAdjustmentPlanId",
+                        column: x => x.PriceAdjustmentPlanId,
+                        principalTable: "PriceAdjustmentPlans",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoomPriceAdjustments_RoomPrices_RoomPriceId",
+                        column: x => x.RoomPriceId,
+                        principalTable: "RoomPrices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImageRoomTypes",
+                columns: table => new
+                {
+                    RoomTypeID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    URL = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImageRoomTypes", x => new { x.ImageID, x.RoomTypeID });
                     table.ForeignKey(
                         name: "FK_ImageRoomTypes_Images_ImageID",
                         column: x => x.ImageID,
@@ -298,6 +350,7 @@ namespace Hotel.Infrastructure.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoomTypeID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoomPriceID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CapacityMax = table.Column<int>(type: "int", nullable: false),
                     Area = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -315,6 +368,12 @@ namespace Hotel.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_RoomTypeDetails", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_RoomTypeDetails_RoomPrices_RoomPriceID",
+                        column: x => x.RoomPriceID,
+                        principalTable: "RoomPrices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_RoomTypeDetails_RoomTypes_RoomTypeID",
                         column: x => x.RoomTypeID,
                         principalTable: "RoomTypes",
@@ -326,23 +385,15 @@ namespace Hotel.Infrastructure.Migrations
                 name: "ImageServices",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ServiceID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImageServices", x => x.Id);
+                    table.PrimaryKey("PK_ImageServices", x => new { x.ImageID, x.ServiceID });
                     table.ForeignKey(
-                        name: "FK_ImageServices_Images_ImageId",
-                        column: x => x.ImageId,
+                        name: "FK_ImageServices_Images_ImageID",
+                        column: x => x.ImageID,
                         principalTable: "Images",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -368,6 +419,7 @@ namespace Hotel.Infrastructure.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CredibilityScore = table.Column<int>(type: "int", nullable: true),
+                    AccumulatedPoints = table.Column<int>(type: "int", nullable: true),
                     InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -397,8 +449,8 @@ namespace Hotel.Infrastructure.Migrations
                     IdentityCard = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Sex = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HireDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -424,20 +476,12 @@ namespace Hotel.Infrastructure.Migrations
                 name: "ImageRoomTypeDetails",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoomTypeDetailID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImageRoomTypeDetails", x => x.Id);
+                    table.PrimaryKey("PK_ImageRoomTypeDetails", x => new { x.ImageID, x.RoomTypeDetailID });
                     table.ForeignKey(
                         name: "FK_ImageRoomTypeDetails_Images_ImageID",
                         column: x => x.ImageID,
@@ -453,39 +497,13 @@ namespace Hotel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoomPrices",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    BasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RoomTypeDetailId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoomPrices", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RoomPrices_RoomTypeDetails_RoomTypeDetailId",
-                        column: x => x.RoomTypeDetailId,
-                        principalTable: "RoomTypeDetails",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Rooms",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FloorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoomTypeDetailId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HouseTypeID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -507,6 +525,12 @@ namespace Hotel.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Rooms_HouseType_HouseTypeID",
+                        column: x => x.HouseTypeID,
+                        principalTable: "HouseType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Rooms_RoomTypeDetails_RoomTypeDetailId",
                         column: x => x.RoomTypeDetailId,
                         principalTable: "RoomTypeDetails",
@@ -518,21 +542,13 @@ namespace Hotel.Infrastructure.Migrations
                 name: "CustomerVouchers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     VoucherID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UsedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    UsedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerVouchers", x => x.Id);
+                    table.PrimaryKey("PK_CustomerVouchers", x => new { x.CustomerId, x.VoucherID });
                     table.ForeignKey(
                         name: "FK_CustomerVouchers_Customers_CustomerId",
                         column: x => x.CustomerId,
@@ -614,7 +630,6 @@ namespace Hotel.Infrastructure.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoomTypeDetailId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -643,67 +658,19 @@ namespace Hotel.Infrastructure.Migrations
                         principalTable: "Employee",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Bookings_RoomTypeDetails_RoomTypeDetailId",
-                        column: x => x.RoomTypeDetailId,
-                        principalTable: "RoomTypeDetails",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RoomPriceAdjustments",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoomPriceId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PriceAdjustmentPlanId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RoomPriceAdjustments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RoomPriceAdjustments_PriceAdjustmentPlans_PriceAdjustmentPlanId",
-                        column: x => x.PriceAdjustmentPlanId,
-                        principalTable: "PriceAdjustmentPlans",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RoomPriceAdjustments_RoomPrices_RoomPriceId",
-                        column: x => x.RoomPriceId,
-                        principalTable: "RoomPrices",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "FacilitiesRooms",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoomID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FacilitiesID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FacilitiesRooms", x => x.Id);
+                    table.PrimaryKey("PK_FacilitiesRooms", x => new { x.RoomID, x.FacilitiesID });
                     table.ForeignKey(
                         name: "FK_FacilitiesRooms_Facilities_FacilitiesID",
                         column: x => x.FacilitiesID,
@@ -722,20 +689,12 @@ namespace Hotel.Infrastructure.Migrations
                 name: "RoomViews",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoomId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ViewHotelId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    ViewHotelId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoomViews", x => x.Id);
+                    table.PrimaryKey("PK_RoomViews", x => new { x.RoomId, x.ViewHotelId });
                     table.ForeignKey(
                         name: "FK_RoomViews_Rooms_RoomId",
                         column: x => x.RoomId,
@@ -754,20 +713,12 @@ namespace Hotel.Infrastructure.Migrations
                 name: "ImageEvaluations",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     EvaluationID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImageEvaluations", x => x.Id);
+                    table.PrimaryKey("PK_ImageEvaluations", x => new { x.ImageID, x.EvaluationID });
                     table.ForeignKey(
                         name: "FK_ImageEvaluations_Evaluations_EvaluationID",
                         column: x => x.EvaluationID,
@@ -786,21 +737,13 @@ namespace Hotel.Infrastructure.Migrations
                 name: "BookingDetail",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookingId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoomId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    RoomID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookingDetail", x => x.Id);
+                    table.PrimaryKey("PK_BookingDetail", x => new { x.BookingId, x.RoomID });
                     table.ForeignKey(
                         name: "FK_BookingDetail_Bookings_BookingId",
                         column: x => x.BookingId,
@@ -808,8 +751,8 @@ namespace Hotel.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BookingDetail_Rooms_RoomId",
-                        column: x => x.RoomId,
+                        name: "FK_BookingDetail_Rooms_RoomID",
+                        column: x => x.RoomID,
                         principalTable: "Rooms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -819,22 +762,14 @@ namespace Hotel.Infrastructure.Migrations
                 name: "Punishes",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookingID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FacilitiesID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Fine = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    Fine = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Punishes", x => x.Id);
+                    table.PrimaryKey("PK_Punishes", x => new { x.BookingID, x.FacilitiesID });
                     table.ForeignKey(
                         name: "FK_Punishes_Bookings_BookingID",
                         column: x => x.BookingID,
@@ -853,22 +788,14 @@ namespace Hotel.Infrastructure.Migrations
                 name: "ServicesBooking",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookingID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ServiceID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Total = table.Column<float>(type: "real", nullable: false),
-                    InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    Total = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServicesBooking", x => x.Id);
+                    table.PrimaryKey("PK_ServicesBooking", x => new { x.ServiceID, x.BookingID });
                     table.ForeignKey(
                         name: "FK_ServicesBooking_Bookings_BookingID",
                         column: x => x.BookingID,
@@ -895,14 +822,9 @@ namespace Hotel.Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingDetail_BookingId",
+                name: "IX_BookingDetail_RoomID",
                 table: "BookingDetail",
-                column: "BookingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BookingDetail_RoomId",
-                table: "BookingDetail",
-                column: "RoomId");
+                column: "RoomID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_CustomerId",
@@ -915,20 +837,10 @@ namespace Hotel.Infrastructure.Migrations
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bookings_RoomTypeDetailId",
-                table: "Bookings",
-                column: "RoomTypeDetailId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Customers_AccountID",
                 table: "Customers",
                 column: "AccountID",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CustomerVouchers_CustomerId",
-                table: "CustomerVouchers",
-                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerVouchers_VoucherID",
@@ -957,19 +869,9 @@ namespace Hotel.Infrastructure.Migrations
                 column: "FacilitiesID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FacilitiesRooms_RoomID",
-                table: "FacilitiesRooms",
-                column: "RoomID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ImageEvaluations_EvaluationID",
                 table: "ImageEvaluations",
                 column: "EvaluationID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ImageEvaluations_ImageID",
-                table: "ImageEvaluations",
-                column: "ImageID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ImageFacilities_FacilitiesID",
@@ -977,34 +879,14 @@ namespace Hotel.Infrastructure.Migrations
                 column: "FacilitiesID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ImageFacilities_ImageID",
-                table: "ImageFacilities",
-                column: "ImageID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ImageRoomTypeDetails_ImageID",
-                table: "ImageRoomTypeDetails",
-                column: "ImageID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ImageRoomTypeDetails_RoomTypeDetailID",
                 table: "ImageRoomTypeDetails",
                 column: "RoomTypeDetailID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ImageRoomTypes_ImageID",
-                table: "ImageRoomTypes",
-                column: "ImageID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ImageRoomTypes_RoomTypeID",
                 table: "ImageRoomTypes",
                 column: "RoomTypeID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ImageServices_ImageId",
-                table: "ImageServices",
-                column: "ImageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ImageServices_ServiceID",
@@ -1017,11 +899,6 @@ namespace Hotel.Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Punishes_BookingID",
-                table: "Punishes",
-                column: "BookingID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Punishes_FacilitiesID",
                 table: "Punishes",
                 column: "FacilitiesID");
@@ -1032,19 +909,14 @@ namespace Hotel.Infrastructure.Migrations
                 column: "PriceAdjustmentPlanId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoomPriceAdjustments_RoomPriceId",
-                table: "RoomPriceAdjustments",
-                column: "RoomPriceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RoomPrices_RoomTypeDetailId",
-                table: "RoomPrices",
-                column: "RoomTypeDetailId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Rooms_FloorId",
                 table: "Rooms",
                 column: "FloorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_HouseTypeID",
+                table: "Rooms",
+                column: "HouseTypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rooms_RoomTypeDetailId",
@@ -1052,14 +924,14 @@ namespace Hotel.Infrastructure.Migrations
                 column: "RoomTypeDetailId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoomTypeDetails_RoomPriceID",
+                table: "RoomTypeDetails",
+                column: "RoomPriceID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RoomTypeDetails_RoomTypeID",
                 table: "RoomTypeDetails",
                 column: "RoomTypeID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RoomViews_RoomId",
-                table: "RoomViews",
-                column: "RoomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomViews_ViewHotelId",
@@ -1070,11 +942,6 @@ namespace Hotel.Infrastructure.Migrations
                 name: "IX_ServicesBooking_BookingID",
                 table: "ServicesBooking",
                 column: "BookingID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServicesBooking_ServiceID",
-                table: "ServicesBooking",
-                column: "ServiceID");
         }
 
         /// <inheritdoc />
@@ -1135,9 +1002,6 @@ namespace Hotel.Infrastructure.Migrations
                 name: "PriceAdjustmentPlans");
 
             migrationBuilder.DropTable(
-                name: "RoomPrices");
-
-            migrationBuilder.DropTable(
                 name: "Rooms");
 
             migrationBuilder.DropTable(
@@ -1153,19 +1017,25 @@ namespace Hotel.Infrastructure.Migrations
                 name: "Floors");
 
             migrationBuilder.DropTable(
+                name: "HouseType");
+
+            migrationBuilder.DropTable(
+                name: "RoomTypeDetails");
+
+            migrationBuilder.DropTable(
                 name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "Employee");
 
             migrationBuilder.DropTable(
-                name: "RoomTypeDetails");
-
-            migrationBuilder.DropTable(
-                name: "Accounts");
+                name: "RoomPrices");
 
             migrationBuilder.DropTable(
                 name: "RoomTypes");
+
+            migrationBuilder.DropTable(
+                name: "Accounts");
 
             migrationBuilder.DropTable(
                 name: "Roles");

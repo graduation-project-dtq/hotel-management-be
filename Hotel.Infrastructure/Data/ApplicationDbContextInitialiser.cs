@@ -73,9 +73,9 @@ namespace Hotel.Infrastructure.Data
             {
                 Role[] roles =
                 [
-                    new Role { RoleName = CLAIMS_VALUES.ROLE_TYPE.ADMIN },
-                    new Role { RoleName = CLAIMS_VALUES.ROLE_TYPE.EMPLOYEE },
-                    new Role { RoleName = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER },
+                    new Role {Id="11c1b04e29524abdbebd96ec80b6bc58", RoleName = CLAIMS_VALUES.ROLE_TYPE.ADMIN },
+                    new Role {Id="51be69a4b2144a8987551569a468b064", RoleName = CLAIMS_VALUES.ROLE_TYPE.EMPLOYEE },
+                    new Role {Id="c401bb08da484925900a63575c3717f8", RoleName = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER },
                 ];
 
                 foreach (Role role in roles)
@@ -102,6 +102,7 @@ namespace Hotel.Infrastructure.Data
                 {
                     var account = new Account
                     {
+                        Id= "bce67c17cdd9476abd8644bd5abd47bf",
                         Email = "admin@gmail.com",
                         Password = passwordHasher.HashPassword(null, "Admin@123"),
                         RoleId = organizerRole.Id,

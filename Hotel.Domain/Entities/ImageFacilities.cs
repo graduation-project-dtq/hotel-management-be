@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class ImageFacilities :BaseEntity
+    public class ImageFacilities 
     {
         [ForeignKey("Facilities")]
         public string FacilitiesID { get; set; }

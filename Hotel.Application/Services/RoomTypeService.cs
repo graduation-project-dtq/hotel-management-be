@@ -49,10 +49,10 @@ namespace Hotel.Application.Services
                 {
                     foreach (var image in listImage)
                     {
-                        if (!item.ImageRoomTypes.Any(i => i.Id == image.Id))
-                        {
-                            item.ImageRoomTypes.Add(image);
-                        }
+                        //if (!item.ImageRoomTypes.Any(i => i.Id == image.Id))
+                        //{
+                        //    item.ImageRoomTypes.Add(image);
+                        //}
                     }
                 }
             }
