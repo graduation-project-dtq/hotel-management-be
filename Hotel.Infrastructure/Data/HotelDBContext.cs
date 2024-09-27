@@ -44,6 +44,12 @@ namespace Hotel.Infrastructure.Data
         public DbSet<ViewHotel> ViewHotels { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
 
+        public DbSet<Image>  Images { get; set; }
+        public DbSet<ImageEvaluation> ImageEvaluations { get; set; }
+        public DbSet<ImageFacilities> ImageFacilities { get; set; }
+        public DbSet<ImageRoomType> ImageRoomTypes { get; set; }
+        public DbSet<ImageRoomTypeDetail> ImageRoomTypeDetails { get; set; }
+        public DbSet<ImageService> ImageServices { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
