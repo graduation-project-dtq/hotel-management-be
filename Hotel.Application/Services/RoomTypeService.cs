@@ -28,42 +28,9 @@ namespace Hotel.Application.Services
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<List<RoomType>> GetAllRoomType()
-        {
-            // Lấy danh sách RoomType từ database
-            List<RoomType> roomTypes = await _unitOfWork.GetRepository<RoomType>()
-                .Entities.Where(r => r.DeletedTime == null).ToListAsync();
-
-
-            foreach (var item in roomTypes)
-            {
-                // Khởi tạo ImageRoomTypes nếu nó chưa được khởi tạo
-                item.ImageRoomTypes = new List<ImageRoomType>();
-
-                // Lấy danh sách hình ảnh tương ứng với RoomType
-                var listImage = _unitOfWork.GetRepository<ImageRoomType>()
-                    .Entities.Where(i => i.RoomTypeID == item.Id).ToList();
-
-                // Thêm từng ảnh vào RoomType.ImageRoomTypes
-                if (listImage != null)
-                {
-                    foreach (var image in listImage)
-                    {
-                        if (!item.ImageRoomTypes.Any(i => i.Id == image.Id))
-                        {
-                            item.ImageRoomTypes.Add(image);
-                        }
-                    }
-                }
-            }
-
-            // Ánh xạ RoomType sang GetRoomTypeDTO
-
-
-            return roomTypes;
-        }
-
-        public async Task<List<GetRoomTypeDTO>> Get()
+        
+        //Lất tất cả loại
+        public async Task<List<GetRoomTypeDTO>> GetAllRoomType()
         {
             // Lấy danh sách RoomType từ database
             List<RoomType> roomTypes = await _unitOfWork.GetRepository<RoomType>()
@@ -119,7 +86,38 @@ namespace Hotel.Application.Services
             }
             return list;
         }
-
+        //Tìm kiếm theo id
+        public async Task<GetRoomTypeDTO> GetRoomTypeById(string id)
+        {
+            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
+            if (!regex.IsMatch(id.Trim()))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
+            }
+            var roomType = await _unitOfWork.GetRepository<RoomType>().Entities.FirstOrDefaultAsync(r=>r.Id==id);
+            if(roomType == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
+            }    
+            GetRoomTypeDTO roomTypeDTO = _mapper.Map<GetRoomTypeDTO>(roomType);
+            var imageList=await _unitOfWork.GetRepository<ImageRoomType>().Entities.Where(i=>i.RoomTypeID==id).ToListAsync();
+            if (imageList != null)
+            {
+                roomTypeDTO.ImageRoomTypes = new List<GetImageRoomTypeDTO>();
+                foreach (var image in imageList)
+                {
+                    var addImage = new GetImageRoomTypeDTO()
+                    {
+                        URL = image.URL,
+                    };
+                    if (!roomTypeDTO.ImageRoomTypes.Any(i => i.URL == image.URL))
+                    {
+                        roomTypeDTO.ImageRoomTypes.Add(addImage);
+                    }
+                }
+            }
+            return roomTypeDTO;
+        }
         public async Task<RoomType> CreateRoomType(CreateRoomTypeDTO model)
         {
             // Kiểm tra xem model có hợp lệ không

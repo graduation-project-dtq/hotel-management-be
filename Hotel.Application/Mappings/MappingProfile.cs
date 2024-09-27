@@ -23,7 +23,8 @@ namespace Hotel.Application.Mappings
             // Employee
             CreateMap<CreateEmployeeDTO, Employee>();
 
-       
+            //RoomType
+            CreateMap<GetRoomTypeDTO, RoomType>().ReverseMap();
 
             // Ánh xạ ImageRoomType sang GetImageRoomTypeDTO
             CreateMap<ImageRoomType, GetImageRoomTypeDTO>()
