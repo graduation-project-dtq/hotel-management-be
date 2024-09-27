@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hotel.Infrastructure.Migrations
 {
     [DbContext(typeof(HotelDBContext))]
-    [Migration("20240927055236_INIT")]
+    [Migration("20240927162613_INIT")]
     partial class INIT
     {
         /// <inheritdoc />
@@ -51,6 +51,9 @@ namespace Hotel.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastUpdatedBy")
@@ -124,10 +127,6 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("RoomTypeDetailId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -140,53 +139,23 @@ namespace Hotel.Infrastructure.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.HasIndex("RoomTypeDetailId");
-
                     b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.BookingDetail", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("BookingId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("RoomID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<string>("RoomId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.HasKey("BookingId", "RoomID");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("RoomId");
+                    b.HasIndex("RoomID");
 
                     b.ToTable("BookingDetail");
                 });
@@ -199,6 +168,9 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<string>("AccountID")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("AccumulatedPoints")
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
@@ -257,44 +229,16 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.CustomerVoucher", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("CustomerId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("VoucherID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("UsedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("VoucherID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
+                    b.HasKey("CustomerId", "VoucherID");
 
                     b.HasIndex("VoucherID");
 
@@ -330,7 +274,6 @@ namespace Hotel.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("HireDate")
@@ -354,7 +297,6 @@ namespace Hotel.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sex")
@@ -463,46 +405,18 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.FacilitiesRoom", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("RoomID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("FacilitiesID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<string>("RoomID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
+                    b.HasKey("RoomID", "FacilitiesID");
 
                     b.HasIndex("FacilitiesID");
-
-                    b.HasIndex("RoomID");
 
                     b.ToTable("FacilitiesRooms");
                 });
@@ -542,6 +456,45 @@ namespace Hotel.Infrastructure.Migrations
                     b.ToTable("Floors");
                 });
 
+            modelBuilder.Entity("Hotel.Domain.Entities.HouseType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InternalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HouseType");
+                });
+
             modelBuilder.Entity("Hotel.Domain.Entities.Image", b =>
                 {
                     b.Property<string>("Id")
@@ -579,131 +532,47 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.ImageEvaluation", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("ImageID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("EvaluationID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ImageID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
+                    b.HasKey("ImageID", "EvaluationID");
 
                     b.HasIndex("EvaluationID");
-
-                    b.HasIndex("ImageID");
 
                     b.ToTable("ImageEvaluations");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.ImageFacilities", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("ImageID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("FacilitiesID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("ImageID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
+                    b.HasKey("ImageID", "FacilitiesID");
 
                     b.HasIndex("FacilitiesID");
-
-                    b.HasIndex("ImageID");
 
                     b.ToTable("ImageFacilities");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.ImageRoomType", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("ImageID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RoomTypeID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("URL")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImageID");
+                    b.HasKey("ImageID", "RoomTypeID");
 
                     b.HasIndex("RoomTypeID");
 
@@ -712,41 +581,13 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.ImageRoomTypeDetail", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("ImageID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RoomTypeDetailID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImageID");
+                    b.HasKey("ImageID", "RoomTypeDetailID");
 
                     b.HasIndex("RoomTypeDetailID");
 
@@ -755,41 +596,13 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.ImageService", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("ImageID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ImageId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ServiceID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImageId");
+                    b.HasKey("ImageID", "ServiceID");
 
                     b.HasIndex("ServiceID");
 
@@ -885,47 +698,19 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.Punish", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("BookingID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("FacilitiesID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal?>("Fine")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingID");
+                    b.HasKey("BookingID", "FacilitiesID");
 
                     b.HasIndex("FacilitiesID");
 
@@ -989,6 +774,10 @@ namespace Hotel.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("HouseTypeID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("InternalCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -1016,6 +805,8 @@ namespace Hotel.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FloorId");
+
+                    b.HasIndex("HouseTypeID");
 
                     b.HasIndex("RoomTypeDetailId");
 
@@ -1058,61 +849,28 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("RoomTypeDetailId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("RoomTypeDetailId");
 
                     b.ToTable("RoomPrices");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.RoomPriceAdjustment", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("RoomPriceId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<string>("PriceAdjustmentPlanId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("PriceAdjustmentPlanId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RoomPriceId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("RoomPriceId", "PriceAdjustmentPlanId");
 
                     b.HasIndex("PriceAdjustmentPlanId");
-
-                    b.HasIndex("RoomPriceId");
 
                     b.ToTable("RoomPriceAdjustments");
                 });
@@ -1199,11 +957,17 @@ namespace Hotel.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RoomPriceID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("RoomTypeID")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RoomPriceID");
 
                     b.HasIndex("RoomTypeID");
 
@@ -1212,41 +976,13 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.RoomView", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("RoomId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ViewHotelId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
+                    b.HasKey("RoomId", "ViewHotelId");
 
                     b.HasIndex("ViewHotelId");
 
@@ -1297,49 +1033,21 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.ServiceBooking", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("ServiceID")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("BookingID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedTime")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("InternalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("LastUpdatedTime")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServiceID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<float>("Total")
                         .HasColumnType("real");
 
-                    b.HasKey("Id");
+                    b.HasKey("ServiceID", "BookingID");
 
                     b.HasIndex("BookingID");
-
-                    b.HasIndex("ServiceID");
 
                     b.ToTable("ServicesBooking");
                 });
@@ -1462,17 +1170,9 @@ namespace Hotel.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Hotel.Domain.Entities.RoomTypeDetail", "RoomTypeDetail")
-                        .WithMany("Bookings")
-                        .HasForeignKey("RoomTypeDetailId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Customer");
 
                     b.Navigation("Employee");
-
-                    b.Navigation("RoomTypeDetail");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.BookingDetail", b =>
@@ -1485,7 +1185,7 @@ namespace Hotel.Infrastructure.Migrations
 
                     b.HasOne("Hotel.Domain.Entities.Room", "Room")
                         .WithMany("BookingDetails")
-                        .HasForeignKey("RoomId")
+                        .HasForeignKey("RoomID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1497,8 +1197,8 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.Customer", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountID")
+                        .WithOne()
+                        .HasForeignKey("Hotel.Domain.Entities.Customer", "AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1508,7 +1208,7 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.CustomerVoucher", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("CustomerVouchers")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1527,8 +1227,8 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.Employee", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountID")
+                        .WithOne()
+                        .HasForeignKey("Hotel.Domain.Entities.Employee", "AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1538,7 +1238,7 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.Evaluation", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("Evaluations")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1576,13 +1276,13 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.ImageEvaluation", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Evaluation", "Evaluation")
-                        .WithMany()
+                        .WithMany("ImageEvaluations")
                         .HasForeignKey("EvaluationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Hotel.Domain.Entities.Image", "Image")
-                        .WithMany()
+                        .WithMany("Evaluations")
                         .HasForeignKey("ImageID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1595,13 +1295,13 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.ImageFacilities", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Facilities", "Facilities")
-                        .WithMany()
+                        .WithMany("ImageFacilities")
                         .HasForeignKey("FacilitiesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Hotel.Domain.Entities.Image", "Image")
-                        .WithMany()
+                        .WithMany("ImageFacilities")
                         .HasForeignKey("ImageID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1614,7 +1314,7 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.ImageRoomType", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Image", "Image")
-                        .WithMany()
+                        .WithMany("ImageRoomTypes")
                         .HasForeignKey("ImageID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1633,7 +1333,7 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.ImageRoomTypeDetail", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Image", "Image")
-                        .WithMany()
+                        .WithMany("ImageRoomTypesDetail")
                         .HasForeignKey("ImageID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1652,13 +1352,13 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.ImageService", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
+                        .WithMany("ImageServices")
+                        .HasForeignKey("ImageID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Hotel.Domain.Entities.Service", "Service")
-                        .WithMany()
+                        .WithMany("ImageServices")
                         .HasForeignKey("ServiceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1671,7 +1371,7 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.Notification", b =>
                 {
                     b.HasOne("Hotel.Domain.Entities.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("Notification")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1706,6 +1406,12 @@ namespace Hotel.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Hotel.Domain.Entities.HouseType", "HouseType")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HouseTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Hotel.Domain.Entities.RoomTypeDetail", "RoomTypeDetail")
                         .WithMany()
                         .HasForeignKey("RoomTypeDetailId")
@@ -1714,14 +1420,7 @@ namespace Hotel.Infrastructure.Migrations
 
                     b.Navigation("Floor");
 
-                    b.Navigation("RoomTypeDetail");
-                });
-
-            modelBuilder.Entity("Hotel.Domain.Entities.RoomPrice", b =>
-                {
-                    b.HasOne("Hotel.Domain.Entities.RoomTypeDetail", "RoomTypeDetail")
-                        .WithMany()
-                        .HasForeignKey("RoomTypeDetailId");
+                    b.Navigation("HouseType");
 
                     b.Navigation("RoomTypeDetail");
                 });
@@ -1747,6 +1446,12 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.RoomTypeDetail", b =>
                 {
+                    b.HasOne("Hotel.Domain.Entities.RoomPrice", null)
+                        .WithMany("RoomTypeDetail")
+                        .HasForeignKey("RoomPriceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Hotel.Domain.Entities.RoomType", "RoomType")
                         .WithMany("RoomTypeDetails")
                         .HasForeignKey("RoomTypeID")
@@ -1806,6 +1511,12 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.Customer", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("CustomerVouchers");
+
+                    b.Navigation("Evaluations");
+
+                    b.Navigation("Notification");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.Employee", b =>
@@ -1813,9 +1524,16 @@ namespace Hotel.Infrastructure.Migrations
                     b.Navigation("Bookings");
                 });
 
+            modelBuilder.Entity("Hotel.Domain.Entities.Evaluation", b =>
+                {
+                    b.Navigation("ImageEvaluations");
+                });
+
             modelBuilder.Entity("Hotel.Domain.Entities.Facilities", b =>
                 {
                     b.Navigation("FacilitiesRooms");
+
+                    b.Navigation("ImageFacilities");
 
                     b.Navigation("Punishes");
                 });
@@ -1823,6 +1541,24 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.Floor", b =>
                 {
                     b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Hotel.Domain.Entities.HouseType", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Hotel.Domain.Entities.Image", b =>
+                {
+                    b.Navigation("Evaluations");
+
+                    b.Navigation("ImageFacilities");
+
+                    b.Navigation("ImageRoomTypes");
+
+                    b.Navigation("ImageRoomTypesDetail");
+
+                    b.Navigation("ImageServices");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.PriceAdjustmentPlan", b =>
@@ -1847,6 +1583,8 @@ namespace Hotel.Infrastructure.Migrations
             modelBuilder.Entity("Hotel.Domain.Entities.RoomPrice", b =>
                 {
                     b.Navigation("RoomPriceAdjustments");
+
+                    b.Navigation("RoomTypeDetail");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.RoomType", b =>
@@ -1858,13 +1596,13 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.RoomTypeDetail", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("ImageRoomTypeDetails");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.Service", b =>
                 {
+                    b.Navigation("ImageServices");
+
                     b.Navigation("ServiceBookings");
                 });
 

@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hotel.Domain.Enums.EnumAccount;
 
 namespace Hotel.Domain.Entities
 {
@@ -22,6 +23,6 @@ namespace Hotel.Domain.Entities
         public string ? Name {  get; set; }
         public string RoleId { get; set; }
         public bool IsActive { get; set; }
-        
+        public bool IsAdmin { get; set; }
     }
 }

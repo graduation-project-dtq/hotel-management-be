@@ -78,6 +78,23 @@ namespace Hotel.Infrastructure.Data
                 .HasIndex(c => c.AccountID)
                 .IsUnique();
 
+            modelBuilder.Entity<Employee>()
+                .HasIndex(e => e.AccountID)
+                .IsUnique();
+
+            modelBuilder.Entity<Customer>()
+                .HasOne(c => c.Account) 
+                .WithOne()
+                .HasForeignKey<Customer>(c => c.AccountID); 
+
+            modelBuilder.Entity<Customer>()
+                .HasIndex(c => c.AccountID)
+                .IsUnique();
+
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.Account)
+                .WithOne()
+                .HasForeignKey<Employee>(e => e.AccountID);
 
             modelBuilder.Entity<Employee>()
                 .HasIndex(e => e.AccountID)
@@ -137,11 +154,9 @@ namespace Hotel.Infrastructure.Data
                 .HasForeignKey(b => b.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Booking>()
-                .HasOne(b => b.RoomTypeDetail)
-                .WithMany(r => r.Bookings)
-                .HasForeignKey(b => b.RoomTypeDetailId)
-                .OnDelete(DeleteBehavior.Restrict);
+           
+
+            
 
             // Định nghĩa cho bảng Punish
             modelBuilder.Entity<Punish>()
@@ -155,6 +170,175 @@ namespace Hotel.Infrastructure.Data
                 .WithMany(f => f.Punishes)
                 .HasForeignKey(p => p.FacilitiesID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            //Customer voucher
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasKey(bk => new { bk.CustomerId, bk.VoucherID });
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasOne(ft => ft.Customer)
+                .WithMany(f => f.CustomerVouchers)
+                .HasForeignKey(ft => ft.CustomerId);
+            modelBuilder.Entity<CustomerVoucher>()
+                .HasOne(ft => ft.Voucher)
+                .WithMany(t => t.CustomerVouchers)
+                .HasForeignKey(ft => ft.VoucherID);
+
+
+            //FacilitiesRoom
+            modelBuilder.Entity<FacilitiesRoom>()
+                .HasKey(bk => new { bk.RoomID, bk.FacilitiesID });
+
+            modelBuilder.Entity<FacilitiesRoom>()
+                .HasOne(ft => ft.Room)
+                .WithMany(f => f.FacilitiesRooms)
+                .HasForeignKey(ft => ft.RoomID);
+
+            modelBuilder.Entity<FacilitiesRoom>()
+                .HasOne(ft => ft.Facilities)
+                .WithMany(t => t.FacilitiesRooms)
+                .HasForeignKey(ft => ft.FacilitiesID);
+
+            //ImageEvaluation
+            modelBuilder.Entity<ImageEvaluation>()
+                .HasKey(bk => new { bk.ImageID, bk.EvaluationID });
+
+            modelBuilder.Entity<ImageEvaluation>()
+                .HasOne(ft => ft.Image)
+                .WithMany(f => f.Evaluations)
+                .HasForeignKey(ft => ft.ImageID);
+
+            modelBuilder.Entity<ImageEvaluation>()
+                .HasOne(ft => ft.Evaluation)
+                .WithMany(t => t.ImageEvaluations)
+                .HasForeignKey(ft => ft.EvaluationID);
+
+            //ImageFacilities
+            modelBuilder.Entity<ImageFacilities>()
+                .HasKey(bk => new { bk.ImageID, bk.FacilitiesID });
+
+            modelBuilder.Entity<ImageFacilities>()
+                .HasOne(ft => ft.Image)
+                .WithMany(f => f.ImageFacilities)
+                .HasForeignKey(ft => ft.ImageID);
+
+            modelBuilder.Entity<ImageFacilities>()
+                .HasOne(ft => ft.Facilities)
+                .WithMany(t => t.ImageFacilities)
+                .HasForeignKey(ft => ft.FacilitiesID);
+
+            //ImageRoomType
+            modelBuilder.Entity<ImageRoomType>()
+                .HasKey(bk => new { bk.ImageID, bk.RoomTypeID });
+
+            modelBuilder.Entity<ImageRoomType>()
+                .HasOne(ft => ft.Image)
+                .WithMany(f => f.ImageRoomTypes)
+                .HasForeignKey(ft => ft.ImageID);
+
+            modelBuilder.Entity<ImageRoomType>()
+                .HasOne(ft => ft.RoomType)
+                .WithMany(t => t.ImageRoomTypes)
+                .HasForeignKey(ft => ft.RoomTypeID);
+
+            //ImageRoomTypeDetail
+            modelBuilder.Entity<ImageRoomTypeDetail>()
+                .HasKey(bk => new { bk.ImageID, bk.RoomTypeDetailID });
+
+            modelBuilder.Entity<ImageRoomTypeDetail>()
+                .HasOne(ft => ft.Image)
+                .WithMany(f => f.ImageRoomTypesDetail)
+                .HasForeignKey(ft => ft.ImageID);
+
+            modelBuilder.Entity<ImageRoomTypeDetail>()
+                .HasOne(ft => ft.RoomTypeDetail)
+                .WithMany(t => t.ImageRoomTypeDetails)
+                .HasForeignKey(ft => ft.RoomTypeDetailID);
+
+
+            //ImageService
+            modelBuilder.Entity<ImageService>()
+                .HasKey(bk => new { bk.ImageID, bk.ServiceID });
+
+            modelBuilder.Entity<ImageService>()
+                .HasOne(ft => ft.Image)
+                .WithMany(f => f.ImageServices)
+                .HasForeignKey(ft => ft.ImageID);
+
+            modelBuilder.Entity<ImageService>()
+                .HasOne(ft => ft.Service)
+                .WithMany(t => t.ImageServices)
+                .HasForeignKey(ft => ft.ServiceID);
+
+            //Punish
+            modelBuilder.Entity<Punish>()
+                .HasKey(bk => new { bk.BookingID, bk.FacilitiesID });
+
+            modelBuilder.Entity<Punish>()
+                .HasOne(ft => ft.Booking)
+                .WithMany(f => f.Punishes)
+                .HasForeignKey(ft => ft.BookingID);
+
+            modelBuilder.Entity<Punish>()
+                .HasOne(ft => ft.Facilities)
+                .WithMany(t => t.Punishes)
+                .HasForeignKey(ft => ft.FacilitiesID);
+
+            //RoomPriceAdjustment
+            modelBuilder.Entity<RoomPriceAdjustment>()
+             .HasKey(bk => new { bk.RoomPriceId, bk.PriceAdjustmentPlanId });
+
+            modelBuilder.Entity<RoomPriceAdjustment>()
+                .HasOne(ft => ft.RoomPrice)
+                .WithMany(f => f.RoomPriceAdjustments)
+                .HasForeignKey(ft => ft.RoomPriceId);
+
+            modelBuilder.Entity<RoomPriceAdjustment>()
+                .HasOne(ft => ft.PriceAdjustmentPlan)
+                .WithMany(t => t.RoomPriceAdjustments)
+                .HasForeignKey(ft => ft.PriceAdjustmentPlanId);
+
+            //RoomView
+            modelBuilder.Entity<RoomView>()
+                .HasKey(bk => new { bk.RoomId, bk.ViewHotelId });
+
+            modelBuilder.Entity<RoomView>()
+                .HasOne(ft => ft.Room)
+                .WithMany(f => f.RoomViews)
+                .HasForeignKey(ft => ft.RoomId);
+
+            modelBuilder.Entity<RoomView>()
+                .HasOne(ft => ft.ViewHotel)
+                .WithMany(t => t.RoomViews)
+                .HasForeignKey(ft => ft.ViewHotelId);
+
+            //ServiceBooking
+            modelBuilder.Entity<ServiceBooking>()
+                .HasKey(bk => new { bk.ServiceID, bk.BookingID });
+
+            modelBuilder.Entity<ServiceBooking>()
+                .HasOne(ft => ft.Service)
+                .WithMany(f => f.ServiceBookings)
+                .HasForeignKey(ft => ft.ServiceID);
+
+            modelBuilder.Entity<ServiceBooking>()
+                .HasOne(ft => ft.Booking)
+                .WithMany(t => t.ServiceBookings)
+                .HasForeignKey(ft => ft.BookingID);
+
+            //BookingDetail
+            modelBuilder.Entity<BookingDetail>()
+               .HasKey(bk => new { bk.BookingId, bk.RoomID });
+
+            modelBuilder.Entity<BookingDetail>()
+                .HasOne(ft => ft.Booking)
+                .WithMany(f => f.BookingDetails)
+                .HasForeignKey(ft => ft.BookingId);
+
+            modelBuilder.Entity<BookingDetail>()
+                .HasOne(ft => ft.Room)
+                .WithMany(t => t.BookingDetails)
+                .HasForeignKey(ft => ft.RoomID);
         }
     }
 }

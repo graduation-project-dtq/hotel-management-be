@@ -11,5 +11,6 @@ namespace Hotel.Domain.Entities
         public string Description { get; set; }
         public virtual ICollection<FacilitiesRoom> ? FacilitiesRooms { get; set; }
         public virtual ICollection<Punish> ? Punishes { get; set; }
+        public virtual ICollection<ImageFacilities>? ImageFacilities { get; set; }
     }
 }

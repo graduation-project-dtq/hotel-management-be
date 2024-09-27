@@ -17,9 +17,12 @@ namespace Hotel.Domain.Entities
         public string ? Phone { get; set; }
         public string Email { get; set; }
         public string ?Address { get; set; }
-        public int? CredibilityScore { get; set; }
+        public int? CredibilityScore { get; set; } 
+        public int ? AccumulatedPoints { get; set; } //Điểm tích luỹ
         public virtual Account ? Account {  get; set; }
-
-        public virtual ICollection<Booking>? Bookings { get; set; }
+        public virtual ICollection<Booking> ? Bookings { get; set; }
+        public virtual ICollection<CustomerVoucher> ? CustomerVouchers { get; set; }
+        public virtual ICollection<Evaluation> ? Evaluations { get; set; }
+        public virtual ICollection<Notification> ? Notification { get; set; }
     }
 }

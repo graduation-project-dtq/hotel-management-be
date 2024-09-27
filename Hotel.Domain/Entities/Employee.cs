@@ -17,8 +17,8 @@ namespace Hotel.Domain.Entities
         public string IdentityCard { get; set; }
         public string Sex { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
+        public string ? Phone { get; set; }
+        public string ? Email { get; set; }
         public string Address { get; set; } 
         public DateTime HireDate { get; set; }
         public virtual Account? Account { get; set; }

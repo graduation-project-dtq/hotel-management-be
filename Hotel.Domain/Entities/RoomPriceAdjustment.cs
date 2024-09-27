@@ -1,15 +1,8 @@
-﻿using Hotel.Core.Base;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class RoomPriceAdjustment : BaseEntity
+    public class RoomPriceAdjustment 
     {
         [ForeignKey("RoomPrice")]
         public string RoomPriceId { get; set; }

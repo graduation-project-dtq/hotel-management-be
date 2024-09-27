@@ -1,14 +1,8 @@
-﻿using Hotel.Core.Base;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {
-    public class ImageRoomTypeDetail : BaseEntity
+    public class ImageRoomTypeDetail 
     {
         [ForeignKey("RoomTypeDetail")]
         public string RoomTypeDetailID {  get; set; }
