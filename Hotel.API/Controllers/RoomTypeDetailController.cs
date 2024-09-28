@@ -1,4 +1,6 @@
-﻿using Hotel.Application.Interfaces;
+﻿using Hotel.Application.DTOs.RoomTypeDetailDTO;
+using Hotel.Application.DTOs.RoomTypeDTO;
+using Hotel.Application.Interfaces;
 using Hotel.Application.Services;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
@@ -29,5 +31,17 @@ namespace Hotel.API.Controllers
                 code: ResponseCodeConstants.SUCCESS,
                 data: "Get RoomType success "));
         }
+
+        [HttpPost]
+        // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
+        public async Task<IActionResult> CreateRoomTypeDetail([FromBody] PortRoomTypeDetailDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var roomTypeDetail = await _roomTypeDetailService.CreateRoomTypeDetail(model);
+            return CreatedAtAction(nameof(GetAllRoomTypeDetail), new { id = roomTypeDetail.Id }, roomTypeDetail);
+        }
+
     }
 }

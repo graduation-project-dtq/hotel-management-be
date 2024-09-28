@@ -2,6 +2,7 @@
 using AutoMapper;
 using Hotel.Application.DTOs.RoomTypeDetailDTO;
 using Hotel.Application.DTOs.RoomTypeDTO;
+using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
@@ -18,11 +19,13 @@ namespace Hotel.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<RoomTypeDetailService> _logger;
-        public RoomTypeDetailService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RoomTypeDetailService> logger)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public RoomTypeDetailService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RoomTypeDetailService> logger, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail()
         {
@@ -31,20 +34,35 @@ namespace Hotel.Application.Services
             return roomTypeDetails;
         }
 
-        //public async Task<PortRoomTypeDetailDTO> CreateRoomTypeDetail(PortRoomTypeDetailDTO portRoomTypeDetail)
-        //{
-        //    var roomtype = await _unitOfWork.GetRepository<RoomType>().Entities.FirstOrDefaultAsync(r => r.Id == portRoomTypeDetail.RoomTypeID);
-        //    if (roomtype == null)
-        //    {
-        //        throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.EXISTED, "Không tồn tại loại phòng!");
-        //    }
-        //    //Kiểm tra tên
-        //    var roomTypeDetailExit = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.FirstOrDefaultAsync(r=>r.Name == portRoomTypeDetail.Name);
-        //    if(roomTypeDetailExit != null)
-        //    {
-        //        throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.DUPLICATE, "Chi tiết loại phòng đã tồn tại!");
-        //    }
+        public async Task<RoomTypeDetail> CreateRoomTypeDetail(PortRoomTypeDetailDTO portRoomTypeDetail)
+        {
+           
+            var roomtype = await _unitOfWork.GetRepository<RoomType>().Entities.FirstOrDefaultAsync(r => r.Id == portRoomTypeDetail.RoomTypeID);
+            if (roomtype == null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.EXISTED, "Không tồn tại loại phòng!");
+            }
+            //Kiểm tra tên
+            var roomTypeDetailExit = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.FirstOrDefaultAsync(r => r.Name == portRoomTypeDetail.Name);
+            if (roomTypeDetailExit != null)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.DUPLICATE, "Chi tiết loại phòng đã tồn tại!");
+            }
 
-        //}
+           try
+            {
+                string userID = Authentication.GetUserIdFromHttpContextAccessor(_httpContextAccessor);
+
+                RoomTypeDetail roomTypeDetail = _mapper.Map<RoomTypeDetail>(portRoomTypeDetail);
+
+                roomTypeDetail.CreatedBy = userID;
+                roomTypeDetail.LastUpdatedBy = userID;
+                return roomTypeDetail;
+            }
+            catch
+            {
+                throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Thêm thất bại!");
+            }
+        }
     }
 }

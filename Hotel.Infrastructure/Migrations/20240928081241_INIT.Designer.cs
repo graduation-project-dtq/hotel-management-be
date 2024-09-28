@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hotel.Infrastructure.Migrations
 {
     [DbContext(typeof(HotelDBContext))]
-    [Migration("20240927162613_INIT")]
+    [Migration("20240928081241_INIT")]
     partial class INIT
     {
         /// <inheritdoc />
@@ -567,10 +567,6 @@ namespace Hotel.Infrastructure.Migrations
 
                     b.Property<string>("RoomTypeID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("URL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ImageID", "RoomTypeID");
 

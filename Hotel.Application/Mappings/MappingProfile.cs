@@ -26,18 +26,15 @@ namespace Hotel.Application.Mappings
             //RoomType
             CreateMap<GetRoomTypeDTO, RoomType>().ReverseMap();
 
+            CreateMap<CreateRoomTypeDTO, RoomType>().ReverseMap();
             // Ánh xạ ImageRoomType sang GetImageRoomTypeDTO
             CreateMap<ImageRoomType, GetImageRoomTypeDTO>()
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.Image.URL)); // Cập nhật ở đây
 
             // Ánh xạ RoomTypeDetail sang GetRoomTypeDetailDTO
-            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>();
-
-            // Ánh xạ RoomTypeDetail sang GetRoomTypeDetailDTO
-            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>();
-
-            // RoomTypeDetail
-            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>();
+            CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>().ReverseMap();
+            CreateMap<PortRoomTypeDetailDTO, RoomTypeDetail>().ReverseMap();
+           
         }
     }
 }

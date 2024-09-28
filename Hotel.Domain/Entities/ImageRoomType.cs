@@ -11,8 +11,6 @@ namespace Hotel.Domain.Entities
         [ForeignKey("Image")]
         public string ImageID { get; set; }
 
-        public string URL {  get; set; }
-
         [JsonIgnore]
         public virtual RoomType? RoomType { get; set; }
         [JsonIgnore]
