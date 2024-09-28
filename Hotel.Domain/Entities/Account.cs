@@ -24,5 +24,6 @@ namespace Hotel.Domain.Entities
         public string RoleId { get; set; }
         public bool IsActive { get; set; }
         public bool IsAdmin { get; set; }
+
     }
 }

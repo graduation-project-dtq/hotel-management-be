@@ -324,8 +324,7 @@ namespace Hotel.Infrastructure.Migrations
                 columns: table => new
                 {
                     RoomTypeID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    URL = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ImageID = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {

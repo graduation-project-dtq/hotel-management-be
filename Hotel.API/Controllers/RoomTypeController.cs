@@ -6,6 +6,7 @@ using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Base;
 using Hotel.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,7 @@ namespace Hotel.API.Controllers
         }
         // Tạo RoomType mới
         [HttpPost]
+      // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
         public async Task<IActionResult> CreateRoomType([FromBody] CreateRoomTypeDTO model)
         {
             if (!ModelState.IsValid)

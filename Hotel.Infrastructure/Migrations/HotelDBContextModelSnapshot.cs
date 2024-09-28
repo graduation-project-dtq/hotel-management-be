@@ -565,10 +565,6 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<string>("RoomTypeID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("URL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("ImageID", "RoomTypeID");
 
                     b.HasIndex("RoomTypeID");
