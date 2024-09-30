@@ -504,7 +504,7 @@ namespace Hotel.Infrastructure.Migrations
                     RoomTypeDetailId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     HouseTypeID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     InternalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -627,7 +627,7 @@ namespace Hotel.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EmployeeId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CustomerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -738,7 +738,8 @@ namespace Hotel.Infrastructure.Migrations
                 {
                     BookingId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RoomID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {

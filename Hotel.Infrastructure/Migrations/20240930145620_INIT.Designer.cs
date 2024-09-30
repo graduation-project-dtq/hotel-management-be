@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hotel.Infrastructure.Migrations
 {
     [DbContext(typeof(HotelDBContext))]
-    [Migration("20240928081241_INIT")]
+    [Migration("20240930145620_INIT")]
     partial class INIT
     {
         /// <inheritdoc />
@@ -115,7 +115,6 @@ namespace Hotel.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("EmployeeId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("InternalCode")
@@ -150,8 +149,11 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<string>("RoomID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.HasKey("BookingId", "RoomID");
 
@@ -794,9 +796,8 @@ namespace Hotel.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1163,8 +1164,7 @@ namespace Hotel.Infrastructure.Migrations
                     b.HasOne("Hotel.Domain.Entities.Employee", "Employee")
                         .WithMany("Bookings")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Customer");
 
