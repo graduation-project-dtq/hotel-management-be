@@ -32,6 +32,7 @@ namespace Hotel.API.Controllers
                 data: "Get RoomType success "));
         }
 
+
         [HttpPost]
         // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
         public async Task<IActionResult> CreateRoomTypeDetail([FromBody] PortRoomTypeDetailDTO model)

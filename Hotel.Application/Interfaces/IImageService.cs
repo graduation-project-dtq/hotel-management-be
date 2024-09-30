@@ -8,4 +8,6 @@ namespace Hotel.Application.Interfaces
     {
         Task<PaginatedList<GetImageDTO>> GetPageAsync(int index, int pageSize, string idSearch);
     }
+
+
 }

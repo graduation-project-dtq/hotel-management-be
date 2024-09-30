@@ -14,19 +14,33 @@ namespace Hotel.API.Controllers
     {
         private IFloorService _floorService;
         private ILogger<FloorController> _logger;
+
         public FloorController(IFloorService floorService, ILogger<FloorController> logger)
         {
             _floorService = floorService;
             _logger = logger;
         }
-        //[HttpGet]
-        //public async Task<List<GetFloorDTO>> GetAllFloor()
-        //{
-        //    await _floorService.GetAllFloor();
-        //    return Ok(new BaseResponse<string>(
-        //        statusCode: StatusCodes.Status200OK,
-        //        code: ResponseCodeConstants.SUCCESS,
-        //        data: "Get RoomType success "));
-        //}
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllFloor()
+        {
+          List<GetFloorDTO> floors=  await _floorService.GetAllFloor();
+            return Ok(new BaseResponse<List<GetFloorDTO>>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: floors));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateFloor([FromBody] PostFloorDTO model)
+        {
+            GetFloorDTO floor =await _floorService.CreateFloor(model);
+            return Ok(new BaseResponse<GetFloorDTO>(
+             statusCode: StatusCodes.Status200OK,
+             code: ResponseCodeConstants.SUCCESS,
+             data: floor));
+        }
+
+
     }
 }
