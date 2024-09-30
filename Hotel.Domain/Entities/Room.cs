@@ -16,8 +16,6 @@ namespace Hotel.Domain.Entities
         [ForeignKey("HouseType")]
         public string HouseTypeID { get; set; }
 
-        [ForeignKey("Floor")]
-        public string FloorID {  get; set; }
         public string Name { get; set; }
         public EnumRoom Status { get; set; } = EnumRoom.Uninhabited;
         public bool IsActive { get; set; }
