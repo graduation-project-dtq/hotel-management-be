@@ -126,7 +126,7 @@ namespace Hotel.Application.Services
             }
             return roomTypeDTO;
         }
-        public async Task<RoomType> CreateRoomType(CreateRoomTypeDTO model)
+        public async Task<RoomType> CreateRoomType(PortRoomTypeDTO model)
         {
             // Kiểm tra xem model có hợp lệ không
             if (model == null || string.IsNullOrWhiteSpace(model.Name))

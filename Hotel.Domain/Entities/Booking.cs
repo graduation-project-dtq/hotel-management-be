@@ -12,7 +12,7 @@ namespace Hotel.Domain.Entities
         public string EmployeeId { get; set; }
 
         [ForeignKey("Customer")]
-        public string CustomerId { get; set; }
+        public string ? CustomerId { get; set; }
         public DateTime BookingDate { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }

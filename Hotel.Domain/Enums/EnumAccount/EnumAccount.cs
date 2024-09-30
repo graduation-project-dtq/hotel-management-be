@@ -1,7 +1,7 @@
 ﻿
 namespace Hotel.Domain.Enums.EnumAccount
 {
-    enum EnumAccount
+    public enum EnumAccount
     {
         ADMIN=1,
         CUSTOMER=2,

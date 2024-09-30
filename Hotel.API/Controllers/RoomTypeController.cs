@@ -29,7 +29,11 @@ namespace Hotel.API.Controllers
         public async Task<IActionResult> GetAllRoomType()
         {
             var roomTypes = await _roomTypeService.GetAllRoomType();
-            return Ok(roomTypes);
+            return Ok(new BaseResponseModel<List<GetRoomTypeDTO>>(
+                   statusCode: StatusCodes.Status200OK,
+                   code: "Lấy danh sách loại phòng thành công",
+                   data: roomTypes
+               ));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult>GetRoomTypeById(string id)
@@ -37,14 +41,14 @@ namespace Hotel.API.Controllers
             var roomType = await _roomTypeService.GetRoomTypeById(id);
             return Ok(new BaseResponseModel<GetRoomTypeDTO>(
                    statusCode: StatusCodes.Status200OK,
-                   code: ResponseCodeConstants.SUCCESS,
+                   code: "Lấy loại phòng thành công",
                    data: roomType
                ));
         }
         // Tạo RoomType mới
         [HttpPost]
       // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
-        public async Task<IActionResult> CreateRoomType([FromBody] CreateRoomTypeDTO model)
+        public async Task<IActionResult> CreateRoomType([FromBody] PortRoomTypeDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -68,7 +72,5 @@ namespace Hotel.API.Controllers
                 return StatusCode(ex.StatusCode, ex.Message);
             }
         }
-
-        
     }
 }

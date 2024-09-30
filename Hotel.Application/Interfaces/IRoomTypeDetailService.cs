@@ -10,5 +10,6 @@ namespace Hotel.Application.Interfaces
     {
         Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail();
         Task<RoomTypeDetail> CreateRoomTypeDetail(PortRoomTypeDetailDTO portRoomTypeDetail);
+        Task<GetRoomTypeDetailDTO> GetRoomTypeDetailById(string id);
     }
 }

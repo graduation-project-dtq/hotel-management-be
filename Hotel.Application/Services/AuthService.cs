@@ -5,6 +5,7 @@ using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Base;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -50,13 +51,13 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "This email is already registered.");
             }
 
-            Role role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(x => x.RoleName == registerRequestDto.RoleName && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "The specified role was not found. Please provide a valid role.");
+            //Role role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(x => x.RoleName == registerRequestDto.RoleName && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "The specified role was not found. Please provide a valid role.");
 
             Account account = _mapper.Map<Account>(registerRequestDto);
 
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
             account.Password = passwordHasher.HashPassword(account, account.Password);
-            account.RoleId = role.Id;
+            account.RoleId = "c401bb08da484925900a63575c3717f8";
             account.IsActive = true;
 
             //Add Customer
@@ -64,8 +65,11 @@ namespace Hotel.Application.Services
             {
                 AccountID = account.Id,
                 Name = account.Name,
-                Email = account.Email
+                Email = account.Email,
+                CreatedTime = CoreHelper.SystemTimeNow,
+                LastUpdatedTime = CoreHelper.SystemTimeNow,
             };
+
             await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);
             await _unitOfWork.GetRepository<Account>().InsertAsync(account);
             await _unitOfWork.SaveChangesAsync();
@@ -74,58 +78,6 @@ namespace Hotel.Application.Services
         }
 
       
-        //Kiểm tra role và gọi service tương ứng
-        //private async Task AssignRoleSpecificService(string accountId, RegisterRequestDto registerRequestDto)
-        //{
-        //    try
-        //    {
-        //        string roleName = registerRequestDto.RoleName;
-        //        if (string.IsNullOrEmpty(roleName))
-        //        {
-        //            throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Role name is required");
-        //        }
-
-        //        _logger.LogInformation($"Assigning role '{roleName}' for account ID: {accountId}");
-
-        //        switch (roleName)
-        //        {
-        //            case CLAIMS_VALUES.ROLE_TYPE.CUSTOMER:
-        //                CreateCustomerDTO createCustomer = new CreateCustomerDTO()
-        //                {
-        //                    AccountId = accountId,
-        //                    Name = registerRequestDto.Name,
-        //                    Email = registerRequestDto.Email,
-        //                    NumberPhone = registerRequestDto.NumberPhone,
-        //                };
-
-        //                _logger.LogInformation($"Creating customer with details: {JsonConvert.SerializeObject(createCustomer)}");
-        //                await _customerService.CreateCustomerAsync(createCustomer);
-        //                break;
-
-        //            case CLAIMS_VALUES.ROLE_TYPE.ADMIN:
-        //            case CLAIMS_VALUES.ROLE_TYPE.EMPLOYEE:
-        //                CreateEmployeeDTO createEmployee = new CreateEmployeeDTO()
-        //                {
-        //                    AccountId = accountId,
-        //                    Name = registerRequestDto.Name,
-        //                    NumberPhone = registerRequestDto.NumberPhone,
-        //                };
-
-        //                _logger.LogInformation($"Creating employee with details: {JsonConvert.SerializeObject(createEmployee)}");
-        //                await _employeeService.CreateEmployeeAsync(createEmployee);
-        //                break;
-
-        //            default:
-        //                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Role name is invalid");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error when assigning role specific service for account ID: {AccountId}", accountId);
-        //        throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "An internal server error occurred. Please try again later.");
-        //    }
-        //}
-
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequestDto)
         {
             Account account = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == loginRequestDto.Email && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Email or password is incorrect");

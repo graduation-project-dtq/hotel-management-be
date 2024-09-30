@@ -11,5 +11,7 @@ namespace Hotel.Application.Interfaces
     public interface IFloorService
     {
         Task<List<GetFloorDTO>> GetAllFloor();
+        
+        Task<GetFloorDTO> CreateFloor(PostFloorDTO postFloorDTO);
     }
 }

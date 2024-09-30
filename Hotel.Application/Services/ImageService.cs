@@ -1,6 +1,6 @@
-﻿using Hotel.Application.DTOs.ImageDTO; // Kiểm tra namespace
+﻿using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Interfaces;
-using Hotel.Core.Base; // Đảm bảo có namespace đúng
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -31,7 +31,6 @@ namespace Hotel.Application.Services
                 .Where(c => !c.DeletedTime.HasValue)
                 .OrderByDescending(c => c.CreatedTime);
 
-            // Kiểm tra id
             if (!string.IsNullOrWhiteSpace(idSearch))
             {
                 var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
@@ -50,16 +49,16 @@ namespace Hotel.Application.Services
                 query = query.Where(i => i.Id == idSearch);
             }
 
-            // Tạo danh sách phân trang
-            var imageDTOs = query.Select(img => new GetImageDTO // Ánh xạ từ Image sang GetImageDTO
+            // Ánh xạ từ Image sang GetImageDTO
+            var imageDTOs = query.Select(img => new GetImageDTO
             {
                 Id = img.Id,
                 URL = img.URL,
-                // Thêm các thuộc tính cần thiết khác
+                // Các thuộc tính khác...
             });
 
+            // Sử dụng PaginatedList để phân trang
             return await PaginatedList<GetImageDTO>.CreateAsync(imageDTOs, index, pageSize);
         }
-
     }
 }

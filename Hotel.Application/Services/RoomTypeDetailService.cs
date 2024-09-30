@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hotel.Application.Services
 {
-    public class RoomTypeDetailService //: IRoomTypeDetailService
+    public class RoomTypeDetailService : IRoomTypeDetailService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -34,6 +34,22 @@ namespace Hotel.Application.Services
             return roomTypeDetails;
         }
 
+        public async Task<GetRoomTypeDetailDTO>GetRoomTypeDetailById(string id)
+        {
+            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
+            if (!regex.IsMatch(id.Trim()))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
+            }
+
+            var roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>().
+                Entities.FirstOrDefaultAsync(r=>r.Id== id)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
+
+            GetRoomTypeDetailDTO getRoomType = _mapper.Map<GetRoomTypeDetailDTO>(roomTypeDetail);
+
+            return getRoomType;
+        }
         public async Task<RoomTypeDetail> CreateRoomTypeDetail(PortRoomTypeDetailDTO portRoomTypeDetail)
         {
            
@@ -64,5 +80,7 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Thêm thất bại!");
             }
         }
+
+
     }
 }

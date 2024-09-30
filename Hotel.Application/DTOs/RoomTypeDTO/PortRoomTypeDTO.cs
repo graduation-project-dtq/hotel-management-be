@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hotel.Application.DTOs.RoomTypeDTO
 {
-    public class CreateRoomTypeDTO
+    public class PortRoomTypeDTO
     {
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(100, ErrorMessage = "Name cannot be longer than 100 characters.")]
