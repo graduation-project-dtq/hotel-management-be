@@ -1,8 +1,6 @@
 ﻿using Hotel.Core.Base;
-using Hotel.Domain.Entities;
 using Hotel.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -22,6 +20,7 @@ namespace Hotel.API.Extensions
             AddSwagger(services);
             AddInitialiseDatabase(services);
         }
+
         public static void AddCustomHttpClient(this IServiceCollection services)
         {
             services.AddHttpClient("CustomHttpClient", client =>
@@ -36,6 +35,7 @@ namespace Hotel.API.Extensions
                 };
             });
         }
+
         // JWT Setting
         public static void JwtSetting(this IServiceCollection services, IConfiguration configuration)
         {
@@ -88,14 +88,13 @@ namespace Hotel.API.Extensions
                     ValidIssuer = configuration["JWT_ISSUER"],
                     ValidAudience = configuration["JWT_AUDIENCE"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT_KEY"])),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.FromMinutes(0) // Không có độ trễ thời gian
                 };
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = true;
             });
         }
 
-        // Database
         // Database
         public static void AddDatabases(this IServiceCollection services, IConfiguration configuration)
         {
@@ -119,9 +118,6 @@ namespace Hotel.API.Extensions
                 throw;
             }
         }
-
-
-       
 
         // Add Swagger
         public static void AddSwagger(this IServiceCollection services)

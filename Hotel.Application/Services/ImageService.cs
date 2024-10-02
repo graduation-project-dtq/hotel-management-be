@@ -1,6 +1,9 @@
-﻿using Hotel.Application.DTOs.ImageDTO;
+﻿using AutoMapper;
+using Hotel.Application.DTOs.ImageDTO;
+using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Base;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -11,54 +14,43 @@ using System.Linq;
 
 namespace Hotel.Application.Services
 {
-    public class ImageService
+    public class ImageService : IImageService
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public ImageService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _contextAccessor;
+        public ImageService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _contextAccessor = contextAccessor;
         }
-
-        public async Task<PaginatedList<GetImageDTO>> GetPageAsync(int index, int pageSize, string idSearch)
+        public async Task<List<GetImageDTO>> GetAllImage()
         {
-            if (index <= 0 || pageSize <= 0)
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
-            }
+            var listImage = await _unitOfWork.GetRepository<Image>().Entities
+                .Where(i=>i.DeletedTime==null).OrderBy(i=>i.LastUpdatedTime).ToListAsync();
+            List<GetImageDTO> images= _mapper.Map<List<GetImageDTO>>(listImage);
+            return images;
+        }
+        public async Task<GetImageDTO> CreateImage(PostImageDTO model)
+        {
+            var imageExited = _unitOfWork.GetRepository<Image>().Entities.FirstOrDefaultAsync(i => i.URL == model.URL)
+                ?? throw new ErrorException(StatusCodes.Status409Conflict, ResponseCodeConstants.EXISTED, "Đã tồn tại ảnh");
 
-            IQueryable<Image> query = _unitOfWork.GetRepository<Image>().Entities
-                .Where(c => !c.DeletedTime.HasValue)
-                .OrderByDescending(c => c.CreatedTime);
+            string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+            Image image=_mapper.Map<Image>(model);
 
-            if (!string.IsNullOrWhiteSpace(idSearch))
-            {
-                var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
+            image.CreatedBy = userId;
+            image.LastUpdatedBy= userId;
+            image.CreatedTime = CoreHelper.SystemTimeNow;
+            image.DeletedTime = CoreHelper.SystemTimeNow;
 
-                if (!regex.IsMatch(idSearch.Trim()))
-                {
-                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
-                }
+            await  _unitOfWork.GetRepository<Image>().InsertAsync(image);
+            await _unitOfWork.SaveChangesAsync();
 
-                var ingredient = await query.FirstOrDefaultAsync(i => i.Id == idSearch);
-                if (ingredient == null)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy ảnh với ID.");
-                }
+            GetImageDTO getImage = _mapper.Map<GetImageDTO>(image);
+            return getImage;
 
-                query = query.Where(i => i.Id == idSearch);
-            }
-
-            // Ánh xạ từ Image sang GetImageDTO
-            var imageDTOs = query.Select(img => new GetImageDTO
-            {
-                Id = img.Id,
-                URL = img.URL,
-                // Các thuộc tính khác...
-            });
-
-            // Sử dụng PaginatedList để phân trang
-            return await PaginatedList<GetImageDTO>.CreateAsync(imageDTOs, index, pageSize);
         }
     }
 }

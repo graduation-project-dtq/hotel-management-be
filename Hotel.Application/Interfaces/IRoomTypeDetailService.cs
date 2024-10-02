@@ -9,7 +9,9 @@ namespace Hotel.Application.Interfaces
     public interface IRoomTypeDetailService
     {
         Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail();
-        Task<RoomTypeDetail> CreateRoomTypeDetail(PortRoomTypeDetailDTO portRoomTypeDetail);
+        Task<RoomTypeDetail> CreateRoomTypeDetail(PostRoomTypeDetailDTO portRoomTypeDetail);
         Task<GetRoomTypeDetailDTO> GetRoomTypeDetailById(string id);
+        Task<List<List<GetRoomTypeDetailDTO>>> FindRoom(int soNguoi, string roomTypeID);
+        Task<List<GetRoomTypeDetailDTO>> GetByRoomTypeId(string id);
     }
 }

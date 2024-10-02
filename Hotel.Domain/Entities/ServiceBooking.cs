@@ -5,10 +5,10 @@ namespace Hotel.Domain.Entities
     public class ServiceBooking 
     {
         [ForeignKey("Booking")]
-        public string BookingID { get; set; }
+        public string BookingID { get; set; } = string.Empty;
 
         [ForeignKey("Service")]
-        public string ServiceID { get; set; }
+        public string ServiceID { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public float Total { get; set; }
 

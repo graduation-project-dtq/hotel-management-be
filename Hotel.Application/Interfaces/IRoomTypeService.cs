@@ -11,5 +11,6 @@ namespace Hotel.Application.Interfaces
         Task<RoomType> CreateRoomType(PortRoomTypeDTO model);
         Task DeleteRoomType(string id);
         Task<GetRoomTypeDTO> GetRoomTypeById(string id);
+
     }
 }

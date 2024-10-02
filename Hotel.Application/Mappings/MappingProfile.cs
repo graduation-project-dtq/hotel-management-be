@@ -34,7 +34,7 @@ namespace Hotel.Application.Mappings
 
             // Ánh xạ RoomTypeDetail sang GetRoomTypeDetailDTO
             CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>().ReverseMap();
-            CreateMap<PortRoomTypeDetailDTO, RoomTypeDetail>().ReverseMap();
+            CreateMap<PostRoomTypeDetailDTO, RoomTypeDetail>().ReverseMap();
 
             //Room
             CreateMap<GetRoomDTO, Room>().ReverseMap();
@@ -42,9 +42,17 @@ namespace Hotel.Application.Mappings
             CreateMap<PutRoomDTO, Room>().ReverseMap();
 
             //FLoor
-            CreateMap<GetFloorDTO, Floor>().ReverseMap();  
-            CreateMap<PutFloorDTO, Floor>().ReverseMap();  
+            CreateMap<GetFloorDTO, Floor>().ReverseMap();
+            CreateMap<PutFloorDTO, Floor>().ReverseMap();
             CreateMap<PostFloorDTO, Floor>().ReverseMap();
+
+            //RoomTypeDetail
+            CreateMap<GetRoomTypeDetailDTO, RoomTypeDetail>().ReverseMap();
+            CreateMap<PostRoomTypeDetailDTO, RoomTypeDetail>().ReverseMap();
+
+            //Image
+            CreateMap<GetImageDTO, Image>().ReverseMap();
+            CreateMap<PostImageDTO, Image>().ReverseMap();
         }
     }
 }

@@ -29,9 +29,9 @@ namespace Hotel.Application.Services
 
         public async Task<List<GetRoomDTO>>GetAllRoom()
         {
-            List<GetRoomDTO> query = _mapper.Map<List<GetRoomDTO>>(_unitOfWork.GetRepository<Room>().Entities
+            List<GetRoomDTO> query = _mapper.Map<List<GetRoomDTO>>(await _unitOfWork.GetRepository<Room>().Entities
                   .Where(r => r.DeletedTime == null)
-                  .OrderByDescending(r => r.CreatedTime).ToList());
+                  .OrderByDescending(r => r.CreatedTime).ToListAsync());
             return query;
         }
 
@@ -99,6 +99,29 @@ namespace Hotel.Application.Services
 
             GetRoomDTO getRoomDTO=_mapper.Map<GetRoomDTO>(room);
             return getRoomDTO;
+        }
+
+        //Tìm room khi booking 
+        public async Task<List<GetRoomDTO>> FindRoomBooking(DateTime checkInDate, DateTime checkOutDate, string roomTypeDetailID)
+        {
+            List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities.Where(r => r.DeletedTime == null && r.IsActive == true).ToListAsync();
+
+            // Lấy danh sách các booking chi tiết trong khoảng thời gian từ checkInDate đến checkOutDate
+            var bookedRooms = await _unitOfWork.GetRepository<BookingDetail>().Entities
+                                              .Where(bd => bd.Room.DeletedTime == null &&
+                                                           bd.Room.IsActive == true &&
+                                                           bd.Room.RoomTypeDetailId == roomTypeDetailID &&
+                                                           (bd.Booking.CheckInDate < checkOutDate && bd.Booking.CheckOutDate > checkInDate))
+                                              .Select(bd => bd.RoomID)
+                                              .ToListAsync();
+            var availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
+            var roomDTOs = _mapper.Map<List<GetRoomDTO>>(availableRooms.Select(r => new GetRoomDTO
+            {
+                Id = r.Id,
+                Name = r.Name,
+            }).ToList());
+
+            return roomDTOs;
         }
     }
 }

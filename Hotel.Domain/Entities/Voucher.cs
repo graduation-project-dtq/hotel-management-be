@@ -6,8 +6,8 @@ namespace Hotel.Domain.Entities
 {
     public class Voucher : BaseEntity
     {
-        public string Code { get; set; }
-        public string Description { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public decimal DiscountAmount { get; set; }
         public int MinCreditScoreRequired { get; set; }
         public DateTime StartDate { get; set; }
@@ -15,6 +15,6 @@ namespace Hotel.Domain.Entities
         public int Quantity { get; set; }
         public bool IsActive { get; set; }
 
-        public virtual ICollection<CustomerVoucher> CustomerVouchers { get; set; }
+        public virtual ICollection<CustomerVoucher> ? CustomerVouchers { get; set; }
     }
 }

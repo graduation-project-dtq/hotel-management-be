@@ -7,8 +7,8 @@ namespace Hotel.Domain.Entities
     public class Notification : BaseEntity
     {
         [ForeignKey("Customer")]
-        public string CustomerId {  get; set; }
-        public string Content {  get; set; }
+        public string CustomerId {  get; set; } = string.Empty;
+        public string Content {  get; set; } = string.Empty;
         public virtual Customer ? Customer { get; set; }
     }
 }

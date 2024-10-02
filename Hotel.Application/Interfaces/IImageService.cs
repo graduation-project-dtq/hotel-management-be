@@ -6,7 +6,8 @@ namespace Hotel.Application.Interfaces
 {
     public interface IImageService
     {
-        Task<PaginatedList<GetImageDTO>> GetPageAsync(int index, int pageSize, string idSearch);
+        Task<List<GetImageDTO>> GetAllImage();
+        Task<GetImageDTO> CreateImage(PostImageDTO model);
     }
 
 

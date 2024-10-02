@@ -1,7 +1,7 @@
 ﻿
 namespace Hotel.Application.DTOs.RoomTypeDetailDTO
 {
-    public class PortRoomTypeDetailDTO
+    public class PostRoomTypeDetailDTO
     {
         public string? RoomTypeID { get; set; }
         public string? Name { get; set; }
