@@ -6,10 +6,10 @@ namespace Hotel.Domain.Entities
     public class ImageRoomType 
     {
         [ForeignKey("RoomType")]
-        public string RoomTypeID { get; set; }
+        public string RoomTypeID { get; set; } = string.Empty;
 
         [ForeignKey("Image")]
-        public string ImageID { get; set; }
+        public string ImageID { get; set; } = string.Empty;
 
         [JsonIgnore]
         public virtual RoomType? RoomType { get; set; }

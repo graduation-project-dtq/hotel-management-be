@@ -4,7 +4,7 @@ namespace Hotel.Domain.Entities
 {
     public class Image : BaseEntity
     {
-        public string URL {  get; set; }
+        public string URL {  get; set; } = string.Empty;
 
         public virtual ICollection<ImageEvaluation> ? Evaluations { get; set; }
         public virtual ICollection<ImageFacilities> ? ImageFacilities { get; set; }

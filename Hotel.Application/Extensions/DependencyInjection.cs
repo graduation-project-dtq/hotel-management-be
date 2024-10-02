@@ -8,6 +8,7 @@ using Hotel.Infrastructure.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ImageService = Hotel.Application.Services.ImageService;
 
 
 namespace Hotel.Aplication.Extensions
@@ -50,6 +51,12 @@ namespace Hotel.Aplication.Extensions
 
             //Room
             services.AddScoped<IRoomService, RoomService>();
+
+            //Image
+            services.AddScoped<IImageService, ImageService>();
+            
+            //RoomTypeDetail
+            services.AddScoped<IRoomTypeDetailService, RoomTypeDetailService>();
         }
 
         //Đăng ký mapper

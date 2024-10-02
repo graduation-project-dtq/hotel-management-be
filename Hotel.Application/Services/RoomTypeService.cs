@@ -5,6 +5,7 @@ using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -156,7 +157,20 @@ namespace Hotel.Application.Services
         }
         public async Task DeleteRoomType(string id)
         {
+            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
+            if (!regex.IsMatch(id.Trim()))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
+            }
+            RoomType roomType=await _unitOfWork.GetRepository<RoomType>().Entities.FirstOrDefaultAsync(r=>r.Id ==id && r.DeletedTime==null)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
 
+            string userID = Authentication.GetUserIdFromHttpContextAccessor(_httpContextAccessor);
+
+            roomType.DeletedTime = CoreHelper.SystemTimeNow;
+            roomType.DeletedBy = userID;
+            await _unitOfWork.GetRepository<RoomType>().UpdateAsync(roomType);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

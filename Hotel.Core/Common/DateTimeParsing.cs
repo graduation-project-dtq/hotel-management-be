@@ -1,4 +1,7 @@
-﻿namespace Hotel.Core.Common;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Hotel.Core.Common;
 
 public class DateTimeParsing
 {
@@ -17,6 +20,13 @@ public class DateTimeParsing
         TimeSpan utcPlus7Offset = new (7, 0, 0);
         return dateTimeOffset.ToOffset(utcPlus7Offset);
     }
+    public static DateTime ConvertToUtcPlus7(DateTime datetime)
+    {
+        // Lấy thông tin múi giờ UTC+7
+        TimeZoneInfo utcPlus7Zone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        return TimeZoneInfo.ConvertTimeFromUtc(datetime, utcPlus7Zone);
+    }
+
     public static DateTimeOffset ConvertToUtcPlus7NotChanges(DateTimeOffset dateTimeOffset)
     {
         // UTC+7 is 7 hours ahead of UTC

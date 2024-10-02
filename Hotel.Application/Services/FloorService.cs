@@ -31,8 +31,8 @@ namespace Hotel.Application.Services
 
         public async Task<List<GetFloorDTO>> GetAllFloor()
         {
-            List<GetFloorDTO> floors = _mapper.Map<List<GetFloorDTO>>(_unitOfWork.GetRepository<Floor>()
-            .Entities.Where(r => r.DeletedTime == null).ToList());
+            List<GetFloorDTO> floors = _mapper.Map<List<GetFloorDTO>>(await _unitOfWork.GetRepository<Floor>()
+            .Entities.Where(r => r.DeletedTime == null).ToListAsync());
             return floors;
         }
 

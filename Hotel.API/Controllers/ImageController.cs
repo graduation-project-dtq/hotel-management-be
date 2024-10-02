@@ -1,7 +1,8 @@
-﻿using Hotel.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
+﻿using Hotel.Application.DTOs.ImageDTO;
+using Hotel.Application.Interfaces;
+using Hotel.Domain.Base;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+
 
 namespace Hotel.API.Controllers
 {
@@ -10,10 +11,30 @@ namespace Hotel.API.Controllers
     public class ImageController : ControllerBase
     {
         private readonly IImageService _imageService;
-        [HttpGet]
-        public async Task<IActionResult> GetPageAsync(int index, int pageSize, string idSearch)
+        public ImageController(IImageService imageService)
         {
-            return null;
+            _imageService = imageService;
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllImageAsync()
+        {
+           var images=await _imageService.GetAllImage();
+            return Ok(new BaseResponseModel<List<GetImageDTO>>(
+                  statusCode: StatusCodes.Status200OK,
+                  code: "Lấy danh sách ảnh thành công",
+                  data: images
+              ));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateImageAsync(PostImageDTO model)
+        {
+            var image = await _imageService.CreateImage(model);
+            return Ok(new BaseResponseModel<GetImageDTO>(
+                  statusCode: StatusCodes.Status200OK,
+                  code: "Thêm ảnh thành công",
+                  data: image
+              ));
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Hotel.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RoomTypeController : ControllerBase
     {
         private readonly IRoomTypeService _roomTypeService;
@@ -36,18 +37,19 @@ namespace Hotel.API.Controllers
                ));
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult>GetRoomTypeById(string id)
+        public async Task<IActionResult> GetRoomTypeById(string id)
         {
             var roomType = await _roomTypeService.GetRoomTypeById(id);
             return Ok(new BaseResponseModel<GetRoomTypeDTO>(
                    statusCode: StatusCodes.Status200OK,
-                   code: "Lấy loại phòng thành công",
+                   code: ResponseCodeConstants.SUCCESS,
+                   message: "Thêm loại phòng thành công",
                    data: roomType
                ));
         }
         // Tạo RoomType mới
         [HttpPost]
-      // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
+        // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
         public async Task<IActionResult> CreateRoomType([FromBody] PortRoomTypeDTO model)
         {
             if (!ModelState.IsValid)
@@ -61,16 +63,15 @@ namespace Hotel.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRoomType(string id)
         {
-            try
-            {
-                await _roomTypeService.DeleteRoomType(id);
-                return NoContent();
-            }
-            catch (ErrorException ex)
-            {
-                _logger.LogError(ex, $"Delete RoomType failed for ID {id}");
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
+            await _roomTypeService.DeleteRoomType(id);
+
+            return Ok(new BaseResponseModel<string ?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,  
+                message: "Xóa loại phòng thành công"
+            ));
         }
+
     }
 }

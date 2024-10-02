@@ -13,7 +13,7 @@ namespace Hotel.Domain.Entities
 
         [Required]
         [StringLength(255)]
-        public string RoleName { get; set; }
+        public string RoleName { get; set; } = string.Empty;
         public virtual ICollection<Account> ? Accounts { get; set; } = new List<Account>();
     }
 }

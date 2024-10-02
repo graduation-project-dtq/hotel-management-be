@@ -64,7 +64,7 @@ namespace Hotel.Application.Services
             Customer customer = new Customer()
             {
                 AccountID = account.Id,
-                Name = account.Name,
+                Name = account.Name ,
                 Email = account.Email,
                 CreatedTime = CoreHelper.SystemTimeNow,
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
