@@ -2,6 +2,7 @@
 using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
+using Hotel.Application.PaggingItems;
 using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
@@ -25,6 +26,62 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _logger = logger;
             _contextAccessor = contextAccessor;
+        }
+        public async Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch)
+        {
+            if (index <= 0 || pageSize <= 0)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
+            }
+
+            IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
+                 .Where(c => !c.DeletedTime.HasValue)
+                 .OrderByDescending(c => c.CreatedTime);
+
+            // Áp dụng điều kiện tìm kiếm theo ID
+            if (!string.IsNullOrWhiteSpace(idSearch))
+            {
+                query = query.Where(r => r.Id.ToString() == idSearch);
+                bool exists = await query.AnyAsync();
+                if (!exists)
+                {
+                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với ID đã cho!");
+                }
+            }
+
+            // Áp dụng điều kiện tìm kiếm theo tên
+            if (!string.IsNullOrWhiteSpace(nameSearch))
+            {
+                query = query.Where(r => r.Name.Contains(nameSearch));
+                bool exists = await query.AnyAsync();
+                if (!exists)
+                {
+                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với tên đã cho!");
+                }
+            }
+
+            var totalCount = await query.CountAsync();  // Tổng số bản ghi
+            if (totalCount == 0)
+            {
+                return new PaginatedList<GetRoomDTO>(new List<GetRoomDTO>(), totalCount, index, pageSize);
+            }
+
+            var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            // Ánh xạ từ Room sang GetRoomDTO
+            var responseItems = resultQuery.Select(room => _mapper.Map<GetRoomDTO>(room)).ToList();
+
+            // Tạo danh sách phân trang
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var responsePaginatedList = new PaginatedList<GetRoomDTO>(
+                responseItems,
+                totalCount,
+                index,
+                pageSize
+            );
+
+            return responsePaginatedList;
         }
 
         public async Task<List<GetRoomDTO>>GetAllRoom()

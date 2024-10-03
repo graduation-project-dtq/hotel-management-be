@@ -455,28 +455,42 @@ namespace Hotel.Infrastructure.Data
             }
             await _unitOfWork.SaveChangesAsync();
         }
-        
+
         private async Task addFacilitiesRoom()
         {
-            List<Room> rooms=await _unitOfWork.GetRepository<Room>().Entities.ToListAsync();
-            List<Facilities> facilities=await _unitOfWork.GetRepository<Facilities>().Entities.ToListAsync();
+            List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities.ToListAsync();
+            List<Facilities> facilities = await _unitOfWork.GetRepository<Facilities>().Entities.ToListAsync();
+
             if (rooms != null && facilities != null)
             {
                 foreach (var room in rooms)
                 {
                     foreach (var facility in facilities)
                     {
-                        FacilitiesRoom facilityRoom = new FacilitiesRoom()
+                        // Kiểm tra xem bản ghi đã tồn tại hay chưa
+                        var existingFacilityRoom = await _unitOfWork.GetRepository<FacilitiesRoom>()
+                            .Entities
+                            .FirstOrDefaultAsync(fr => fr.RoomID == room.Id && fr.FacilitiesID == facility.Id);
+
+                        if (existingFacilityRoom == null)
                         {
-                            RoomID = room.Id,
-                            FacilitiesID=facility.Id,
-                            Quantity=1
-                        };
-                        await _unitOfWork.GetRepository<FacilitiesRoom>().InsertAsync(facilityRoom);
+                            // Nếu không tồn tại, thêm mới bản ghi
+                            FacilitiesRoom facilityRoom = new FacilitiesRoom()
+                            {
+                                RoomID = room.Id,
+                                FacilitiesID = facility.Id,
+                                Quantity = 1
+                            };
+
+                            await _unitOfWork.GetRepository<FacilitiesRoom>().InsertAsync(facilityRoom);
+                        }
                     }
                 }
+
+                // Lưu thay đổi vào cơ sở dữ liệu
                 await _unitOfWork.SaveChangesAsync();
             }
         }
+
     }
 }

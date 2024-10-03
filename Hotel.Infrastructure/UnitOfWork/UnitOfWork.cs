@@ -1,11 +1,7 @@
 ﻿using Hotel.Domain.Interfaces;
 using Hotel.Infrastructure.Data;
 using Hotel.Infrastructure.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Infrastructure.IOW
 {
@@ -46,6 +42,28 @@ namespace Hotel.Infrastructure.IOW
                     _context.Dispose();
                 }
             }
+        }
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+        public void Save()
+        {
+            _context.SaveChanges();
+        }
+        public void BeginTransaction()
+        {
+            _context.Database.BeginTransaction();
+        }
+
+        public void CommitTransaction()
+        {
+            _context.Database.CommitTransaction();
+        }
+
+        public void RollBack()
+        {
+            _context.Database.RollbackTransaction();
         }
     }
 }

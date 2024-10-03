@@ -8,6 +8,7 @@ using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Domain.Entities;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.DTOs.RoomDTO;
+using Hotel.Application.DTOs.ViewHotelDTO;
 
 namespace Hotel.Application.Mappings
 {
@@ -53,6 +54,12 @@ namespace Hotel.Application.Mappings
             //Image
             CreateMap<GetImageDTO, Image>().ReverseMap();
             CreateMap<PostImageDTO, Image>().ReverseMap();
+
+            //ViewHotel
+            CreateMap<ViewHotel,GetViewHotelDTO>().ReverseMap();
+            CreateMap<ViewHotel, PostViewHotelDTO>().ReverseMap();
+            CreateMap<ViewHotel, PutViewHotelDTO>().ReverseMap();
+
         }
     }
 }
