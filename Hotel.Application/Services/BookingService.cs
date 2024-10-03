@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using Hotel.Application.DTOs.BookingDTO;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Constants;
+using Hotel.Core.Exceptions;
+using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hotel.Application.Services
 {
@@ -29,7 +28,13 @@ namespace Hotel.Application.Services
 
         public async Task<List<GetBookingDTO>> GetAllBooking()
         {
-            return null;
+            List<Booking> bookings = await _unitOfWork.GetRepository<Booking>().Entities.Where(b => b.DeletedTime == null).ToListAsync();
+            List<GetBookingDTO> bookingDTOs=_mapper.Map<List<GetBookingDTO>>(bookings);
+            if(bookingDTOs.Count == 0 )
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không có dữ liệu!");
+            }
+            return bookingDTOs;
         }
         public async Task<GetBookingDTO> CreateBooking(PostBookingDTO model)
         {
