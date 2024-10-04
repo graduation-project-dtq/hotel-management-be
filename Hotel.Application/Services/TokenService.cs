@@ -36,7 +36,7 @@ namespace Hotel.Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
                 new Claim("role",role),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(now.AddMinutes(2)).ToUnixTimeSeconds().ToString())
+                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(now.AddMinutes(60)).ToUnixTimeSeconds().ToString())
             };
             var keyString = _configuration["JWT_KEY"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));

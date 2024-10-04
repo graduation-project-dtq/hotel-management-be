@@ -64,7 +64,7 @@ namespace Hotel.Infrastructure.Data
                 await addAccount();
                 await addRoomType();
                 await addImage();
-                await addImageRoomType();
+            
                 await addRoomPrice();
                 await addRoomTypeDetail();
                 await addFloor();
@@ -72,6 +72,9 @@ namespace Hotel.Infrastructure.Data
                 await addRoom();
                 await addFacilities();
                 await addFacilitiesRoom();
+
+                await addImageRoomType();
+                await addImageRoomTypeDetail();
                 //await addUserRole();
             }
             catch (Exception ex)
@@ -204,7 +207,48 @@ namespace Hotel.Infrastructure.Data
                 new Image{Id="51be69a4b2144a8987asff69a428bdfg",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/464243652.jpg?k=07d7d6774a8db017b51467fef5c6e71a4ad36b4ae11065f2e0d2b192b5095bc6&o=&hp=1"},
                 new Image{Id="51be69a4b2144a89875saf69a428bdfg",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/464244742.jpg?k=599569893b6d6c7c4fff377db9ead1f08db79a2fe2bb135aa48848b2994d6491&o=&hp=1"},
                 new Image{Id="51be69a4b214dfg987551569a428bdfg",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/479058972.jpg?k=21d19d812f5d61d56e2b9314f8e6de4a313bb1e04936b09275e8d52f2f2dae29&o=&hp=1"},
-                new Image{Id="51be69a4bdgf4a8987551569a428bdfg",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/479059384.jpg?k=bf60975ceea7dd208d2133889fbd6bfa708e4161f82998278866db2fb8b7c950&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428sddfg",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/479059384.jpg?k=bf60975ceea7dd208d2133889fbd6bfa708e4161f82998278866db2fb8b7c950&o=&hp=1"},
+                //-------------------
+                //Standard 1 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b001",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/590831949.jpg?k=5e8df42e84d4cc77633b5eb66389c26cb0156e92161bdcb89f0439676239f901&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b002",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/590834402.jpg?k=a2217fa4e73e9e11b1199c9fd415f3d81c9007446d40d4b38bf538ca456d7bef&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b003",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/590832730.jpg?k=601ca91cdd26d3fcb6bf27c75203ae89395473b60e5317545b2c044f3f99c68a&o=&hp=1"},
+                //Standard 2 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b004",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/593517869.jpg?k=f36f215cf41a15b2a1a732ae5f87d5da1012da0ed02626855f8fd9524f80ae3d&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b005",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/593517861.jpg?k=01286929959a1eb024a9f6a5c5197d92c3e9bdbbc4507d330a1166117b114660&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b006",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/601817180.jpg?k=585140c2a8cd89bb4cf5c067c35facc006509f57991a28495ea82cfdd3cd2db2&o=&hp=1"},
+                //Standard 3 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b007",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/548661377.jpg?k=6e739537c0ee6150c12a0cae845facdb2a20db00a4348dcaaea017efb5e98863&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b008",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/548652007.jpg?k=8fb022a1496834097e03dddf4af7eb0aaa34a8cee3f3d348a11174384e2f5959&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b009",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/548653430.jpg?k=9a5400ea60b96901a701f042f4e4eb51c8080c7f7a088c32a6ad5e141d185021&o=&hp=1"},
+                //Luxyry 1 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b010",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/452645427.jpg?k=673b0239487dd10e41c7311ce1cf2ce7a568819db4d5c82504fede98da64ed5e&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b011",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/452674600.jpg?k=04a9660efa504bfb621119fd88bc5daa51aeda450c26b3b3af8f9e1d6b1e1f2e&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b012",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/406896397.jpg?k=0b27bbb7c2e9669711bd2a3f8fc8c6a7930b3aa0cdb5cbf4f127f79c09354030&o=&hp=1"},
+                 //Luxyry 2 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b013",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/533340308.jpg?k=b11407bca9b0021a8b44277f52ac7e92d2579afbdee3e32c5d33d6ca2dbcbf7a&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b014",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/599490153.jpg?k=36d9563a4dee3c70845c8ba356424aa1acc130ce61baba6060a6fb79b361ba80&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b015",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/599820360.jpg?k=9d6c98d74c36755e2a470141ab586ae9a05ad4ca1a621d44e45e8c9ed6d17519&o=&hp=1"},
+ 
+                //Luxyry 3 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b016",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/531973996.jpg?k=8aad3fd8f825806bc8f843d783b64074b0d326bb4f7bd1dcf069a2da44950fe5&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b017",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/531974011.jpg?k=958b19838cde9d0e86a256f416edfc1b968f40630ce652aa40f73fbd9e4f69f3&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b018",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/597969691.jpg?k=657ef776dfc7f67b743b5d2dd870022839c8dfd0e0852e7049411b97680d0397&o=&hp=1"},
+
+                //Premium 1 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b019",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/598533733.jpg?k=a642e3b55cb705c6b180e8173d26f1849a8585fa2b5610767ab51a4bce63f16e&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b020",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/598275920.jpg?k=c0c0008dd9d1d90d60e6440d33f0ef3944674b10ffa4a551c9433c2e91af0978&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b021",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/598275930.jpg?k=9be4b130d4fc98cc356641c10da9f197ecdfa3b32e91a7bc9fb9a991d4496b4f&o=&hp=1"},
+
+                //Premium 2 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b022",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/553666165.jpg?k=e8b3f5407d340fa62886f22f71d15a03f2663421e8273517cc12aba11570b67c&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b023",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/598275920.jpg?k=c0c0008dd9d1d90d60e6440d33f0ef3944674b10ffa4a551c9433c2e91af0978&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b024",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/438942876.jpg?k=64dad9668a83ae01aae27d8884339f800f82a082d123aec88e84bfb8efdf38aa&o=&hp=1"},
+
+                //Premium 3 phòng
+                new Image{Id="51be69a4bdgf4a8987551569a428b025",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/598275920.jpg?k=c0c0008dd9d1d90d60e6440d33f0ef3944674b10ffa4a551c9433c2e91af0978&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b026",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/532299206.jpg?k=0ae077ef9569b9a183d46bac3737840b456d976a1716e153d1389adba00d62ee&o=&hp=1"},
+                new Image{Id="51be69a4bdgf4a8987551569a428b027",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/572015603.webp?k=68a1d98b469233ac7a09af3647a190aeb8cdb15f35f0dc5ff35310e0ab1debbd&o="},
             };
             foreach(var item in images)
             {
@@ -238,7 +282,7 @@ namespace Hotel.Infrastructure.Data
                 new ImageRoomType{RoomTypeID="c401bb08da484925900a63575c2717f8",ImageID="51be69a4b2144a8987asff69a428bdfg"},
                 new ImageRoomType{RoomTypeID="c401bb08da484925900a63575c2717f8",ImageID="51be69a4b2144a89875saf69a428bdfg"},
                 new ImageRoomType{RoomTypeID="c401bb08da484925900a63575c2717f8",ImageID="51be69a4b214dfg987551569a428bdfg"},
-                new ImageRoomType{RoomTypeID="c401bb08da484925900a63575c2717f8",ImageID="51be69a4bdgf4a8987551569a428bdfg"},
+                new ImageRoomType{RoomTypeID="c401bb08da484925900a63575c2717f8",ImageID="51be69a4bdgf4a8987551569a428b002"},
             };
             foreach (var item in imageRoomTypes)
             {
@@ -312,8 +356,60 @@ namespace Hotel.Infrastructure.Data
             }
             await _unitOfWork.SaveChangesAsync();
         }
+    
+        private async Task addImageRoomTypeDetail()
+        {
+            ImageRoomTypeDetail[] imageRoomTypeDetails =
+            {
+                //Standard 1 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b001",RoomTypeDetailID="c401bb08da484fdgdggfsv575c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b002",RoomTypeDetailID="c401bb08da484fdgdggfsv575c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b003",RoomTypeDetailID="c401bb08da484fdgdggfsv575c2717f8"},
+                //Standard 2 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b004",RoomTypeDetailID="c401bb08dfggggggrfffsv575c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b005",RoomTypeDetailID="c401bb08dfggggggrfffsv575c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b006",RoomTypeDetailID="c401bb08dfggggggrfffsv575c2717f8"},
+                //Standard 3 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b007",RoomTypeDetailID="c401bb08da48493erfffsv575c2717f9"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b008",RoomTypeDetailID="c401bb08da48493erfffsv575c2717f9"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b009",RoomTypeDetailID="c401bb08da48493erfffsv575c2717f9"},
+                //Luxury 1 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b010",RoomTypeDetailID="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b011",RoomTypeDetailID="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b012",RoomTypeDetailID="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                //Luxury 2 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b013",RoomTypeDetailID="c401bb08dasdgswfsvwawfffhs271710"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b014",RoomTypeDetailID="c401bb08dasdgswfsvwawfffhs271710"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b015",RoomTypeDetailID="c401bb08dasdgswfsvwawfffhs271710"},
+                //Luxury 3 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b016",RoomTypeDetailID="c401bb08dfdgggggggffsv575c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b017",RoomTypeDetailID="c401bb08dfdgggggggffsv575c2717f8"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b018",RoomTypeDetailID="c401bb08dfdgggggggffsv575c2717f8"},
+                //Premium 1 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b019",RoomTypeDetailID="c401bb08da4sddggggggfv575c271710"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b020",RoomTypeDetailID="c401bb08da4sddggggggfv575c271710"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b021",RoomTypeDetailID="c401bb08da4sddggggggfv575c271710"},
+                //Premium 2 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b022",RoomTypeDetailID="c401bb08da48493erdffsv575c271711"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b023",RoomTypeDetailID="c401bb08da48493erdffsv575c271711"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b024",RoomTypeDetailID="c401bb08da48493erdffsv575c271711"},
+                //Premium 3 phòng
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b025",RoomTypeDetailID="c401bb08da4849sdg35gggg75c271712"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b026",RoomTypeDetailID="c401bb08da4849sdg35gggg75c271712"},
+                new  ImageRoomTypeDetail(){ImageID="51be69a4bdgf4a8987551569a428b027",RoomTypeDetailID="c401bb08da4849sdg35gggg75c271712"},
+            };
+            foreach (var item in imageRoomTypeDetails)
+            {
 
-        public async Task addFloor()
+                if (!await _unitOfWork.GetRepository<ImageRoomTypeDetail>().Entities.AnyAsync(i => i.ImageID == item.ImageID && i.RoomTypeDetailID==item.RoomTypeDetailID))
+                {
+                
+                    await _unitOfWork.GetRepository<ImageRoomTypeDetail>().InsertAsync(item);
+                }
+            }
+            await _unitOfWork.SaveChangesAsync();
+        }
+        private async Task addFloor()
         {
             Floor[] floors =
             {

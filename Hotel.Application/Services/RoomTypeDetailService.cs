@@ -1,7 +1,7 @@
 ﻿
 using AutoMapper;
+using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.DTOs.RoomTypeDetailDTO;
-using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Constants;
@@ -61,11 +61,66 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
             }
-            List<GetRoomTypeDetailDTO> roomTypeDetails = _mapper.Map<List<GetRoomTypeDetailDTO>>
-                (await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.Where(r=>r.RoomTypeID==id).ToListAsync())
+            List<RoomTypeDetail> roomTypeDetails =
+                await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.Where(r=>r.RoomTypeID==id).ToListAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại theo ID!");
+            //Gắn thêm hình vào
+            foreach (var item in roomTypeDetails)
+            {
+               
+                item.ImageRoomTypeDetails = new List<ImageRoomTypeDetail>();
+                var listImage = _unitOfWork.GetRepository<ImageRoomTypeDetail>()
+                    .Entities.Where(i => i.RoomTypeDetailID == item.Id).ToList();
 
-            return roomTypeDetails;
+                // Thêm từng ảnh vào 
+                if (listImage != null)
+                {
+                    foreach (var image in listImage)
+                    {
+                        if (!item.ImageRoomTypeDetails.Any(i => i.ImageID == image.ImageID))
+                        {
+                            item.ImageRoomTypeDetails.Add(image);
+                        }
+                    }
+                }
+            }
+
+            List<GetRoomTypeDetailDTO> list = new List<GetRoomTypeDetailDTO>();
+
+            foreach (var item in roomTypeDetails)
+            {
+
+                var roomTypeDetailDTO = new GetRoomTypeDetailDTO()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Description = item.Description,
+                    CapacityMax= item.CapacityMax,
+                    Area=item.Area,
+                    AverageStart= item.AverageStart,
+                };
+                if (item.ImageRoomTypeDetails != null)
+                {
+                    roomTypeDetailDTO.ImageRoomTypeDetailDTOs = new List<GetImageRoomTypeDetailDTO>();
+                    foreach (var image in item.ImageRoomTypeDetails)
+                    {
+                        var imageDTO = await _unitOfWork.GetRepository<Image>().Entities.FirstOrDefaultAsync(i => i.Id == image.ImageID);
+                        if (imageDTO != null)
+                        {
+                            var imageRoomTypeDetail = new GetImageRoomTypeDetailDTO()
+                            {
+                                URL = imageDTO.URL
+                            };
+                            if (!roomTypeDetailDTO.ImageRoomTypeDetailDTOs.Any(i => i.URL == imageRoomTypeDetail.URL))
+                            {
+                                roomTypeDetailDTO.ImageRoomTypeDetailDTOs.Add(imageRoomTypeDetail);
+                            }
+                        }
+                    }
+                }
+                list.Add(roomTypeDetailDTO);
+            }
+            return list;
         }
         public async Task<RoomTypeDetail> CreateRoomTypeDetail(PostRoomTypeDetailDTO portRoomTypeDetail)
         {

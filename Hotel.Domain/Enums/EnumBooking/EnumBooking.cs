@@ -10,6 +10,7 @@ namespace Hotel.Domain.Enums.EnumBooking
     {
         CONFIRMED=1,
         CANCELED=2,
-        CANCELLATIONREQUEST=0
+        CANCELLATIONREQUEST=0,
+        UNCONFIRMED=3
     }
 }

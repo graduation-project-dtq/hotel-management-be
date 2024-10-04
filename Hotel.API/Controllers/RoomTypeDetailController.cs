@@ -57,9 +57,9 @@ namespace Hotel.API.Controllers
         }
 
         [HttpGet("{roomTypeID}")]
-        public async Task<IActionResult> GetByRoomTypeId(string id)
+        public async Task<IActionResult> GetByRoomTypeId(string roomTypeID)
         {
-            List<GetRoomTypeDetailDTO> roomTypeDetails = await _roomTypeDetailService.GetByRoomTypeId(id);
+            List<GetRoomTypeDetailDTO> roomTypeDetails = await _roomTypeDetailService.GetByRoomTypeId(roomTypeID);
 
             return Ok(new BaseResponse<List<GetRoomTypeDetailDTO>>(
                 statusCode: StatusCodes.Status200OK,

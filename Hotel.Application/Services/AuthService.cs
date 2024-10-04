@@ -64,10 +64,12 @@ namespace Hotel.Application.Services
             Customer customer = new Customer()
             {
                 AccountID = account.Id,
-                Name = account.Name ,
+                Name = account.Name ?? "Khách hàng",
                 Email = account.Email,
                 CreatedTime = CoreHelper.SystemTimeNow,
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
+                CredibilityScore=100,
+                AccumulatedPoints=0,
             };
 
             await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);

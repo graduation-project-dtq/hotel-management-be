@@ -20,7 +20,8 @@ namespace Hotel.Application.Mappings
             CreateMap<RegisterRequestDto, Account>();
 
             // Customer
-            CreateMap<CreateCustomerDTO, Customer>();
+            CreateMap<Customer, CreateCustomerDTO>().ReverseMap();
+            CreateMap<Customer, PutCustomerDTO>().ReverseMap();
 
             // Employee
             CreateMap<CreateEmployeeDTO, Employee>();

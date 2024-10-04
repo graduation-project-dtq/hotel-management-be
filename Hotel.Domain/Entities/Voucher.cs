@@ -16,5 +16,6 @@ namespace Hotel.Domain.Entities
         public bool IsActive { get; set; }
 
         public virtual ICollection<CustomerVoucher> ? CustomerVouchers { get; set; }
+        public virtual ICollection<VoucherRoomTypeDetail>? VoucherRoomTypeDetails { get; set; }
     }
 }

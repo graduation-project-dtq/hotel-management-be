@@ -2,7 +2,6 @@
 using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
-using Hotel.Core.Base;
 using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
@@ -10,7 +9,7 @@ using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+
 
 namespace Hotel.Application.Services
 {

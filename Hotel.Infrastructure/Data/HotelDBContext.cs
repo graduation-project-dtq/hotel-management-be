@@ -43,7 +43,7 @@ namespace Hotel.Infrastructure.Data
         public DbSet<ServiceBooking> ServicesBooking { get; set; }
         public DbSet<ViewHotel> ViewHotels { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
-
+        public DbSet<VoucherRoomTypeDetail>VoucherRoomTypeDetails { get; set; }
         public DbSet<Image>  Images { get; set; }
         public DbSet<ImageEvaluation> ImageEvaluations { get; set; }
         public DbSet<ImageFacilities> ImageFacilities { get; set; }
@@ -339,6 +339,20 @@ namespace Hotel.Infrastructure.Data
                 .HasOne(ft => ft.Room)
                 .WithMany(t => t.BookingDetails)
                 .HasForeignKey(ft => ft.RoomID);
+
+            //VoucherRoomTypeDetail
+            modelBuilder.Entity<VoucherRoomTypeDetail>()
+            .HasKey(bk => new { bk.VoucherID, bk.RoomTypeDetailID });
+
+            modelBuilder.Entity<VoucherRoomTypeDetail>()
+               .HasOne(ft => ft.Voucher)
+               .WithMany(f => f.VoucherRoomTypeDetails)
+               .HasForeignKey(ft => ft.VoucherID);
+
+            modelBuilder.Entity<VoucherRoomTypeDetail>()
+              .HasOne(ft => ft.RoomTypeDetail)
+              .WithMany(f => f.VoucherRoomTypeDetails)
+              .HasForeignKey(ft => ft.RoomTypeDetailID);
         }
     }
 }
