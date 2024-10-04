@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Application.Services
 {
-    public class ViewHotelService /*: IViewHotelSercide*/
+    public class ViewHotelService : IViewHotelService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -135,9 +135,27 @@ namespace Hotel.Application.Services
 
             await _unitOfWork.GetRepository<ViewHotel>().UpdateAsync(view); 
             await _unitOfWork.SaveChangesAsync();
+
             GetViewHotelDTO getViewHotel = _mapper.Map<GetViewHotelDTO>(view);
 
             return getViewHotel;
+        }
+
+        public async Task DeleteViewHotel(string id)
+        {
+            if(String.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.INVALID_INPUT, "Không được để trống ID!");
+            }
+            ViewHotel view=await _unitOfWork.GetRepository<ViewHotel>().Entities.FirstOrDefaultAsync(v=>v.Id == id)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tồn tại view với ID");
+
+            string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+
+            view.DeletedBy = userID;
+            view.DeletedTime=CoreHelper.SystemTimeNow;
+            await _unitOfWork.GetRepository<ViewHotel>().UpdateAsync(view);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

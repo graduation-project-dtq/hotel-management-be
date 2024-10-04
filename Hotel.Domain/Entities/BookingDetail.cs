@@ -9,7 +9,6 @@ namespace Hotel.Domain.Entities
 
         [ForeignKey("RoomID")]
         public string ? RoomID { get; set; }
-        public int Quantity {  get; set; }
         public decimal ? Price { get; set; }
         public virtual Booking ? Booking { get; set; }
         public virtual Room ? Room { get; set; }

@@ -16,16 +16,6 @@ namespace Hotel.API.Controllers
         {
             _authService = authService;
         }
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
-        {
-            await _authService.RegisterAsync(registerRequestDto);
-            return Ok(new BaseResponse<string>(
-                statusCode: StatusCodes.Status200OK,
-                code: ResponseCodeConstants.SUCCESS,
-                data: "Register success "));
-        }
-
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
         {
@@ -36,6 +26,17 @@ namespace Hotel.API.Controllers
                 data: loginResponseDto));
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
+        {
+            await _authService.RegisterAsync(registerRequestDto);
+            return Ok(new BaseResponse<string>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: "Register success "));
+        }
+
+   
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefeshTokenRequestDto refeshTokenRequest)
         {

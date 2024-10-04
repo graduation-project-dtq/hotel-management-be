@@ -12,5 +12,6 @@ namespace Hotel.Application.Interfaces
     public interface ICustomerService
     {
         Task<Customer> CreateCustomerAsync(CreateCustomerDTO createCustomerDTO);
+        Task UpdateCustomerAsync(string id,PutCustomerDTO model);
     }
 }
