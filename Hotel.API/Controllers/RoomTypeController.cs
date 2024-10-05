@@ -1,7 +1,9 @@
 ﻿using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -43,7 +45,7 @@ namespace Hotel.API.Controllers
         }
         // Tạo RoomType mới
         [HttpPost]
-        // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> CreateRoomType([FromBody] PortRoomTypeDTO model)
         {
             if (!ModelState.IsValid)

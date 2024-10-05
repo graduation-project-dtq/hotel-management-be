@@ -7,7 +7,7 @@ namespace Hotel.Domain.Interfaces
         Task<IList<T>> GetAllAsync();
         Task<T> GetByIdAsync(string id);
         Task InsertAsync(T entity);
-        Task DeleteAsync(int id);
+        Task DeleteAsync(string id);
         Task UpdateAsync(T entity);
 
     }

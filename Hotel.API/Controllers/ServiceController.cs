@@ -1,8 +1,10 @@
 ﻿using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -29,6 +31,7 @@ namespace Hotel.API.Controllers
            ));
         }
         [HttpPost]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> CreateService([FromBody] PostServiceDTO model)
         {
            
@@ -43,6 +46,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> CreateService(string id,[FromBody] PutServiceDTO model)
         {
 
@@ -56,6 +60,7 @@ namespace Hotel.API.Controllers
 
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> DeleteService(string id)
         {
             await _serviceService.DeleteService(id);

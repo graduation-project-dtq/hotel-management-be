@@ -2,8 +2,10 @@
 using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sprache;
@@ -32,6 +34,7 @@ namespace Hotel.API.Controllers
              ));
         }
         [HttpPost]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> CreateHouseType([FromBody]PostHouseTypeDTO model)
         {
             await _houseTypeService.CreateHouseType(model);

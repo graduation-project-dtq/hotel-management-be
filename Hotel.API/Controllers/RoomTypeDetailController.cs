@@ -3,6 +3,7 @@ using Hotel.Application.Interfaces;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -42,7 +43,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPost]
-        // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> CreateRoomTypeDetail([FromBody] PostRoomTypeDetailDTO model)
         {
             if (!ModelState.IsValid)
