@@ -1,9 +1,4 @@
-﻿using Hotel.Core.Base;
-using Hotel.Domain.Base;
-using Hotel.Infrastructure.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Hotel.Infrastructure.Base;
 using System.Linq.Expressions;
 
 

@@ -1,7 +1,6 @@
 ﻿
 using AutoMapper;
 using Hotel.Application.DTOs.FloorDTO;
-using Hotel.Application.DTOs.RoomTypeDetailDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Common;

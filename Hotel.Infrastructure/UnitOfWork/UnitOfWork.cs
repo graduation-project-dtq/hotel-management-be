@@ -1,7 +1,6 @@
 ﻿using Hotel.Domain.Interfaces;
 using Hotel.Infrastructure.Data;
 using Hotel.Infrastructure.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Infrastructure.IOW
 {

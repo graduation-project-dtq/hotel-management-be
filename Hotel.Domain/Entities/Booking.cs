@@ -11,9 +11,9 @@ namespace Hotel.Domain.Entities
 
         [ForeignKey("Customer")]
         public string CustomerId { get; set; } =string .Empty;
-        public DateTime BookingDate { get; set; }
-        public DateTime CheckInDate { get; set; }
-        public DateTime CheckOutDate { get; set; }
+        public DateOnly BookingDate { get; set; }
+        public DateOnly CheckInDate { get; set; }
+        public DateOnly CheckOutDate { get; set; }
         public decimal TotalAmount { get; set; }
         public EnumBooking Status { get; set; }
         public virtual Customer ? Customer { get; set; }

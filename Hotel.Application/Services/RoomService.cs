@@ -35,6 +35,9 @@ namespace Hotel.Application.Services
             }
 
             IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
+                .Include(r=>r.Floor)
+                .Include(r=>r.RoomTypeDetail)
+                .Include(r => r.HouseType)
                  .Where(c => !c.DeletedTime.HasValue)
                  .OrderByDescending(c => c.CreatedTime);
 
@@ -69,8 +72,22 @@ namespace Hotel.Application.Services
             var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
 
             // Ánh xạ từ Room sang GetRoomDTO
-            var responseItems = resultQuery.Select(room => _mapper.Map<GetRoomDTO>(room)).ToList();
-
+            //var responseItems = resultQuery.Select(room => _mapper.Map<GetRoomDTO>(room)).ToList();
+            List<GetRoomDTO> responseItems = new List<GetRoomDTO>();
+            foreach (Room item in resultQuery)
+            {
+                Account account = await _unitOfWork.GetRepository<Account>().GetByIdAsync(item.CreatedBy);
+                GetRoomDTO response = new GetRoomDTO()
+                {
+                    Id = item.Id,
+                    FloorID = item.Floor != null ? item.Floor.Name : null,
+                    RoomTypeDetailId = item.RoomTypeDetail != null ? item.RoomTypeDetail.Name : null,
+                    HouseTypeID= item.HouseType !=null ? item.HouseType.Name : null,
+                    Name=item.Name,
+                    CreateBy=account !=null ? account.Name : item.CreatedBy,
+                };
+                responseItems.Add(response);
+            }
             // Tạo danh sách phân trang
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
@@ -159,7 +176,7 @@ namespace Hotel.Application.Services
         }
 
         //Tìm room khi booking 
-        public async Task<List<GetRoomDTO>> FindRoomBooking(DateTime checkInDate, DateTime checkOutDate, string roomTypeDetailID)
+        public async Task<List<GetRoomDTO>> FindRoomBooking(DateOnly checkInDate, DateOnly checkOutDate, string roomTypeDetailID)
         {
             List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities.Where(r => r.DeletedTime == null && r.IsActive == true).ToListAsync();
 

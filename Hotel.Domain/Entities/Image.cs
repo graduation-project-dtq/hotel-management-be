@@ -8,8 +8,8 @@ namespace Hotel.Domain.Entities
 
         public virtual ICollection<ImageEvaluation> ? Evaluations { get; set; }
         public virtual ICollection<ImageFacilities> ? ImageFacilities { get; set; }
-        public virtual ICollection<ImageRoomType> ImageRoomTypes { get; set; }
-        public virtual ICollection<ImageRoomTypeDetail> ImageRoomTypesDetail { get; set; }
-        public virtual ICollection<ImageService> ImageServices { get; set; }
+        public virtual ICollection<ImageRoomType> ? ImageRoomTypes { get; set; }
+        public virtual ICollection<ImageRoomTypeDetail> ? ImageRoomTypesDetail { get; set; }
+        public virtual ICollection<ImageService> ? ImageServices { get; set; }
     }
 }

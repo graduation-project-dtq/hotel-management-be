@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace Hotel.Core.Common;
+﻿namespace Hotel.Core.Common;
 
 public class DateTimeParsing
 {

@@ -1,6 +1,4 @@
-﻿
-using Hotel.Core.Base;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Domain.Entities
 {

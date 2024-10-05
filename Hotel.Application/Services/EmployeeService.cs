@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Hotel.Application.DTOs.CustomerDTO;
 using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Constants;
@@ -9,11 +8,6 @@ using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hotel.Application.Services
 {

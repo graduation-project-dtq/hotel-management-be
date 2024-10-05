@@ -9,6 +9,6 @@ namespace Hotel.Application.Interfaces
     {
       
         Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID,string employeeID);
-        //Task<GetBookingDTO> CreateBooking(PostBookingDTO model);
+        Task<GetBookingDTO> CreateBooking(PostBookingDTO model);
     }
 }

@@ -11,7 +11,6 @@ using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 
 namespace Hotel.Application.Services
 {
