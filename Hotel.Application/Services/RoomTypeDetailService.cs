@@ -224,7 +224,7 @@ namespace Hotel.Application.Services
             var ketQuaPhuHopNhat = output
                 .Where(ketHop => ketHop.Sum(p => p.CapacityMax) >= soNguoi) // Chỉ giữ lại tổ hợp có sức chứa đủ
                 .OrderBy(ketHop => ketHop.Sum(p => p.CapacityMax)) // Sắp xếp theo tổng sức chứa tăng dần
-                .Take(2) // Lấy tổ hợp có sức chứa tối thiểu
+                .Take(3) // Lấy tổ hợp có sức chứa tối thiểu
                 .ToList();
 
             var ketqua = _mapper.Map<List<List<GetRoomTypeDetailDTO>>>(ketQuaPhuHopNhat);

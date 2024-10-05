@@ -15,6 +15,17 @@ namespace Hotel.API.Controllers
         {
             _customerService = customerService;
         }
+        [HttpGet("{email}")]
+        public async Task<IActionResult> GetCustomerByEmailAsync(string email)
+        {
+            GetCustomerDTO result =await _customerService.GetCustomerByEmailAsync(email);
+            return Ok(new BaseResponse<GetCustomerDTO>(
+              statusCode: StatusCodes.Status200OK,
+              code: ResponseCodeConstants.SUCCESS,
+              data: result,
+              message: "Lấy thông tin khách hàng thành công"
+           ));
+        }
         [HttpPut]
         public async Task<IActionResult> UpdateCustomerAsync(string id,PutCustomerDTO model)
         {
@@ -26,5 +37,6 @@ namespace Hotel.API.Controllers
                 message: "Sửa thông tin thành công"
              ));
         }
+
     }
 }

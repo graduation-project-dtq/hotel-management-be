@@ -6,6 +6,7 @@ using Hotel.Application.Services;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
 using Hotel.Domain.Entities;
+using Hotel.Infrastructure.IOW;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -64,6 +65,17 @@ namespace Hotel.API.Controllers
                 ));
         }
 
-
+        [HttpGet("FindRoom{checkInDate}")]
+        public async Task<IActionResult> FindRoomBooking(DateOnly checkInDate, DateOnly checkOutDate, string roomTypeDetailID)
+        {
+            List<GetRoomDTO> result =await _roomService.FindRoomBooking(checkInDate,checkOutDate, roomTypeDetailID);
+            return Ok(new BaseResponseModel<List<GetRoomDTO>>(
+                  statusCode: StatusCodes.Status200OK,
+                  code: ResponseCodeConstants.SUCCESS,
+                  data: result,
+                  message: "Tìm phòng thành công"
+              ));
+        }
+           
     }
 }
