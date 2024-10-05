@@ -11,6 +11,7 @@ using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace Hotel.Application.Services
 {
@@ -45,6 +46,23 @@ namespace Hotel.Application.Services
             return customer;
         }
 
+        public async Task<GetCustomerDTO> GetCustomerByEmailAsync(string email)
+        {
+            if (String.IsNullOrWhiteSpace(email))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không được để trống!");
+            }
+            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            if (!Regex.IsMatch(email, emailRegex))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ!");
+            }
+            Customer customer =await _unitOfWork.GetRepository<Customer>().Entities.Where(c=>c.Email == email && c.DeletedTime==null).FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy khách hàng có email là !"+email);
+
+            GetCustomerDTO dto= _mapper.Map<GetCustomerDTO>(customer);
+            return dto;
+        }
         public async Task UpdateCustomerAsync(string id, PutCustomerDTO model)
         {
             // Kiểm tra ID khách hàng
@@ -98,7 +116,5 @@ namespace Hotel.Application.Services
             await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
         }
-
-
     }
 }

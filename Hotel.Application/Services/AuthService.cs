@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
-
-using Hotel.Application.DTOs.CustomerDTO;
-using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.Interfaces;
-using Hotel.Core.Base;
 using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
@@ -13,11 +9,8 @@ using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Data;
 
 namespace Hotel.Application.Services
 {
