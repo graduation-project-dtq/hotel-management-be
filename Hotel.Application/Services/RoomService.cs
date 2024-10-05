@@ -178,17 +178,24 @@ namespace Hotel.Application.Services
         //Tìm room khi booking 
         public async Task<List<GetRoomDTO>> FindRoomBooking(DateOnly checkInDate, DateOnly checkOutDate, string roomTypeDetailID)
         {
-            List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities.Where(r => r.DeletedTime == null && r.IsActive == true).ToListAsync();
+            // Lấy danh sách các phòng còn hoạt động và chưa bị xóa
+            List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities
+                .Where(r => r.DeletedTime == null && r.IsActive == true && r.RoomTypeDetailId == roomTypeDetailID)
+                .ToListAsync();
 
             // Lấy danh sách các booking chi tiết trong khoảng thời gian từ checkInDate đến checkOutDate
             var bookedRooms = await _unitOfWork.GetRepository<BookingDetail>().Entities
-                                              .Where(bd => bd.Room.DeletedTime == null &&
-                                                           bd.Room.IsActive == true &&
-                                                           bd.Room.RoomTypeDetailId == roomTypeDetailID &&
-                                                           (bd.Booking.CheckInDate < checkOutDate && bd.Booking.CheckOutDate > checkInDate))
-                                              .Select(bd => bd.RoomID)
-                                              .ToListAsync();
+                .Where(bd => bd.Room.DeletedTime == null &&
+                             bd.Room.IsActive == true &&
+                             bd.Room.RoomTypeDetailId == roomTypeDetailID &&
+                             (bd.Booking.CheckInDate < checkOutDate && bd.Booking.CheckOutDate > checkInDate))
+                .Select(bd => bd.RoomID)
+                .ToListAsync();
+
+            // Lọc các phòng chưa được đặt
             var availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
+
+            // Chuyển đổi danh sách phòng thành DTO
             var roomDTOs = _mapper.Map<List<GetRoomDTO>>(availableRooms.Select(r => new GetRoomDTO
             {
                 Id = r.Id,
@@ -197,5 +204,7 @@ namespace Hotel.Application.Services
 
             return roomDTOs;
         }
+
+
     }
 }

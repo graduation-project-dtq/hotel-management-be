@@ -2,6 +2,7 @@
 using Hotel.Application.Interfaces;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -26,10 +27,11 @@ namespace Hotel.API.Controllers
               message: "Lấy thông tin khách hàng thành công"
            ));
         }
-        [HttpPut]
-        public async Task<IActionResult> UpdateCustomerAsync(string id,PutCustomerDTO model)
+        [HttpPut("{email}")]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        public async Task<IActionResult> UpdateCustomerAsync(string email, PutCustomerDTO model)
         {
-            await _customerService.UpdateCustomerAsync(id, model);
+            await _customerService.UpdateCustomerAsync(email, model);
             return Ok(new BaseResponse<string ?>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,

@@ -3,11 +3,13 @@ using AutoMapper;
 using Hotel.Application.DTOs.FloorDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Base;
 using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -34,7 +36,6 @@ namespace Hotel.Application.Services
             .Entities.Where(r => r.DeletedTime == null).ToListAsync());
             return floors;
         }
-
         public async Task<GetFloorDTO> CreateFloor(PostFloorDTO model)
         {
             if (String.IsNullOrWhiteSpace(model.Name))
@@ -61,7 +62,7 @@ namespace Hotel.Application.Services
             GetFloorDTO getFloorDTO = _mapper.Map<GetFloorDTO>(floorInsert);
             return getFloorDTO;
         }
-       public async Task<GetFloorDTO> UpdateFloor(string id, PutFloorDTO model)
+        public async Task<GetFloorDTO> UpdateFloor(string id, PutFloorDTO model)
        {
             if (String.IsNullOrWhiteSpace(model.Name))
             {
@@ -83,7 +84,8 @@ namespace Hotel.Application.Services
             GetFloorDTO getFloorDTO = _mapper.Map<GetFloorDTO>(floor);
             return getFloorDTO;
         }
-       public async Task DeleteFloor(string id)
+   
+        public async Task DeleteFloor(string id)
        {
             if (String.IsNullOrWhiteSpace(id))
             {

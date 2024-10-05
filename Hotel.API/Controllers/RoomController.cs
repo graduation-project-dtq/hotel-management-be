@@ -16,10 +16,11 @@ namespace Hotel.API.Controllers
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
-
-        public RoomController(IRoomService roomService)
+        private readonly ILogger<RoomController> _logger;
+        public RoomController(IRoomService roomService, ILogger<RoomController> logger)
         {
             _roomService = roomService;
+            _logger = logger;
         }
         [HttpGet]
         public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
@@ -65,17 +66,62 @@ namespace Hotel.API.Controllers
                 ));
         }
 
-        [HttpGet("FindRoom{checkInDate}")]
-        public async Task<IActionResult> FindRoomBooking(DateOnly checkInDate, DateOnly checkOutDate, string roomTypeDetailID)
+        [HttpPost("FindRoom")]
+        public async Task<IActionResult> FindRoomBooking([FromBody] FindRoomDTO request)
         {
-            List<GetRoomDTO> result =await _roomService.FindRoomBooking(checkInDate,checkOutDate, roomTypeDetailID);
+            // Kiểm tra đầu vào
+            if (request.CheckInDate >= request.CheckOutDate)
+            {
+                return BadRequest(new BaseResponseModel<string>(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    code: ResponseCodeConstants.BADREQUEST,
+                    message: "Ngày check-in phải nhỏ hơn ngày check-out."
+                ));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.RoomTypeDetailID))
+            {
+                return BadRequest(new BaseResponseModel<string>(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    code: ResponseCodeConstants.BADREQUEST,
+                    message: "ID loại phòng không được để trống."
+                ));
+            }
+
+            // Tìm kiếm phòng
+            List<GetRoomDTO> result;
+            try
+            {
+                result = await _roomService.FindRoomBooking(request.CheckInDate, request.CheckOutDate, request.RoomTypeDetailID);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tìm phòng booking");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponseModel<string>(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    code: ResponseCodeConstants.INTERNAL_SERVER_ERROR,
+                    message: "Đã xảy ra lỗi trong quá trình tìm kiếm phòng."
+                ));
+            }
+
+            // Kiểm tra kết quả
+            if (result == null || !result.Any())
+            {
+                return NotFound(new BaseResponseModel<string>(
+                    statusCode: StatusCodes.Status404NotFound,
+                    code: ResponseCodeConstants.NOT_FOUND,
+                    message: "Không tìm thấy phòng nào phù hợp với yêu cầu."
+                ));
+            }
+
             return Ok(new BaseResponseModel<List<GetRoomDTO>>(
-                  statusCode: StatusCodes.Status200OK,
-                  code: ResponseCodeConstants.SUCCESS,
-                  data: result,
-                  message: "Tìm phòng thành công"
-              ));
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Tìm phòng thành công"
+            ));
         }
-           
+
     }
 }
