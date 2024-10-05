@@ -60,6 +60,9 @@ namespace Hotel.Aplication.Extensions
 
             //Booking
             services.AddScoped<IBookingService, BookingService>();
+
+            //Service
+            services.AddScoped<IServiceService, ServiceService>();
         }
 
         //Đăng ký mapper
