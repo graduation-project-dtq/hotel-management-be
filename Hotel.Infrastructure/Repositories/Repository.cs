@@ -38,7 +38,7 @@ namespace Hotel.Infrastructure.Repository
             await Task.CompletedTask;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(string id)
         {
             T entity = await _dbSet.FindAsync(id) ?? throw new Exception("Entity not found");
             _dbSet.Remove(entity);

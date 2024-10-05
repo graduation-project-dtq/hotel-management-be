@@ -3,10 +3,12 @@ using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Application.Services;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
 using Hotel.Domain.Entities;
 using Hotel.Infrastructure.IOW;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -52,6 +54,7 @@ namespace Hotel.API.Controllers
         }
         
         [HttpPost]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult>CreateRoom([FromBody] PostRoomDTO model)
         {
             if (!ModelState.IsValid)

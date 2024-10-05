@@ -25,7 +25,7 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _logger = logger;
         }
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
+    
         public async Task<Employee> CreateEmployeeAsync(CreateEmployeeDTO createEmployeeDTO)
         {
             Customer? existsAuthor = await _unitOfWork.GetRepository<Customer>().Entities.FirstOrDefaultAsync(a => a.AccountID == createEmployeeDTO.AccountId);
