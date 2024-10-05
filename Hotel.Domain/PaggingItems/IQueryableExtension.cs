@@ -2,9 +2,6 @@
 using AutoMapper.QueryableExtensions;
 using Hotel.Infrastructure.Base;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Hotel.Domain.PaggingItems
 {

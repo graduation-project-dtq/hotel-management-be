@@ -11,9 +11,9 @@ namespace Hotel.Application.DTOs.BookingDTO
         [Required]
         public string CustomerId { get; set; } = string.Empty;
         [Required]
-        public DateTime CheckInDate { get; set; }
+        public DateOnly CheckInDate { get; set; }
         [Required]
-        public DateTime CheckOutDate { get; set; }
+        public DateOnly CheckOutDate { get; set; }
         public virtual ICollection<PostBookingDetailDTO> ? BookingDetails { get; set; }
     }
 }

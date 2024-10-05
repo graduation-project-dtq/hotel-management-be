@@ -32,8 +32,9 @@ else
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
 app.UseCors("AllowLocalhost");
+app.UseAuthentication();
+
 app.UseAuthorization();
 app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 app.MapControllers();
@@ -41,7 +42,7 @@ app.MapControllers();
 try
 {
     app.Logger.LogInformation("Ứng dụng đang khởi động...");
-    app.Run();
+    app.Run(); 
 }
 catch (Exception ex)
 {

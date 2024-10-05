@@ -57,6 +57,9 @@ namespace Hotel.Aplication.Extensions
             
             //RoomTypeDetail
             services.AddScoped<IRoomTypeDetailService, RoomTypeDetailService>();
+
+            //Booking
+            services.AddScoped<IBookingService, BookingService>();
         }
 
         //Đăng ký mapper

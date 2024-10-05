@@ -61,7 +61,7 @@ namespace Hotel.API.Extensions
             {
                 options.AddPolicy("AllowLocalhost", builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:5000")
+                    builder.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:5000", "http://0.0.0.0:7227", "http://192.168.1.12")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();

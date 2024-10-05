@@ -30,6 +30,16 @@ namespace Hotel.API.Controllers
                 data: roomTypeDetails));
         }
 
+        [HttpGet("/GetByID{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            GetRoomTypeDetailDTO result = await _roomTypeDetailService.GetById(id);
+            return Ok(new BaseResponse<GetRoomTypeDetailDTO>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               message:"Lấy thông tin thành công",
+               data: result));
+        }
 
         [HttpPost]
         // [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]

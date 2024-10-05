@@ -9,6 +9,7 @@ using Hotel.Domain.Entities;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.DTOs.ViewHotelDTO;
+using Hotel.Application.DTOs.BookingDTO;
 
 namespace Hotel.Application.Mappings
 {
@@ -61,6 +62,10 @@ namespace Hotel.Application.Mappings
             CreateMap<ViewHotel, PostViewHotelDTO>().ReverseMap();
             CreateMap<ViewHotel, PutViewHotelDTO>().ReverseMap();
 
+            //Booking
+            CreateMap<Booking, GetBookingDTO>().ReverseMap();
+            CreateMap<Booking, PostBookingDTO>().ReverseMap();
+            CreateMap<Booking, PutBookingDTO>().ReverseMap();
         }
     }
 }

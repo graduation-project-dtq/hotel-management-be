@@ -1,6 +1,5 @@
 ﻿
 using AutoMapper;
-using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.DTOs.ViewHotelDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
@@ -11,7 +10,6 @@ using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Application.Services

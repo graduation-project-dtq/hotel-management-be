@@ -1,20 +1,14 @@
 ﻿using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
-using Hotel.Application.Services;
-using Hotel.Core.Base;
 using Hotel.Core.Constants;
-using Hotel.Core.Exceptions;
 using Hotel.Domain.Base;
-using Hotel.Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class RoomTypeController : ControllerBase
     {
         private readonly IRoomTypeService _roomTypeService;

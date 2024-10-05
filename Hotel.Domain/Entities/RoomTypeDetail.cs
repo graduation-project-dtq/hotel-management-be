@@ -12,7 +12,7 @@ namespace Hotel.Domain.Entities
 
         [ForeignKey("RoomPrice")]
         public string RoomPriceID {  get; set; } = string.Empty;
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public int CapacityMax { get; set; }
         public decimal Area { get; set; }
         public string Description { get; set; } = string.Empty;

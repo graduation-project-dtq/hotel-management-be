@@ -35,7 +35,7 @@ namespace Hotel.Application.Services
         }
 
         //Tìm kiếm theo ID
-        public async Task<GetRoomTypeDetailDTO>GetRoomTypeDetailById(string id)
+        public async Task<GetRoomTypeDetailDTO> GetById(string id)
         {
             var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
             if (!regex.IsMatch(id.Trim()))
@@ -43,17 +43,43 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
             }
 
-            var roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>().
+            RoomTypeDetail roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>().
                 Entities.FirstOrDefaultAsync(r=>r.Id== id)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
 
-            GetRoomTypeDetailDTO getRoomType = _mapper.Map<GetRoomTypeDetailDTO>(roomTypeDetail);
+            GetRoomTypeDetailDTO getRoomType = new GetRoomTypeDetailDTO()
+            {
+                Id = roomTypeDetail.Id,
+                Name = roomTypeDetail.Name,
+                Description = roomTypeDetail.Description,
+                CapacityMax = roomTypeDetail.CapacityMax,
+                Area = roomTypeDetail.Area,
+                AverageStart = roomTypeDetail.AverageStart,
+            };
+            getRoomType.ImageRoomTypeDetailDTOs = new List<GetImageRoomTypeDetailDTO>();
 
+            roomTypeDetail.ImageRoomTypeDetails = new List<ImageRoomTypeDetail>();
+            List<ImageRoomTypeDetail> listImage=await _unitOfWork.GetRepository<ImageRoomTypeDetail>().Entities.Where(i=>i.RoomTypeDetailID==roomTypeDetail.Id).ToListAsync();
+            if (listImage.Count > 0)
+            {
+                //Gán vào 
+                foreach (var image in listImage)
+                {
+                    GetImageRoomTypeDetailDTO detailImage = new GetImageRoomTypeDetailDTO();
+                    //Tìm ảnh
+                    Image imageURL = await _unitOfWork.GetRepository<Image>().GetByIdAsync(image.ImageID);
+                    if (imageURL != null)
+                    {
+                        detailImage.URL = imageURL.URL;
+                    }
+                    getRoomType.ImageRoomTypeDetailDTOs.Add(detailImage);
+                }
+
+            }
             return getRoomType;
         }
 
         //Tìm kiếm theo RoomTypeID
-
         public async Task<List<GetRoomTypeDetailDTO>> GetByRoomTypeId(string id)
         {
             var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
@@ -122,6 +148,8 @@ namespace Hotel.Application.Services
             }
             return list;
         }
+
+        //Tạo loại phòng mới
         public async Task<RoomTypeDetail> CreateRoomTypeDetail(PostRoomTypeDetailDTO portRoomTypeDetail)
         {
             var roomtype = await _unitOfWork.GetRepository<RoomType>()
@@ -166,7 +194,7 @@ namespace Hotel.Application.Services
         }
 
 
-
+        //TÌm phòng còn trống
         public async Task<List<List<GetRoomTypeDetailDTO>>> FindRoom(int soNguoi,string roomTypeID)
         {
             if(String.IsNullOrWhiteSpace(roomTypeID))

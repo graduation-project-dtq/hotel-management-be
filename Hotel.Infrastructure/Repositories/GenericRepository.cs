@@ -1,15 +1,9 @@
-﻿using Hotel.Domain.Base;
-using Hotel.Domain.Interfaces;
+﻿using Hotel.Domain.Interfaces;
 using Hotel.Domain.PaggingItems;
 using Hotel.Infrastructure.Base;
 using Hotel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hotel.Infrastructure.Repositories
 {

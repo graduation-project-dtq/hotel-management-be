@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Hotel.Application.DTOs.BookingDetailDTO;
 using Hotel.Application.DTOs.BookingDTO;
-using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
@@ -97,56 +97,226 @@ namespace Hotel.Application.Services
 
             return responsePaginatedList;
         }
+        public async Task<GetBookingDTO> CreateBooking(PostBookingDTO model)
+        {
+            string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+
+            // Kiểm tra ID khách hàng
+            if (string.IsNullOrWhiteSpace(model.CustomerId))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống ID khách hàng");
+            }
+
+            // Kiểm tra ngày đến và ngày rời đi
+            if (model.CheckOutDate <= model.CheckInDate)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Ngày rời đi phải lớn hơn ngày đến");
+            }
+
+            // Insert Booking
+            Booking booking = new Booking
+            {
+                CustomerId = model.CustomerId,
+                EmployeeId = null, // Giả sử không có nhân viên
+                CreatedBy = userID,
+                LastUpdatedBy = userID,
+                CreatedTime = CoreHelper.SystemTimeNow,
+                LastUpdatedTime = CoreHelper.SystemTimeNow,
+                Status = EnumBooking.UNCONFIRMED,
+                TotalAmount = 0,
+                BookingDate = DateOnly.FromDateTime(CoreHelper.SystemTimeNow.Date),
+                CheckInDate = model.CheckInDate,
+                CheckOutDate = model.CheckOutDate,
+                BookingDetails = new List<BookingDetail>()
+            };
+
+            await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
+
+            if (model.BookingDetails != null && model.BookingDetails.Count > 0)
+            {
+                string bookingID = booking.Id;
+                List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities
+                    .Where(r => r.DeletedTime == null && r.IsActive == true)
+                    .ToListAsync();
+
+                // Lấy danh sách BookingDetail đã tồn tại để kiểm tra
+                var existingBookingDetails = await _unitOfWork.GetRepository<BookingDetail>().Entities
+                    .Where(bd => bd.BookingId == bookingID)
+                    .AsNoTracking() // Tránh theo dõi thực thể
+                    .ToListAsync();
+
+                var addedRoomIDs = new HashSet<string>(); // Theo dõi các phòng đã được thêm
+                int index = 0;
+
+                foreach (var item in model.BookingDetails)
+                {
+                    // Lấy danh sách các BookingDetail với phòng đã đặt
+                    var bookedRooms = await _unitOfWork.GetRepository<BookingDetail>().Entities
+                        .Where(bd => bd.Room.DeletedTime == null &&
+                                     bd.Room.IsActive == true &&
+                                     bd.Room.RoomTypeDetailId == item.RoomTypeDetailID &&
+                                     (bd.Booking.CheckInDate < booking.CheckOutDate && bd.Booking.CheckOutDate > booking.CheckInDate))
+                        .Select(bd => bd.RoomID)
+                        .ToListAsync();
+
+                    // Lấy danh sách các phòng có sẵn
+                    List<Room> availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
+
+                    // Kiểm tra xem có phòng nào có sẵn không
+                    if (index < availableRooms.Count && !addedRoomIDs.Contains(availableRooms[index].Id)) // Đảm bảo không thêm trùng
+                    {
+                        BookingDetail bookingDetail = new BookingDetail
+                        {
+                            BookingId = bookingID,
+                            RoomID = availableRooms[index].Id // Chọn phòng theo chỉ số index
+                        };
+
+                        booking.BookingDetails.Add(bookingDetail);
+                        addedRoomIDs.Add(availableRooms[index].Id); // Thêm phòng vào danh sách đã thêm
+                        await _unitOfWork.GetRepository<BookingDetail>().InsertAsync(bookingDetail);
+                    }
+                    index++;
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            // Trả dữ liệu ra
+            GetBookingDTO getBookingDTO = new GetBookingDTO
+            {
+                Id = booking.Id,
+                CustomerId = booking.CustomerId,
+                // Chuyển đổi từ DateTime sang DateOnly
+                BookingDate = DateOnly.FromDateTime(booking.CreatedTime.DateTime),
+                CheckInDate = booking.CheckInDate,
+                CheckOutDate = booking.CheckOutDate,
+                BookingDetail = new List<GetBookingDetailDTO>()
+            };
+
+            if (booking.BookingDetails.Count > 0)
+            {
+                foreach (var item in booking.BookingDetails)
+                {
+                    if (item != null)
+                    {
+                        // Gán dữ liệu cho GetBookingDetailDTO
+                        GetBookingDetailDTO getBookingDetail = new GetBookingDetailDTO
+                        {
+                            RoomID = item.RoomID,
+                        };
+                        getBookingDTO.BookingDetail.Add(getBookingDetail);
+                    }
+                }
+            }
+
+            return getBookingDTO;
+        }
+
         //public async Task<GetBookingDTO> CreateBooking(PostBookingDTO model)
         //{
         //    string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
-        //    if (String.IsNullOrWhiteSpace(model.CustomerId))
+
+        //    // Kiểm tra ID khách hàng
+        //    if (string.IsNullOrWhiteSpace(model.CustomerId))
         //    {
         //        throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống ID khách hàng");
         //    }
+
+        //    // Kiểm tra ngày đến và ngày rời đi
         //    if (model.CheckOutDate <= model.CheckInDate)
         //    {
         //        throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Ngày rời đi phải lớn hơn ngày đến");
         //    }
 
-        //    //Insert Booking
-        //    Booking booking = _mapper.Map<Booking>(model);
+        //    // Insert Booking
+        //    Booking booking = new Booking
+        //    {
+        //        CustomerId = model.CustomerId,
+        //        Employee = null,
+        //        CreatedBy = userID,
+        //        LastUpdatedBy = userID,
+        //        CreatedTime = CoreHelper.SystemTimeNow, // Đảm bảo CoreHelper.SystemTimeNow có thuộc tính Kind đúng
+        //        LastUpdatedTime = CoreHelper.SystemTimeNow,
+        //        Status = EnumBooking.UNCONFIRMED,
+        //        TotalAmount = 0,
+        //        BookingDate = DateOnly.FromDateTime(CoreHelper.SystemTimeNow.Date), // Cần đảm bảo đây là DateTime với Kind đúng
+        //        CheckInDate = model.CheckInDate,
+        //        CheckOutDate = model.CheckOutDate,
+        //        BookingDetails = new List<BookingDetail>()
+        //    };
 
-        //    booking.CreatedBy = userID;
-        //    booking.LastUpdatedBy = userID;
-        //    booking.CreatedTime = CoreHelper.SystemTimeNow;
-        //    booking.LastUpdatedTime = CoreHelper.SystemTimeNow;
-        //    booking.Status = EnumBooking.UNCONFIRMED;
-        //    booking.TotalAmount = 0;
         //    await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
+
         //    if (model.BookingDetails != null)
         //    {
         //        string bookingID = booking.Id;
-        //        List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities.Where(r => r.DeletedTime == null && r.IsActive == true).ToListAsync();
+        //        List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities
+        //            .Where(r => r.DeletedTime == null && r.IsActive)
+        //            .ToListAsync();
+        //        int index = 0;
 
         //        foreach (var item in model.BookingDetails)
         //        {
         //            var bookedRooms = await _unitOfWork.GetRepository<BookingDetail>().Entities
-        //                                      .Where(bd => bd.Room.DeletedTime == null &&
-        //                                                   bd.Room.IsActive == true &&
-        //                                                   bd.Room.RoomTypeDetailId == item.RoomTypeDetailID &&
-        //                                                   (bd.Booking.CheckInDate < booking.CheckOutDate && bd.Booking.CheckOutDate > booking.CheckInDate))
-        //                                      .Select(bd => bd.RoomID)
-        //                                      .ToListAsync();
+        //                .Where(bd => bd.Room.DeletedTime == null &&
+        //                             bd.Room.IsActive &&
+        //                             bd.Room.RoomTypeDetailId == item.RoomTypeDetailID &&
+        //                             (bd.Booking.CheckInDate < booking.CheckOutDate && bd.Booking.CheckOutDate > booking.CheckInDate))
+        //                .Select(bd => bd.RoomID)
+        //                .ToListAsync();
+
+        //            // Lấy danh sách các phòng có sẵn, loại bỏ các phòng đã đặt và đã sử dụng
         //            List<Room> availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
-        //            for (int i = 0; i < item.Quantity; i++)
+
+        //            // Kiểm tra xem có phòng nào có sẵn không
+        //            if (index < availableRooms.Count) // Sử dụng index để đảm bảo không vượt quá số lượng phòng có sẵn
         //            {
-        //                //Lấy ra những phòng đầu tiên
-        //                BookingDetail bookingDetail = new BookingDetail()
+        //                BookingDetail bookingDetail = new BookingDetail
         //                {
         //                    BookingId = bookingID,
-        //                    RoomID = availableRooms[i].Id,
+        //                    RoomID = availableRooms[index].Id, // Chọn phòng theo chỉ số index
         //                };
-        //                await
-        //            }
 
+        //                booking.BookingDetails.Add(bookingDetail);
+        //                await _unitOfWork.GetRepository<BookingDetail>().InsertAsync(bookingDetail);
+        //            }
+        //            index++;
         //        }
         //    }
+
+        //    await _unitOfWork.SaveChangesAsync();
+
+        //    // Trả dữ liệu ra
+        //    GetBookingDTO getBookingDTO = new GetBookingDTO
+        //    {
+        //        Id = booking.Id,
+        //        CustomerId = booking.CustomerId,
+        //        BookingDate = DateOnly.FromDateTime(booking.CreatedTime.DateTime), // Kiểm tra lại CreatedTime có thuộc tính Kind đúng
+        //        CheckInDate = booking.CheckInDate,
+        //        CheckOutDate = booking.CheckOutDate,
+        //        BookingDetail = new List<GetBookingDetailDTO>()
+        //    };
+
+        //    if (booking.BookingDetails.Count > 0)
+        //    {
+        //        foreach (var item in booking.BookingDetails)
+        //        {
+        //            if (item != null)
+        //            {
+        //                // Gán dữ liệu cho GetBookingDetailDTO
+        //                GetBookingDetailDTO getBookingDetail = new GetBookingDetailDTO
+        //                {
+        //                    RoomID = item.RoomID,
+        //                };
+        //                getBookingDTO.BookingDetail.Add(getBookingDetail);
+        //            }
+        //        }
+        //    }
+
+        //    return getBookingDTO;
         //}
+
+
     }
 }
