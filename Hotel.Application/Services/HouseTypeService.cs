@@ -3,10 +3,12 @@ using Hotel.Application.DTOs.HouseTypeDTO;
 using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -101,6 +103,7 @@ namespace Hotel.Application.Services
 
             return responsePaginatedList;
         }
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
         public async Task CreateHouseType(PostHouseTypeDTO model)
         {
             var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");

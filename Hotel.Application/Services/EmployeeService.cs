@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,6 +25,7 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _logger = logger;
         }
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
         public async Task<Employee> CreateEmployeeAsync(CreateEmployeeDTO createEmployeeDTO)
         {
             Customer? existsAuthor = await _unitOfWork.GetRepository<Customer>().Entities.FirstOrDefaultAsync(a => a.AccountID == createEmployeeDTO.AccountId);

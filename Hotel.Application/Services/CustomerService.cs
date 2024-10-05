@@ -63,14 +63,18 @@ namespace Hotel.Application.Services
             GetCustomerDTO dto= _mapper.Map<GetCustomerDTO>(customer);
             return dto;
         }
-        public async Task UpdateCustomerAsync(string id, PutCustomerDTO model)
+        public async Task UpdateCustomerAsync(string email, PutCustomerDTO model)
         {
             // Kiểm tra ID khách hàng
-            if (String.IsNullOrWhiteSpace(id))
+            if (String.IsNullOrWhiteSpace(email))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID rỗng hoặc không hợp lệ!");
             }
-
+            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            if (!Regex.IsMatch(email, emailRegex))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ!");
+            }
             // Kiểm tra tên khách hàng
             if (String.IsNullOrWhiteSpace(model.Name))
             {
@@ -84,7 +88,7 @@ namespace Hotel.Application.Services
             }
 
             // Kiểm tra khách hàng có tồn tại không
-            Customer customer = await _unitOfWork.GetRepository<Customer>().Entities.FirstOrDefaultAsync(c => c.Id == id)
+            Customer customer = await _unitOfWork.GetRepository<Customer>().Entities.FirstOrDefaultAsync(c => c.Email == email)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin khách hàng");
 
             // Map các thông tin mới từ DTO vào entity

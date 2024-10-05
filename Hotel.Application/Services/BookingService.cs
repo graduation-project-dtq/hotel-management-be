@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hotel.Application.DTOs.BookingDetailDTO;
 using Hotel.Application.DTOs.BookingDTO;
+using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
@@ -22,13 +23,16 @@ namespace Hotel.Application.Services
         private readonly ILogger<BookingService> _logger;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IRoomService _roomService;
 
-        public BookingService(IUnitOfWork unitOfWork, ILogger<BookingService> logger, IMapper mapper, IHttpContextAccessor contextAccessor)
+        
+        public BookingService(IUnitOfWork unitOfWork, ILogger<BookingService> logger, IMapper mapper, IHttpContextAccessor contextAccessor, IRoomService roomService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
             _contextAccessor = contextAccessor;
+            _roomService = roomService;
         }
 
         public async Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string customerName)
@@ -99,6 +103,7 @@ namespace Hotel.Application.Services
         }
         public async Task<GetBookingDTO> CreateBooking(PostBookingDTO model)
         {
+
             string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
 
             // Kiểm tra ID khách hàng
@@ -131,52 +136,24 @@ namespace Hotel.Application.Services
             };
 
             await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
-            await _unitOfWork.SaveChangesAsync();
+      
 
             if (model.BookingDetails != null && model.BookingDetails.Count > 0)
             {
                 string bookingID = booking.Id;
-                List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities
-                    .Where(r => r.DeletedTime == null && r.IsActive == true)
-                    .ToListAsync();
-
-                // Lấy danh sách BookingDetail đã tồn tại để kiểm tra
-                var existingBookingDetails = await _unitOfWork.GetRepository<BookingDetail>().Entities
-                    .Where(bd => bd.BookingId == bookingID)
-                    .AsNoTracking() // Tránh theo dõi thực thể
-                    .ToListAsync();
-
-                var addedRoomIDs = new HashSet<string>(); // Theo dõi các phòng đã được thêm
                 int index = 0;
 
                 foreach (var item in model.BookingDetails)
                 {
-                    // Lấy danh sách các BookingDetail với phòng đã đặt
-                    var bookedRooms = await _unitOfWork.GetRepository<BookingDetail>().Entities
-                        .Where(bd => bd.Room.DeletedTime == null &&
-                                     bd.Room.IsActive == true &&
-                                     bd.Room.RoomTypeDetailId == item.RoomTypeDetailID &&
-                                     (bd.Booking.CheckInDate < booking.CheckOutDate && bd.Booking.CheckOutDate > booking.CheckInDate))
-                        .Select(bd => bd.RoomID)
-                        .ToListAsync();
-
-                    // Lấy danh sách các phòng có sẵn
-                    List<Room> availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
-
-                    // Kiểm tra xem có phòng nào có sẵn không
-                    if (index < availableRooms.Count && !addedRoomIDs.Contains(availableRooms[index].Id)) // Đảm bảo không thêm trùng
+                    List<GetRoomDTO> listRoomActive = await _roomService.FindRoomBooking(model.CheckInDate, model.CheckOutDate, item.RoomTypeDetailID)
+                        ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không còn phòng nào trống!");
+                    string roomID = listRoomActive[0].Id;
+                    BookingDetail bookingDetail = new BookingDetail()
                     {
-                        BookingDetail bookingDetail = new BookingDetail
-                        {
-                            BookingId = bookingID,
-                            RoomID = availableRooms[index].Id // Chọn phòng theo chỉ số index
-                        };
-
-                        booking.BookingDetails.Add(bookingDetail);
-                        addedRoomIDs.Add(availableRooms[index].Id); // Thêm phòng vào danh sách đã thêm
-                        await _unitOfWork.GetRepository<BookingDetail>().InsertAsync(bookingDetail);
-                    }
-                    index++;
+                        BookingId = bookingID,
+                        RoomID=roomID,
+                    };
+                    await _unitOfWork.GetRepository<BookingDetail>().InsertAsync(bookingDetail);
                 }
             }
 

@@ -3,8 +3,10 @@ using Hotel.Application.DTOs.ViewHotelDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Application.Services;
+using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +34,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> CreateViewHotel(PostViewHotelDTO model)
         {
             GetViewHotelDTO result = await _viewHotelService.CreateViewHotel(model);
@@ -44,6 +47,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> UpdateViewHotel(string id,PutViewHotelDTO model)
         {
             GetViewHotelDTO result = await _viewHotelService.UpdateViewHotel(id, model);
@@ -56,6 +60,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> DeleteViewHotel(string id)
         {
             await _viewHotelService.DeleteViewHotel(id);
