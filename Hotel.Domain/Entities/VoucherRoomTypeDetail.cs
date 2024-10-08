@@ -10,7 +10,6 @@ namespace Hotel.Domain.Entities
         public string VoucherID {  get; set; } = string.Empty;
         [ForeignKey("RoomTypeDetail")]
         public string RoomTypeDetailID {  get; set; } =string.Empty;
-
         public virtual Voucher ? Voucher {  get; set; }
         public virtual RoomTypeDetail? RoomTypeDetail { get; set; }
     }

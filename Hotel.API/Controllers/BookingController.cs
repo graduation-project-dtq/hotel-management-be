@@ -3,7 +3,6 @@ using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -25,7 +24,7 @@ namespace Hotel.API.Controllers
               statusCode: StatusCodes.Status200OK,
               code: ResponseCodeConstants.SUCCESS,
               data: result,
-              message: "Lấy thông tin thành công"
+              message: "Lấy danh sách đặt phòng thành công!"
            ));
         }
 
@@ -38,7 +37,7 @@ namespace Hotel.API.Controllers
               statusCode: StatusCodes.Status200OK,
               code: ResponseCodeConstants.SUCCESS,
               data: result,
-              message: "Booking thành công"
+              message: "Đặt phòng thành công!"
        ));
         }
     }
