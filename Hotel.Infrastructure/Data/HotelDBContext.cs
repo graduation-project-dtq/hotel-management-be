@@ -32,10 +32,9 @@ namespace Hotel.Infrastructure.Data
         public DbSet<RoomPriceAdjustment> RoomPriceAdjustments { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
         public DbSet<RoomTypeDetail> RoomTypeDetails { get; set; }
-        public DbSet<RoomView> RoomViews    { get; set; }
+     
         public DbSet<Service> Services { get; set; }
         public DbSet<ServiceBooking> ServicesBooking { get; set; }
-        public DbSet<ViewHotel> ViewHotels { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<VoucherRoomTypeDetail>VoucherRoomTypeDetails { get; set; }
         public DbSet<Image>  Images { get; set; }
@@ -114,10 +113,7 @@ namespace Hotel.Infrastructure.Data
               .Property(s => s.Price)
               .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<ViewHotel>()
-                    .Property(v => v.Price)
-                    .HasColumnType("decimal(18,2)");
-
+       
             modelBuilder.Entity<Punish>()
                   .Property(p => p.Fine)
                   .HasColumnType("decimal(18,2)");
@@ -291,20 +287,6 @@ namespace Hotel.Infrastructure.Data
                 .HasOne(ft => ft.PriceAdjustmentPlan)
                 .WithMany(t => t.RoomPriceAdjustments)
                 .HasForeignKey(ft => ft.PriceAdjustmentPlanId);
-
-            //RoomView
-            modelBuilder.Entity<RoomView>()
-                .HasKey(bk => new { bk.RoomId, bk.ViewHotelId });
-
-            modelBuilder.Entity<RoomView>()
-                .HasOne(ft => ft.Room)
-                .WithMany(f => f.RoomViews)
-                .HasForeignKey(ft => ft.RoomId);
-
-            modelBuilder.Entity<RoomView>()
-                .HasOne(ft => ft.ViewHotel)
-                .WithMany(t => t.RoomViews)
-                .HasForeignKey(ft => ft.ViewHotelId);
 
             //ServiceBooking
             modelBuilder.Entity<ServiceBooking>()

@@ -196,6 +196,15 @@ namespace Hotel.Infrastructure.Data
                 new Image{Id="51be69a4b2144a8987551569a428bdfg",URL="https://cdn.kiwicollection.com/media/property/PR005988/xl/005988-06-Hudson-Studio.jpg?cb=1413923207"},
                 new Image{Id="51be69a4b2144a8987551569a4282dwg",URL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhggRRPHwX4uC9jF9KHmk6K5sW7OROwxbMdQ&s"},
                 new Image{Id="51be69a4b2144a8987551523d428bdfg",URL="https://cdn.kiwicollection.com/media/property/PR005988/xl/005988-06-Hudson-Studio.jpg?cb=1413923207"},
+                
+                new Image{Id="51be69a4b2144a8987551523d428bd01",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/552793120.jpg?k=663189fe3f75a9af8d9f525b226982c51220a7807ba8c7a63de6479569dfc3db&o=&hp=1"},
+                new Image{Id="51be69a4b2144a8987551523d428bd02",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/578299549.jpg?k=5420f7cfb664a5fd90c1b0d74a5c1ae3bdcd98e86e7f595d0cb8cd56bcc332e3&o=&hp=1"},
+                new Image{Id="51be69a4b2144a8987551523d428bd03",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/528500991.jpg?k=72b209ae2048ecdcaa617e9dbc675c0a404c8cb2d8207fdf3a49b18804ab2800&o=&hp=1"},
+                new Image{Id="51be69a4b2144a8987551523d428bd04",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/528504264.jpg?k=69e03ece617b733ecdd563f2c350c0ea4e1fbc63e14499920d3805f407f0ea3e&o=&hp=1"},
+                new Image{Id="51be69a4b2144a8987551523d428bd05",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/552793017.jpg?k=fc143eabd12fe5c54622159e55b5ff568bb51fa7352f10434495e45bfdc4bba3&o=&hp=1"},
+                new Image{Id="51be69a4b2144a8987551523d428bd06",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/552793167.jpg?k=2aed1bb80a4e81ae44c15f1212aa9d7e414bb52dba79149777b952bf8f27df32&o=&hp=1"},
+                new Image{Id="51be69a4b2144a8987551523d428bd07",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/552791441.jpg?k=60f86132046c3d4f5599b579b0f9206cdf88110384328170ec9fe2dbfdaf7415&o=&hp=1"},
+                
                 //Luxury
                 new Image{Id="51be69a4b2144a898752ff69a428bdfg",URL="https://cf.bstatic.com/xdata/images/hotel/max1280x900/590834367.jpg?k=67bf330a8c5dcb542e77be19eed8d607ef4523f34d1aa14357c4cc4179b56e73&o=&hp=1"},
                 new Image{Id="51be69a4b2144a89875aef69a428bdfg",URL="https://media.gettyimages.com/id/1334117334/photo/digital-render-of-large-hotel-suite-bedroom.jpg?s=612x612&w=gi&k=20&c=PqNx8paT1x-Y3vmlQec3MCTWPkQiw6Oy4zkj_WrFVOs="},
@@ -265,12 +274,21 @@ namespace Hotel.Infrastructure.Data
 
         private async Task addImageRoomType()
         {
+
             ImageRoomType[] imageRoomTypes =
             {
                 //Stadard
                 new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551569a428bdfg"},
                 new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551569a4282dwg"},
                 new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bdfg"},
+                
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd01"},
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd02"},
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd03"},
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd04"},
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd05"},
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd06"},
+                new ImageRoomType{RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",ImageID="51be69a4b2144a8987551523d428bd07"},
                 //Luxury
                 new ImageRoomType{RoomTypeID="51be69a4b2144a8987551569a428b064",ImageID="51be69a4b2144a898752ff69a428bdfg"},
                 new ImageRoomType{RoomTypeID="51be69a4b2144a8987551569a428b064",ImageID="51be69a4b2144a8987sdff69a428bdfg"},

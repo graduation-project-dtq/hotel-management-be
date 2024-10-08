@@ -8,10 +8,10 @@ using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Domain.Entities;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.DTOs.RoomDTO;
-using Hotel.Application.DTOs.ViewHotelDTO;
 using Hotel.Application.DTOs.BookingDTO;
 using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.DTOs.HouseTypeDTO;
+using Hotel.Application.DTOs.VoucherDTO;
 
 namespace Hotel.Application.Mappings
 {
@@ -60,11 +60,6 @@ namespace Hotel.Application.Mappings
             CreateMap<GetImageDTO, Image>().ReverseMap();
             CreateMap<PostImageDTO, Image>().ReverseMap();
 
-            //ViewHotel
-            CreateMap<ViewHotel,GetViewHotelDTO>().ReverseMap();
-            CreateMap<ViewHotel, PostViewHotelDTO>().ReverseMap();
-            CreateMap<ViewHotel, PutViewHotelDTO>().ReverseMap();
-
             //Booking
             CreateMap<Booking, GetBookingDTO>().ReverseMap();
             CreateMap<Booking, PostBookingDTO>().ReverseMap();
@@ -81,6 +76,11 @@ namespace Hotel.Application.Mappings
             CreateMap<HouseType, PostHouseTypeDTO>().ReverseMap();
             CreateMap<HouseType, PutHouseTypeDTO>().ReverseMap();
 
+            //Voucher
+
+            CreateMap<Voucher, GetVoucherDTO>().ReverseMap();
+            CreateMap<Voucher, PostVoucherDTO>().ReverseMap();
+            CreateMap<Voucher, PutVoucherDTO>().ReverseMap();
 
         }
     }

@@ -1,6 +1,5 @@
 ﻿using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Interfaces;
-using Hotel.Core.Base;
 using Hotel.Domain.Base;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +17,7 @@ namespace Hotel.API.Controllers
             _imageService = imageService;
         }
         [HttpGet]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> GetAllImageAsync()
         {
            var images=await _imageService.GetAllImage();
@@ -30,7 +29,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> CreateImageAsync(PostImageDTO model)
         {
             var image = await _imageService.CreateImage(model);

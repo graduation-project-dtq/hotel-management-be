@@ -23,7 +23,6 @@ namespace Hotel.Domain.Entities
         public virtual RoomTypeDetail ? RoomTypeDetail { get; set; }
         public virtual HouseType ? HouseType { get; set; }
         public virtual ICollection<BookingDetail> ? BookingDetails { get; set; }
-        public virtual ICollection<RoomView> ? RoomViews { get; set; }
         public virtual ICollection<FacilitiesRoom> ? FacilitiesRooms { get; set; }
 
     }

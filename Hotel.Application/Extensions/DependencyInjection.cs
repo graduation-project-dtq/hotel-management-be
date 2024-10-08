@@ -66,6 +66,9 @@ namespace Hotel.Aplication.Extensions
 
             //HouseTyoe
             services.AddScoped<IHouseTypeService, HouseTypeService>();
+            
+            //Voucher
+            services.AddScoped<IVoucherService, VoucherService>();
         }
 
         //Đăng ký mapper

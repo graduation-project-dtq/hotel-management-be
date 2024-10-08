@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Hotel.Infrastructure\Hotel.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\AuthDTO\" />
-  </ItemGroup>
-
 </Project>

@@ -14,6 +14,8 @@ namespace Hotel.Domain.Entities
         public string RoomPriceID {  get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public int CapacityMax { get; set; }
+        public int AdultMax {  get; set; }
+        public int ChildMax {  get; set; }
         public decimal Area { get; set; }
         public string Description { get; set; } = string.Empty;
         public float AverageStart { get; set; }
