@@ -3,7 +3,9 @@ using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
+using Hotel.Domain.Enums.EnumBooking;
 using Microsoft.AspNetCore.Mvc;
+using Sprache;
 
 namespace Hotel.API.Controllers
 {
@@ -38,7 +40,18 @@ namespace Hotel.API.Controllers
               code: ResponseCodeConstants.SUCCESS,
               data: result,
               message: "Đặt phòng thành công!"
-       ));
+             ));
+        }
+        [HttpPost("UpdateStatus")]
+        public async Task<IActionResult> UpdateStatusBooking(string bookingID, EnumBooking enumBooking)
+        {
+            await _bookingService.UpdateStatusBooking(bookingID, enumBooking);
+            return Ok(new BaseResponse<string ?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,
+                message: "Xác nhận thành công!"
+           ));
         }
     }
 }

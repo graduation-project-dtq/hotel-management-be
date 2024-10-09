@@ -69,6 +69,9 @@ namespace Hotel.Aplication.Extensions
             
             //Voucher
             services.AddScoped<IVoucherService, VoucherService>();
+
+            //Email
+            services.AddScoped<IEmailService, EmailService>();
         }
 
         //Đăng ký mapper

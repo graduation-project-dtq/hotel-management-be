@@ -75,6 +75,9 @@ namespace Hotel.Infrastructure.Data
 
                 await addImageRoomType();
                 await addImageRoomTypeDetail();
+                //Service
+                await addService();
+                await addImageService();
                 //await addUserRole();
             }
             catch (Exception ex)
@@ -258,6 +261,31 @@ namespace Hotel.Infrastructure.Data
                 new Image{Id="51be69a4bdgf4a8987551569a428b025",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/598275920.jpg?k=c0c0008dd9d1d90d60e6440d33f0ef3944674b10ffa4a551c9433c2e91af0978&o=&hp=1"},
                 new Image{Id="51be69a4bdgf4a8987551569a428b026",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/532299206.jpg?k=0ae077ef9569b9a183d46bac3737840b456d976a1716e153d1389adba00d62ee&o=&hp=1"},
                 new Image{Id="51be69a4bdgf4a8987551569a428b027",URL="https://cf.bstatic.com/xdata/images/hotel/max1024x768/572015603.webp?k=68a1d98b469233ac7a09af3647a190aeb8cdb15f35f0dc5ff35310e0ab1debbd&o="},
+            
+                //Dịch vụ
+
+                //Ăn sáng
+                new Image{Id="51be69a4bdgf4a89875515service001",URL="https://lotushotel.vn/wp-content/uploads/2021/01/thuc-don-buffet-sang-cho-du-khach-tai-khach-san-day-du-dinh-duong.jpg"},
+                new Image{Id="51be69a4bdgf4a89875515service002",URL="https://thietbidungcubuffet.com/images/tin-tuc/thuc-khach-thoai-mai-lua-chon-mon-an.jpg"},
+                //Thuê xe máy
+                new Image{Id="51be69a4bdgf4a89875515service003",URL="https://the-onehotel.vn/wp-content/uploads/2016/12/cho-thue-xe-motor.png"},
+                new Image{Id="51be69a4bdgf4a89875515service004",URL="https://the-onehotel.vn/wp-content/uploads/2020/07/dua-don-san-bay-nha-trang-1-2.jpg"},
+                //Xe điện đưa đón
+                new Image{Id="51be69a4bdgf4a89875515service005",URL="https://tunglamco.com.vn/wp-content/uploads/2020/08/xe-dien-cho-khach-du-lich-2.jpg"},
+                new Image{Id="51be69a4bdgf4a89875515service006",URL="https://tunglamco.com.vn/wp-content/uploads/2022/05/Xe-dien-resort-Phuong-tien-cho-khach-toi-uu-cho-khu-nghi-duong.png"},
+                //Massage thư giãn
+                new Image{Id="51be69a4bdgf4a89875515service007",URL="https://songdaiduong.com/wp-content/uploads/2020/03/spa-s%E1%BA%A7m-s%C6%A1n.jpg"},
+                new Image{Id="51be69a4bdgf4a89875515service008",URL="https://hssc.vn/wp-content/uploads/2023/04/3-1.png"},
+                //Dịch vụ giặt ủi
+                new Image{Id="51be69a4bdgf4a89875515service009",URL="https://lotushotel.vn/wp-content/uploads/2021/07/quy-trinh-su-dung-dich-vu-giat-la-tai-khach-san.jpg"},
+                new Image{Id="51be69a4bdgf4a89875515service010",URL="https://lotushotel.vn/wp-content/uploads/2021/01/vai-tro-cua-bo-phan-giat-la-tai-khach-san-so-huu-nhan-vien-co-suc-khoe-tot.jpg"},
+                //Gym và Fitness
+                new Image{Id="51be69a4bdgf4a89875515service011",URL="https://www.lottehotel.com/content/dam/lotte-hotel/lotte/saigon/facilities/fitness-spa/hotelgym/6647-2-2000-fac-LTHO.jpg.thumb.1920.1920.jpg"},
+                new Image{Id="51be69a4bdgf4a89875515service012",URL="https://www.lottehotel.com/content/dam/lotte-hotel/lotte/saigon/facilities/fitness-spa/hotelgym/6647-4-2000-fac-LTHO.jpg.thumb.1920.1920.jpg"},
+                //Dịch vụ hồ bơi
+                new Image{Id="51be69a4bdgf4a89875515service013",URL="https://www.seagullhotel.com.vn/wp-content/uploads/2021/10/Ho-boi-Khach-san-Hai-Au-Quy-Nhon-Seagull-Hotel-1.jpg"},
+                new Image{Id="51be69a4bdgf4a89875515service014",URL="https://hoboisaigon.com/hoanghung/5/images/901.jpg"},
+
             };
             foreach(var item in images)
             {
@@ -605,6 +633,67 @@ namespace Hotel.Infrastructure.Data
                 await _unitOfWork.SaveChangesAsync();
             }
         }
+        private async Task addService()
+        {
+            Service[] services =
+            {
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff001", Name="Ăn sáng", Price=1000000, Description="Bữa ăn sáng chất lượng nhà hàng 3 sao"},
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff002", Name="Thuê xe máy", Price=120000, Description="Xe máy là những dòng xe ga cao cấp, an toàn cho khách hàng"},
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff003", Name="Xe điện đưa đón", Price=30000, Description="Xe điện sẽ chở khách hàng đi tham quan xung quanh khách sạn và những địa điểm lân cận"},
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff004", Name="Massage thư giãn", Price=500000, Description="Dịch vụ massage thư giãn toàn thân, phục hồi sức khỏe sau chuyến đi"},
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff005", Name="Dịch vụ giặt ủi", Price=200000, Description="Giặt ủi quần áo chuyên nghiệp, trả đồ trong ngày"},
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff006", Name="Gym và Fitness", Price=300000, Description="Sử dụng phòng gym với trang thiết bị hiện đại, mở cửa 24/7"},
+                new Service(){Id="c401bb08da4849sdg35fhdgdfffff007", Name="Dịch vụ hồ bơi", Price=0, Description="Miễn phí sử dụng hồ bơi trong khuôn viên khách sạn"}
 
+            };
+            foreach (var item in services)
+            {
+
+                if (!await _unitOfWork.GetRepository<Service>().Entities.AnyAsync(i => i.Id == item.Id))
+                {
+                    item.CreatedTime = CoreHelper.SystemTimeNow;
+                    item.LastUpdatedTime = CoreHelper.SystemTimeNow;
+                    await _unitOfWork.GetRepository<Service>().InsertAsync(item);
+                }
+            }
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task addImageService()
+        {
+            ImageService[] imageServices =
+            {
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff001",ImageID="51be69a4bdgf4a89875515service001"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff001",ImageID="51be69a4bdgf4a89875515service002"},
+
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff002",ImageID="51be69a4bdgf4a89875515service003"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff002",ImageID="51be69a4bdgf4a89875515service004"},
+
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff003",ImageID="51be69a4bdgf4a89875515service005"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff003",ImageID="51be69a4bdgf4a89875515service006"},
+
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff004",ImageID="51be69a4bdgf4a89875515service007"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff004",ImageID="51be69a4bdgf4a89875515service008"},
+
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff005",ImageID="51be69a4bdgf4a89875515service009"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff005",ImageID="51be69a4bdgf4a89875515service010"},
+
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff006",ImageID="51be69a4bdgf4a89875515service011"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff006",ImageID="51be69a4bdgf4a89875515service012"},
+
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff007",ImageID="51be69a4bdgf4a89875515service013"},
+                new ImageService(){ServiceID="c401bb08da4849sdg35fhdgdfffff007",ImageID="51be69a4bdgf4a89875515service014"},
+
+            };
+            foreach (var item in imageServices)
+            {
+
+                if (!await _unitOfWork.GetRepository<ImageService>().Entities.AnyAsync(i => i.ServiceID == item.ServiceID && i.ImageID==item.ImageID))
+                {
+                   await _unitOfWork.GetRepository<ImageService>().InsertAsync(item);
+                }
+            }
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
