@@ -2,6 +2,7 @@
 using Hotel.Application.DTOs.BookingDetailDTO;
 using Hotel.Application.DTOs.BookingDTO;
 using Hotel.Application.DTOs.RoomDTO;
+using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
@@ -13,7 +14,9 @@ using Hotel.Domain.Enums.EnumBooking;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace Hotel.Application.Services
 {
@@ -24,15 +27,19 @@ namespace Hotel.Application.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IRoomService _roomService;
-
-        
-        public BookingService(IUnitOfWork unitOfWork, ILogger<BookingService> logger, IMapper mapper, IHttpContextAccessor contextAccessor, IRoomService roomService)
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
+        public BookingService(IUnitOfWork unitOfWork, ILogger<BookingService> logger, IMapper mapper,
+            IHttpContextAccessor contextAccessor, IRoomService roomService,IEmailService emailService
+            , IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
             _contextAccessor = contextAccessor;
             _roomService = roomService;
+            _emailService = emailService;
+            _configuration = configuration; 
         }
 
         public async Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string customerName)
@@ -131,15 +138,17 @@ namespace Hotel.Application.Services
                 BookingDate = DateOnly.FromDateTime(CoreHelper.SystemTimeNow.Date),
                 CheckInDate = model.CheckInDate,
                 CheckOutDate = model.CheckOutDate,
-                BookingDetails = new List<BookingDetail>()
+                BookingDetails = new List<BookingDetail>(),
+                ServiceBookings=new List<ServiceBooking>(),
             };
 
             await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
+            string bookingID = booking.Id;
             if (model.BookingDetails != null && model.BookingDetails.Count > 0)
             {
-                string bookingID = booking.Id;
+             
 
                 foreach (var item in model.BookingDetails)
                 {
@@ -161,8 +170,13 @@ namespace Hotel.Application.Services
                                 await _unitOfWork.SaveChangesAsync();
                             }
                             await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
-                            await _unitOfWork.SaveChangesAsync();
+                          
                         }
+
+                        bkDelete.DeletedTime = CoreHelper.SystemTimeNow;
+
+                        await _unitOfWork.GetRepository<Booking>().UpdateAsync(bkDelete);
+                        await _unitOfWork.SaveChangesAsync();
                         throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không còn phòng nào trống!");
                     }
 
@@ -179,7 +193,54 @@ namespace Hotel.Application.Services
                     await _unitOfWork.SaveChangesAsync();
                 }
             }
+            //Thêm dịch vụ
+            if(model.Services.Count>0)
+            {
+                foreach (PostServiceBookingDTO item in model.Services)
+                {
+                    Service? initService = await _unitOfWork.GetRepository<Service>().Entities.Where(s => s.Id == item.ServiceID).FirstOrDefaultAsync();
+                    if(initService ==null)
+                    {
+                        Booking bkDelete = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID);
 
+                        List<BookingDetail> listDetail = await _unitOfWork.GetRepository<BookingDetail>().Entities.Where(bd => bd.BookingId == bkDelete.Id).ToListAsync();
+
+                        if (listDetail != null && listDetail.Count > 0)
+                        {
+                            foreach (var bd in listDetail)
+                            {
+                                await _unitOfWork.GetRepository<BookingDetail>().DeleteAsync(bd.BookingId);
+                                await _unitOfWork.SaveChangesAsync();
+                            }
+                            await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
+
+                        }
+                        List<ServiceBooking> serviceBookings = await _unitOfWork.GetRepository<ServiceBooking>().Entities.Where(sb => sb.BookingID == bookingID).ToListAsync();
+
+                        if (serviceBookings != null && serviceBookings.Count > 0)
+                        {
+                            foreach (var sb in serviceBookings)
+                            {
+                                await _unitOfWork.GetRepository<ServiceBooking>().DeleteAsync(sb.BookingID);
+                                await _unitOfWork.SaveChangesAsync();
+                            }
+                            await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
+                        }
+
+                     
+                        await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+
+                    ServiceBooking service = new ServiceBooking()
+                    {
+                        BookingID = booking.Id,
+                        ServiceID = item.ServiceID,
+                    };
+
+                    await _unitOfWork.GetRepository<ServiceBooking>().InsertAsync(service);
+                }
+            }    
             await _unitOfWork.SaveChangesAsync();
 
             // Trả dữ liệu ra
@@ -191,7 +252,8 @@ namespace Hotel.Application.Services
                 BookingDate = DateOnly.FromDateTime(booking.CreatedTime.DateTime),
                 CheckInDate = booking.CheckInDate,
                 CheckOutDate = booking.CheckOutDate,
-                BookingDetail = new List<GetBookingDetailDTO>()
+                BookingDetail = new List<GetBookingDetailDTO>(),
+                Services=new List<GetServiceBookingDTO>()
             };
 
             // Thêm thông tin BookingDetail vào DTO
@@ -203,12 +265,56 @@ namespace Hotel.Application.Services
                     GetBookingDetailDTO getBookingDetail = new GetBookingDetailDTO
                     {
                         RoomID = item.RoomID,
+                        RoomName=item.Room != null ? item.Room.Name : ""
                     };
                     getBookingDTO.BookingDetail.Add(getBookingDetail);
                 }
             }
+            //Service
+            foreach (var item in booking.ServiceBookings)
+            {
+                if (item != null)
+                {
+                    // Gán dữ liệu cho GetBookingDetailDTO
+                    GetServiceBookingDTO getservice = new GetServiceBookingDTO
+                    {
+                        ServiceID = item.ServiceID,
+                        ServiceName = item.Service != null ? item.Service.Name : ""
+                    };
+                    getBookingDTO.Services.Add(getservice);
+                }
+            }
+            //Gửi mail về cho khách hàng xác nhận đã booking thành công 
+            //Kèm theo thông tin của booking
+            // Gửi mail về cho khách hàng xác nhận đã booking thành công 
+            Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(booking.CustomerId);
+            if(customer != null)
+            {
+                var emailService = new EmailService(_configuration,_unitOfWork); // Khởi tạo EmailService với logger
+                await emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
+            }    
+         
 
             return getBookingDTO;
+        }
+        
+        //Duyệt-huỷ booking
+        public async Task UpdateStatusBooking(string bookingID,EnumBooking enumBooking)
+        {
+            if(String.IsNullOrWhiteSpace(bookingID))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Mã booking không được để trống!");
+            }    
+            Booking booking = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy booking!");
+
+            booking.Status = enumBooking;
+            if(booking.Status==EnumBooking.CONFIRMED)
+            {
+                //Gửi mail đã xác nhận 
+            }    
+            await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

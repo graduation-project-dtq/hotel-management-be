@@ -1,4 +1,6 @@
 ﻿using Hotel.Application.DTOs.BookingDetailDTO;
+using Hotel.Application.DTOs.ServiceDTO;
+using Hotel.Domain.Entities;
 
 
 namespace Hotel.Application.DTOs.BookingDTO
@@ -12,6 +14,7 @@ namespace Hotel.Application.DTOs.BookingDTO
         public DateOnly? CheckInDate { get; set; }
         public DateOnly? CheckOutDate { get; set; }
         public virtual ICollection<GetBookingDetailDTO> ? BookingDetail { get; set; }
-
+        public virtual ICollection<GetServiceBookingDTO>? Services {  get; set; }
+ 
     }
 }
