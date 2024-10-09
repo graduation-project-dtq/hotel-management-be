@@ -124,6 +124,9 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Ngày rời đi phải lớn hơn ngày đến");
             }
 
+            Customer exitCustomer =await _unitOfWork.GetRepository<Customer>().GetByIdAsync(model.CustomerId)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không tồn tại");
+
             // Insert Booking
             Booking booking = new Booking
             {
@@ -173,9 +176,8 @@ namespace Hotel.Application.Services
                           
                         }
 
-                        bkDelete.DeletedTime = CoreHelper.SystemTimeNow;
 
-                        await _unitOfWork.GetRepository<Booking>().UpdateAsync(bkDelete);
+                        await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
                         await _unitOfWork.SaveChangesAsync();
                         throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không còn phòng nào trống!");
                     }
@@ -194,7 +196,7 @@ namespace Hotel.Application.Services
                 }
             }
             //Thêm dịch vụ
-            if(model.Services.Count>0)
+            if(model.Services != null && model.Services.Count>0)
             {
                 foreach (PostServiceBookingDTO item in model.Services)
                 {
