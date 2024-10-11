@@ -56,6 +56,7 @@ namespace Hotel.Application.Services
             //Add Customer
             Customer customer = new Customer()
             {
+                Id=account.Id,
                 AccountID = account.Id,
                 Name = account.Name ?? "Khách hàng",
                 Email = account.Email,
