@@ -4,6 +4,7 @@ using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.DTOs.RoomTypeDetailDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -88,7 +89,9 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
             }
             List<RoomTypeDetail> roomTypeDetails =
-                await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.Where(r=>r.RoomTypeID==id).ToListAsync()
+                await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
+                .Include(r=>r.RoomPriceAdjustments)
+                .Where(r=>r.RoomTypeID==id).ToListAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại theo ID!");
             //Gắn thêm hình vào
             foreach (var item in roomTypeDetails)
@@ -122,6 +125,8 @@ namespace Hotel.Application.Services
                     Name = item.Name,
                     Description = item.Description,
                     CapacityMax= item.CapacityMax,
+                    BasePrice= item.BasePrice,
+                    DiscountPrice=item.BasePrice,
                     Area=item.Area,
                     AverageStart= item.AverageStart,
                 };
@@ -142,6 +147,14 @@ namespace Hotel.Application.Services
                                 roomTypeDetailDTO.ImageRoomTypeDetailDTOs.Add(imageRoomTypeDetail);
                             }
                         }
+                    }
+                }   
+                if (item.RoomPriceAdjustments != null)
+                {
+                    decimal discount = await GetDiscountPrice(roomTypeDetailDTO.Id);
+                    if (discount != 0)
+                    {
+                        roomTypeDetailDTO.DiscountPrice=discount;
                     }
                 }
                 list.Add(roomTypeDetailDTO);
@@ -249,6 +262,36 @@ namespace Hotel.Application.Services
                 ketHopHienTai.RemoveAt(ketHopHienTai.Count - 1);
             }
         }
+        public async Task<decimal> GetDiscountPrice(string roomTypeDetailId)
+        {
+            List<RoomPriceAdjustment> roomPriceAdjustments = await _unitOfWork.GetRepository<RoomPriceAdjustment>().Entities.Where(r => r.RoomTypeDetailId == roomTypeDetailId).ToListAsync();
+            if(roomPriceAdjustments==null && roomPriceAdjustments.Count == 0)
+            {
+                return 0;
+            }
+            List<PriceAdjustmentPlan> adjustmentPlans = new List<PriceAdjustmentPlan>();
+            foreach (var item in roomPriceAdjustments)
+            {
+                PriceAdjustmentPlan adjustmentPlan =await _unitOfWork.GetRepository<PriceAdjustmentPlan>().GetByIdAsync(item.PriceAdjustmentPlanId);
+                if(adjustmentPlan!=null)
+                {
+                    adjustmentPlans.Add(adjustmentPlan);
+                }    
+            }
+            if(adjustmentPlans==null)
+            {
+                return 0;
+            }
 
+            PriceAdjustmentPlan discountPlan = adjustmentPlans
+                        .Where(p => p.StartDate <= CoreHelper.SystemTimeNow && p.EndDate >= CoreHelper.SystemTimeNow)
+                        .OrderByDescending(p => p.StartDate)
+                        .FirstOrDefault();
+            if (discountPlan == null)
+            {
+                return 0;
+            }
+            return discountPlan.AdjustmentValue;
+        }
     }
 }

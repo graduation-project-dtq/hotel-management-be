@@ -11,6 +11,7 @@ namespace Hotel.Domain.Entities
         public DateTime EndDate { get; set; }
         public int Quantity { get; set; }
         public bool IsActive { get; set; }
+        public virtual ICollection<Booking>? Bookings { get; set; }
         public virtual ICollection<CustomerVoucher> ? CustomerVouchers { get; set; }
         public virtual ICollection<VoucherRoomTypeDetail>? VoucherRoomTypeDetails { get; set; }
     }

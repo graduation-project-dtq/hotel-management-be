@@ -90,7 +90,11 @@ public class EmailService : IEmailService
         {
             sb.AppendLine($"<tr><td><strong>Dịch vụ:</strong></td><td>{service.ServiceName}</td></tr>");
         }
-
+        sb.AppendLine("<tr><th colspan='2'>Thông tin thanh toán</th></tr>");
+        sb.AppendLine($"<tr><td><strong>Tổng tiền:</strong></td><td>{bookingDTO.TotalAmount:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td><strong>Giá khuyến mãi:</strong></td><td>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td><strong>Số tiền đã đặt cọc:</strong></td><td>{bookingDTO.Deposit:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td><strong>Số tiền chưa thanh toán:</strong></td><td>{bookingDTO.UnpaidAmount:N0} VND</td></tr>");
         // Kết thúc bảng
         sb.AppendLine("</table>");
 

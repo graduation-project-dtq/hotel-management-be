@@ -4,6 +4,7 @@ using Hotel.Application.PaggingItems;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Enums.EnumBooking;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sprache;
 
@@ -11,6 +12,7 @@ namespace Hotel.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
