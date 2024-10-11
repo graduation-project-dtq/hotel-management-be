@@ -13,6 +13,11 @@ namespace Hotel.Application.DTOs.BookingDTO
         public DateOnly CheckInDate { get; set; }
         [Required]
         public DateOnly CheckOutDate { get; set; }
+
+        //Tiền đặt cọc
+        public decimal?  Deposit { get; set; }
+        [Phone]
+        public string PhoneNumber {  get; set; }
         public virtual ICollection<PostBookingDetailDTO> ? BookingDetails { get; set; }
         public virtual ICollection<PostServiceBookingDTO> ? Services {  get; set; }
     }

@@ -73,6 +73,7 @@ public class EmailService : IEmailService
         sb.AppendLine("<tr><th colspan='2'>Thông tin đặt phòng</th></tr>");
         sb.AppendLine($"<tr><td><strong>Mã đặt phòng:</strong></td><td>{bookingDTO.Id}</td></tr>");
         sb.AppendLine($"<tr><td><strong>Tên khách hàng:</strong></td><td>{customer.Name}</td></tr>");
+        sb.AppendLine($"<tr><td><strong>Số điện thoại:</strong></td><td>{bookingDTO.PhoneNumber}</td></tr>");
         sb.AppendLine($"<tr><td><strong>Ngày đặt:</strong></td><td>{bookingDTO.BookingDate}</td></tr>");
         sb.AppendLine($"<tr><td><strong>Ngày nhận phòng:</strong></td><td>{bookingDTO.CheckInDate}</td></tr>");
         sb.AppendLine($"<tr><td><strong>Ngày trả phòng:</strong></td><td>{bookingDTO.CheckOutDate}</td></tr>");

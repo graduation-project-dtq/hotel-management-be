@@ -129,7 +129,11 @@ namespace Hotel.Application.Services
 
             Customer exitCustomer =await _unitOfWork.GetRepository<Customer>().GetByIdAsync(model.CustomerId)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không tồn tại");
+            if(String.IsNullOrWhiteSpace(model.PhoneNumber))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống số điện thoại khách hàng");
 
+            }
             // Insert Booking
             Booking booking = new Booking
             {
@@ -141,7 +145,8 @@ namespace Hotel.Application.Services
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
                 Status = EnumBooking.UNCONFIRMED,
                 TotalAmount = 0,
-                Deposit=0,
+                Deposit=model.Deposit,
+                PhoneNumber=model.PhoneNumber,
                 PromotionalPrice=0,
                 UnpaidAmount=0,
                 VoucherId=null,
@@ -272,6 +277,10 @@ namespace Hotel.Application.Services
             }
 
             booking.UnpaidAmount = booking.TotalAmount;
+            if(booking.Deposit!=0)
+            {
+                booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
+            }    
             await _unitOfWork.SaveChangesAsync();
 
             // Trả dữ liệu ra
@@ -286,6 +295,7 @@ namespace Hotel.Application.Services
                 BookingDate = DateOnly.FromDateTime(booking.CreatedTime.DateTime),
                 CheckInDate = booking.CheckInDate,
                 CheckOutDate = booking.CheckOutDate,
+                PhoneNumber=booking.PhoneNumber,
                 BookingDetail = new List<GetBookingDetailDTO>(),
                 Services=new List<GetServiceBookingDTO>()
             };
