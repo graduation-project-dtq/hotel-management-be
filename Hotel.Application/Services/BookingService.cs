@@ -50,6 +50,7 @@ namespace Hotel.Application.Services
             }
 
             IQueryable<Booking> query = _unitOfWork.GetRepository<Booking>().Entities.Include(b=>b.Customer)
+                 .Include(c=>c.Customer)
                  .Where(c => !c.DeletedTime.HasValue)
                  .OrderByDescending(c => c.CreatedTime);
 
@@ -77,7 +78,7 @@ namespace Hotel.Application.Services
             //Tìm theo tên khách hàng
             if (!string.IsNullOrWhiteSpace(customerName))
             {
-                query = query.Where(r => r.Customer.Name.ToString().Equals(customerName));
+                query = query.Where(r => r.Customer.Name.ToString().Contains(customerName));
                 bool exists = await query.AnyAsync();
                 if (!exists)
                 {
