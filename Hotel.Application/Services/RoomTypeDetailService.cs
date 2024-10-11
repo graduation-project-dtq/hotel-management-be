@@ -54,9 +54,16 @@ namespace Hotel.Application.Services
                 Name = roomTypeDetail.Name,
                 Description = roomTypeDetail.Description,
                 CapacityMax = roomTypeDetail.CapacityMax,
+                BasePrice=roomTypeDetail.BasePrice,
+                DiscountPrice=roomTypeDetail.BasePrice,
                 Area = roomTypeDetail.Area,
                 AverageStart = roomTypeDetail.AverageStart,
             };
+            decimal discount = await GetDiscountPrice(roomTypeDetail.Id);
+            if(discount > 0)
+            {
+                getRoomType.DiscountPrice=discount;
+            }    
             getRoomType.ImageRoomTypeDetailDTOs = new List<GetImageRoomTypeDetailDTO>();
 
             roomTypeDetail.ImageRoomTypeDetails = new List<ImageRoomTypeDetail>();
