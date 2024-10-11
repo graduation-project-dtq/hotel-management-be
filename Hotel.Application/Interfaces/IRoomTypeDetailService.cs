@@ -13,5 +13,6 @@ namespace Hotel.Application.Interfaces
         Task<List<List<GetRoomTypeDetailDTO>>> FindRoom(int soNguoi, string roomTypeID);
         Task<List<GetRoomTypeDetailDTO>> GetByRoomTypeId(string id);
         Task<GetRoomTypeDetailDTO> GetById(string id);
+        Task<decimal> GetDiscountPrice(string roomTypeDetailId);
     }
 }

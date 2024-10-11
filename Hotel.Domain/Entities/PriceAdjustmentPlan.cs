@@ -7,9 +7,10 @@ namespace Hotel.Domain.Entities
     {
 
         public string Name { get; set; } = string.Empty;
-        public string AdjustmentType { get; set; } = string.Empty;
         public decimal AdjustmentValue { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string ? Description { get; set; } = string.Empty;
         public virtual ICollection<RoomPriceAdjustment> ? RoomPriceAdjustments { get; set; }
 
     }

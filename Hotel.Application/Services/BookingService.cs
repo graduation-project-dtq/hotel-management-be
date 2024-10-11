@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text;
+
 
 namespace Hotel.Application.Services
 {
@@ -29,9 +29,10 @@ namespace Hotel.Application.Services
         private readonly IRoomService _roomService;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly IRoomTypeDetailService _roomTypeDetailService;
         public BookingService(IUnitOfWork unitOfWork, ILogger<BookingService> logger, IMapper mapper,
             IHttpContextAccessor contextAccessor, IRoomService roomService,IEmailService emailService
-            , IConfiguration configuration)
+            , IConfiguration configuration, IRoomTypeDetailService roomTypeDetailService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -40,6 +41,7 @@ namespace Hotel.Application.Services
             _roomService = roomService;
             _emailService = emailService;
             _configuration = configuration; 
+            _roomTypeDetailService= roomTypeDetailService;
         }
 
         public async Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string customerName)
@@ -139,7 +141,10 @@ namespace Hotel.Application.Services
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
                 Status = EnumBooking.UNCONFIRMED,
                 TotalAmount = 0,
-                BookingDate = DateOnly.FromDateTime(CoreHelper.SystemTimeNow.Date),
+                Deposit=0,
+                PromotionalPrice=0,
+                UnpaidAmount=0,
+                VoucherId=null,
                 CheckInDate = model.CheckInDate,
                 CheckOutDate = model.CheckOutDate,
                 BookingDetails = new List<BookingDetail>(),
@@ -152,8 +157,6 @@ namespace Hotel.Application.Services
             string bookingID = booking.Id;
             if (model.BookingDetails != null && model.BookingDetails.Count > 0)
             {
-             
-
                 foreach (var item in model.BookingDetails)
                 {
                     // Kiểm tra xem có phòng trống hay không
@@ -194,6 +197,25 @@ namespace Hotel.Application.Services
                     booking.BookingDetails.Add(bookingDetail);
                     await _unitOfWork.GetRepository<BookingDetail>().InsertAsync(bookingDetail);
                     await _unitOfWork.SaveChangesAsync();
+
+                    //Tính tiền
+                    decimal price=await _roomTypeDetailService.GetDiscountPrice(bookingDetail.Room.RoomTypeDetailId);
+                    if(price!=0)
+                    {
+                        booking.TotalAmount += price;
+                    }
+                    else
+                    {
+                       
+                        Room room =await _unitOfWork.GetRepository<Room>().Entities
+                            .Include(r=>r.RoomTypeDetail)
+                            .Where(r=>r.Id==bookingDetail.RoomID)
+                            .FirstOrDefaultAsync();
+                        if (room != null)
+                        {
+                            booking.TotalAmount += room.RoomTypeDetail.BasePrice;
+                        }
+                    }
                 }
             }
             //Thêm dịch vụ
@@ -242,8 +264,14 @@ namespace Hotel.Application.Services
                     };
 
                     await _unitOfWork.GetRepository<ServiceBooking>().InsertAsync(service);
+
+                    //Tính tiền dịch vụ
+                    booking.TotalAmount += service.Service.Price;
+
                 }
-            }    
+            }
+
+            booking.UnpaidAmount = booking.TotalAmount;
             await _unitOfWork.SaveChangesAsync();
 
             // Trả dữ liệu ra
@@ -251,7 +279,10 @@ namespace Hotel.Application.Services
             {
                 Id = booking.Id,
                 CustomerId = booking.CustomerId,
-                // Chuyển đổi từ DateTime sang DateOnly
+                Deposit= booking.Deposit,
+                PromotionalPrice=booking.PromotionalPrice,
+                TotalAmount =booking.TotalAmount,
+                UnpaidAmount = booking.UnpaidAmount,
                 BookingDate = DateOnly.FromDateTime(booking.CreatedTime.DateTime),
                 CheckInDate = booking.CheckInDate,
                 CheckOutDate = booking.CheckOutDate,

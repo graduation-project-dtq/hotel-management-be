@@ -28,7 +28,6 @@ namespace Hotel.Infrastructure.Data
         public DbSet<PriceAdjustmentPlan> PriceAdjustmentPlans { get; set; }
         public DbSet<Punish> Punishes { get; set; }
         public DbSet<Room>Rooms { get; set; }
-        public DbSet<RoomPrice> RoomPrices  { get; set; }
         public DbSet<RoomPriceAdjustment> RoomPriceAdjustments { get; set; }
         public DbSet<RoomType> RoomTypes { get; set; }
         public DbSet<RoomTypeDetail> RoomTypeDetails { get; set; }
@@ -105,9 +104,6 @@ namespace Hotel.Infrastructure.Data
                 .Property(f => f.Price)
                 .HasColumnType("decimal(18, 2)");
 
-            modelBuilder.Entity<RoomPrice>()
-                .Property(r => r.BasePrice)
-                .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Service>()
               .Property(s => s.Price)
@@ -276,12 +272,12 @@ namespace Hotel.Infrastructure.Data
 
             //RoomPriceAdjustment
             modelBuilder.Entity<RoomPriceAdjustment>()
-             .HasKey(bk => new { bk.RoomPriceId, bk.PriceAdjustmentPlanId });
+             .HasKey(bk => new { bk.RoomTypeDetailId, bk.PriceAdjustmentPlanId });
 
             modelBuilder.Entity<RoomPriceAdjustment>()
-                .HasOne(ft => ft.RoomPrice)
-                .WithMany(f => f.RoomPriceAdjustments)
-                .HasForeignKey(ft => ft.RoomPriceId);
+                .HasOne(ft => ft.RoomTypeDetail)
+                .WithMany(ft => ft.RoomPriceAdjustments)
+                .HasForeignKey(ft => ft.RoomTypeDetailId);
 
             modelBuilder.Entity<RoomPriceAdjustment>()
                 .HasOne(ft => ft.PriceAdjustmentPlan)

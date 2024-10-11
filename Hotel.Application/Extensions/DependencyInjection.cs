@@ -72,6 +72,9 @@ namespace Hotel.Aplication.Extensions
 
             //Email
             services.AddScoped<IEmailService, EmailService>();
+
+            //PriceAdjustmentPlan
+            services.AddScoped<IPriceAdjustmentPlanService, PriceAdjustmentPlanService>();
         }
 
         //Đăng ký mapper

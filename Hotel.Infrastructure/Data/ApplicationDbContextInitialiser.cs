@@ -64,8 +64,6 @@ namespace Hotel.Infrastructure.Data
                 await addAccount();
                 await addRoomType();
                 await addImage();
-            
-                await addRoomPrice();
                 await addRoomTypeDetail();
                 await addFloor();
                 await addHouse();
@@ -340,55 +338,25 @@ namespace Hotel.Infrastructure.Data
             }
             await _unitOfWork.SaveChangesAsync();
         }
-        private async Task addRoomPrice()
-        {
-            RoomPrice[] roomPrices =
-            {
-                //Bảng giá cho Standard
-                new RoomPrice(){Id="c401bb0823284925900a63575c2717f8",BasePrice=500000,Description="",Name="Giá phòng Standard 1 giường ngủ"},
-                new RoomPrice(){Id="c401bbdt23c84925900a63575c2717f8",BasePrice=700000,Description="",Name="Giá phòng Standard 2 giường ngủ"},
-                new RoomPrice(){Id="c401bb08da484ffff00a63575c2717f8",BasePrice=1000000,Description="",Name="Giá phòng Standard 3 giường ngủ"},
-
-                //Bảng giá cho Luxury
-                new RoomPrice(){Id="c401bb08dahgh925900a63575c2717f8",BasePrice=650000,Description="",Name="Giá phòng Luxury 1 giường ngủ"},
-                new RoomPrice(){Id="c401bb08da484924400a63575c2717f8",BasePrice=800000,Description="",Name="Giá phòng Luxury 2 giường ngủ"},
-                new RoomPrice(){Id="c401bb08da4849dgafftg3575c2717f8",BasePrice=1200000,Description="",Name="Giá phòng Luxury 3 giường ngủ"},
-
-                //Bảng giá cho Premiun
-                new RoomPrice(){Id="c401bb08da4842rffcas63575c2717f8",BasePrice=800000,Description="",Name="Giá phòng Premiun 1 giường ngủ"},
-                new RoomPrice(){Id="c401bb08da4849dgf1fs63575c2717f8",BasePrice=1100000,Description="",Name="Giá phòng Premiun 2 giường ngủ"},
-                new RoomPrice(){Id="c401bb08da48493erfffsv575c2717f8",BasePrice=1400000,Description="",Name="Giá phòng Premiun 3 giường ngủ"},
-            };
-            foreach (var item in roomPrices)
-            {
-
-                if (!await _unitOfWork.GetRepository<RoomPrice>().Entities.AnyAsync(i => i.Id == item.Id))
-                {
-                    item.CreatedTime = CoreHelper.SystemTimeNow;
-                    item.LastUpdatedTime = CoreHelper.SystemTimeNow;
-                    await _unitOfWork.GetRepository<RoomPrice>().InsertAsync(item);
-                }
-            }
-            await _unitOfWork.SaveChangesAsync();
-        }
+       
         public async Task addRoomTypeDetail()
         {
             RoomTypeDetail[] roomTypeDetails =
             {
                 //Standard
-                new RoomTypeDetail(){Id="c401bb08da484fdgdggfsv575c2717f8",Name="Standard 1 giường ngủ",RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",RoomPriceID="c401bb0823284925900a63575c2717f8",CapacityMax=2,Area=50,AverageStart=0,Description="Một giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
-                new RoomTypeDetail(){Id="c401bb08dfggggggrfffsv575c2717f8",Name="Standard 2 giường ngủ",RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",RoomPriceID="c401bbdt23c84925900a63575c2717f8",CapacityMax=4,Area=64,AverageStart=0,Description="Hai giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
-                new RoomTypeDetail(){Id="c401bb08da48493erfffsv575c2717f9",Name="Standard 3 giường ngủ",RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",RoomPriceID="c401bb08da484ffff00a63575c2717f8",CapacityMax=6,Area=70,AverageStart=0,Description="Ba giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08da484fdgdggfsv575c2717f8",BasePrice=500000,Name="Standard 1 giường ngủ",RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",CapacityMax=2,Area=50,AverageStart=0,Description="Một giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08dfggggggrfffsv575c2717f8",BasePrice=700000,Name="Standard 2 giường ngủ",RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",CapacityMax=4,Area=64,AverageStart=0,Description="Hai giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08da48493erfffsv575c2717f9",BasePrice=1000000,Name="Standard 3 giường ngủ",RoomTypeID="11c1b04e29524abdbebd96ec80d6bc58",CapacityMax=6,Area=70,AverageStart=0,Description="Ba giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
 
                 //Luxury
-                new RoomTypeDetail(){Id="c401bb08dasgsdgdsggdgggg5c2717f8",Name="Luxury 1 giường ngủ",RoomTypeID="51be69a4b2144a8987551569a428b064",RoomPriceID="c401bb08dahgh925900a63575c2717f8",CapacityMax=2,Area=55,AverageStart=0,Description="Một giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
-                new RoomTypeDetail(){Id="c401bb08dasdgswfsvwawfffhs271710",Name="Luxury 2 giường ngủ",RoomTypeID="51be69a4b2144a8987551569a428b064",RoomPriceID="c401bb08da484924400a63575c2717f8",CapacityMax=4,Area=66,AverageStart=0,Description="Hai giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
-                new RoomTypeDetail(){Id="c401bb08dfdgggggggffsv575c2717f8",Name="Luxury 3 giường ngủ",RoomTypeID="51be69a4b2144a8987551569a428b064",RoomPriceID="c401bb08da4849dgafftg3575c2717f8",CapacityMax=6,Area=74,AverageStart=0,Description="Ba giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08dasgsdgdsggdgggg5c2717f8",BasePrice=600000,Name="Luxury 1 giường ngủ",RoomTypeID="51be69a4b2144a8987551569a428b064",CapacityMax=2,Area=55,AverageStart=0,Description="Một giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08dasdgswfsvwawfffhs271710",BasePrice=800000,Name="Luxury 2 giường ngủ",RoomTypeID="51be69a4b2144a8987551569a428b064",CapacityMax=4,Area=66,AverageStart=0,Description="Hai giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08dfdgggggggffsv575c2717f8",BasePrice=1100000,Name="Luxury 3 giường ngủ",RoomTypeID="51be69a4b2144a8987551569a428b064",CapacityMax=6,Area=74,AverageStart=0,Description="Ba giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
 
                 //Premium
-                new RoomTypeDetail(){Id="c401bb08da4sddggggggfv575c271710",Name="Premium 1 giường ngủ",RoomTypeID="c401bb08da484925900a63575c2717f8",RoomPriceID="c401bb08da4842rffcas63575c2717f8",CapacityMax=2,Area=60,AverageStart=0,Description="Một giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
-                new RoomTypeDetail(){Id="c401bb08da48493erdffsv575c271711",Name="Premium 2 giường ngủ",RoomTypeID="c401bb08da484925900a63575c2717f8",RoomPriceID="c401bb08da4849dgf1fs63575c2717f8",CapacityMax=4,Area=70,AverageStart=0,Description="Hai giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
-                new RoomTypeDetail(){Id="c401bb08da4849sdg35gggg75c271712",Name="Premium 3 giường ngủ",RoomTypeID="c401bb08da484925900a63575c2717f8",RoomPriceID="c401bb08da48493erfffsv575c2717f8",CapacityMax=6,Area=80,AverageStart=0,Description="Ba giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08da4sddggggggfv575c271710",BasePrice=700000,Name="Premium 1 giường ngủ",RoomTypeID="c401bb08da484925900a63575c2717f8",CapacityMax=2,Area=60,AverageStart=0,Description="Một giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08da48493erdffsv575c271711",BasePrice=900000,Name="Premium 2 giường ngủ",RoomTypeID="c401bb08da484925900a63575c2717f8",CapacityMax=4,Area=70,AverageStart=0,Description="Hai giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
+                new RoomTypeDetail(){Id="c401bb08da4849sdg35gggg75c271712",BasePrice=1400000,Name="Premium 3 giường ngủ",RoomTypeID="c401bb08da484925900a63575c2717f8",CapacityMax=6,Area=80,AverageStart=0,Description="Ba giường đôi lớn, Bếp riêng,Phòng tắm riêng, Ban công, Nhìn ra ban công, Điều hòa không khí, TV màn hình phẳng, Máy giặc, Hệ thống cách âm, Tiện nghi BBQ, WiFi miễn phí"},
             };
             foreach (var item in roomTypeDetails)
             {
