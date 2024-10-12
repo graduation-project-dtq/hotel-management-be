@@ -176,23 +176,32 @@ namespace Hotel.Application.Services
         }
 
         //Tìm room khi booking 
-        public async Task<List<GetRoomDTO>> FindRoomBooking(DateOnly checkInDate, DateOnly checkOutDate, string roomTypeDetailID)
+        public async Task<List<GetRoomDTO>> FindRoomBooking(FindRoomDTO model)
         {
+            if(model.CheckInDate>=model.CheckOutDate)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Ngày đến phải nhỏ hơn ngày đi");
+            }
+        
             List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities
-                .Where(r => r.DeletedTime == null && r.IsActive == true && r.RoomTypeDetailId == roomTypeDetailID)
+                .Where(r => r.DeletedTime == null && r.IsActive == true && r.RoomTypeDetailId == model.RoomTypeDetailID)
                 .ToListAsync();
 
             var bookedRooms = await _unitOfWork.GetRepository<BookingDetail>().Entities
                 .Where(bd => bd.Room.DeletedTime == null &&
                              bd.Room.IsActive == true &&
-                             bd.Room.RoomTypeDetailId == roomTypeDetailID &&
-                             (bd.Booking.CheckInDate < checkOutDate && bd.Booking.CheckOutDate > checkInDate))
+                             bd.Room.RoomTypeDetailId == model.RoomTypeDetailID &&
+                             (bd.Booking.CheckInDate < model.CheckOutDate && bd.Booking.CheckOutDate > model.CheckInDate))
                 .Select(bd => bd.RoomID)
                 .ToListAsync();
 
             var availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
+            if(availableRooms.Count ==0)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng nào còn trống");
 
-         
+            }
+
             var roomDTOs = _mapper.Map<List<GetRoomDTO>>(availableRooms.Select(r => new GetRoomDTO
             {
                 Id = r.Id,

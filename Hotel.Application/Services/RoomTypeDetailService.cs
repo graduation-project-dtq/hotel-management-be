@@ -300,5 +300,7 @@ namespace Hotel.Application.Services
             }
             return discountPlan.AdjustmentValue;
         }
+
+       
     }
 }

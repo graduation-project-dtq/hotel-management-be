@@ -165,7 +165,13 @@ namespace Hotel.Application.Services
                 foreach (var item in model.BookingDetails)
                 {
                     // Kiểm tra xem có phòng trống hay không
-                    List<GetRoomDTO> listRoomActive = await _roomService.FindRoomBooking(model.CheckInDate, model.CheckOutDate, item.RoomTypeDetailID);
+                    FindRoomDTO findRoomDTO = new FindRoomDTO()
+                    {
+                        CheckInDate = model.CheckInDate,
+                        CheckOutDate = model.CheckOutDate,
+                        RoomTypeDetailID = item.RoomTypeDetailID,
+                    };
+                    List<GetRoomDTO> listRoomActive = await _roomService.FindRoomBooking(findRoomDTO);
                     if (listRoomActive == null || listRoomActive.Count == 0)
                     {
                         //Xoá dữ liệu
@@ -277,7 +283,7 @@ namespace Hotel.Application.Services
             }
 
             booking.UnpaidAmount = booking.TotalAmount;
-            if(booking.Deposit!=0)
+            if(booking.Deposit >0)
             {
                 booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
             }    

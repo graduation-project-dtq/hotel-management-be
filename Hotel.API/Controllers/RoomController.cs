@@ -1,13 +1,9 @@
 ﻿using Hotel.Application.DTOs.RoomDTO;
-using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
-using Hotel.Application.Services;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
-using Hotel.Domain.Entities;
-using Hotel.Infrastructure.IOW;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -70,58 +66,18 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPost("FindRoom")]
-        public async Task<IActionResult> FindRoomBooking([FromBody] FindRoomDTO request)
+        public async Task<IActionResult> FindRoomBooking([FromBody] FindRoomDTO findRoomDTO)
         {
-            // Kiểm tra đầu vào
-            if (request.CheckInDate >= request.CheckOutDate)
-            {
-                return BadRequest(new BaseResponseModel<string>(
-                    statusCode: StatusCodes.Status400BadRequest,
-                    code: ResponseCodeConstants.BADREQUEST,
-                    message: "Ngày check-in phải nhỏ hơn ngày check-out."
-                ));
-            }
-
-            if (string.IsNullOrWhiteSpace(request.RoomTypeDetailID))
-            {
-                return BadRequest(new BaseResponseModel<string>(
-                    statusCode: StatusCodes.Status400BadRequest,
-                    code: ResponseCodeConstants.BADREQUEST,
-                    message: "ID loại phòng không được để trống."
-                ));
-            }
-
             // Tìm kiếm phòng
-            List<GetRoomDTO> result;
-            try
-            {
-                result = await _roomService.FindRoomBooking(request.CheckInDate, request.CheckOutDate, request.RoomTypeDetailID);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi tìm phòng booking");
+            List<GetRoomDTO> rooms = await _roomService.FindRoomBooking(findRoomDTO);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponseModel<string>(
-                    statusCode: StatusCodes.Status500InternalServerError,
-                    code: ResponseCodeConstants.INTERNAL_SERVER_ERROR,
-                    message: "Đã xảy ra lỗi trong quá trình tìm kiếm phòng."
-                ));
-            }
+            // Số lượng phòng còn trống
+            int availableRoomCount = rooms.Count;
 
-            // Kiểm tra kết quả
-            if (result == null || !result.Any())
-            {
-                return NotFound(new BaseResponseModel<string>(
-                    statusCode: StatusCodes.Status404NotFound,
-                    code: ResponseCodeConstants.NOT_FOUND,
-                    message: "Không tìm thấy phòng nào phù hợp với yêu cầu."
-                ));
-            }
-
-            return Ok(new BaseResponseModel<List<GetRoomDTO>>(
+            return Ok(new BaseResponseModel<object>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
-                data: result,
+                data: new { AvailableRooms = availableRoomCount, RoomList = rooms },
                 message: "Tìm phòng thành công"
             ));
         }
