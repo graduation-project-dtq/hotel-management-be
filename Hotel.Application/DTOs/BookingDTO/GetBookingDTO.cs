@@ -21,9 +21,9 @@ namespace Hotel.Application.DTOs.BookingDTO
         public decimal TotalAmount { get; set; }
         //Tiền chưa thanh toán
         public decimal? UnpaidAmount { get; set; }
-        public DateOnly? BookingDate { get; set; }
-        public DateOnly? CheckInDate { get; set; }
-        public DateOnly? CheckOutDate { get; set; }
+        public string? BookingDate { get; set; }
+        public string? CheckInDate { get; set; }
+        public string? CheckOutDate { get; set; }
         public virtual ICollection<GetBookingDetailDTO> ? BookingDetail { get; set; }
         public virtual ICollection<GetServiceBookingDTO>? Services {  get; set; }
  
