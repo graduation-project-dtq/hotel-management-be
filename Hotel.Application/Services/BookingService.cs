@@ -111,6 +111,66 @@ namespace Hotel.Application.Services
 
             return responsePaginatedList;
         }
+        public async Task<List<GetBookingDTO>> GetBookingByCustomerId(string customerId, EnumBooking enumBooking)
+        {
+            if(String.IsNullOrWhiteSpace(customerId))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống ID khách hàng");
+            }
+            List<Booking> bookings = await _unitOfWork.GetRepository<Booking>().Entities
+                .Include(b=>b.Customer)
+                .Include(b=>b.BookingDetails)
+                .Include(b=>b.ServiceBookings)
+                .Where(b=>b.CustomerId ==customerId && b.Status == enumBooking  && b.DeletedTime == null).ToListAsync();
+           
+            List<GetBookingDTO> getBookingDTO = new List<GetBookingDTO>();
+
+            foreach(Booking item in bookings)
+            {
+                GetBookingDTO bookingModel=new GetBookingDTO();
+
+                bookingModel.Id=item.Id;
+                bookingModel.EmployeeId = item.EmployeeId;
+                bookingModel.CustomerId = item.CustomerId;
+                bookingModel.CustomerName = item.Customer != null ? item.Customer.Name : null;
+                bookingModel.PhoneNumber = item.PhoneNumber;
+                bookingModel.PromotionalPrice = item.PromotionalPrice;
+                bookingModel.Deposit = item.Deposit;
+                bookingModel.TotalAmount = item.TotalAmount;
+                bookingModel.UnpaidAmount = item.UnpaidAmount;
+                bookingModel.CheckInDate = item.CheckInDate;
+                bookingModel.CheckOutDate=item.CheckOutDate;
+                bookingModel.BookingDetail = new List<GetBookingDetailDTO>();
+                bookingModel.Services=new List<GetServiceBookingDTO>();
+
+                if(item.BookingDetails.Count >0 )
+                {
+                    foreach(BookingDetail booingDetail in item.BookingDetails)
+                    {
+                        Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(booingDetail.RoomID);
+                        GetBookingDetailDTO bookingDetailDTO = new GetBookingDetailDTO()
+                        {
+                            RoomName=room.Name,
+                        };
+                        bookingModel.BookingDetail.Add(bookingDetailDTO);
+                    }
+                }
+                if(item.ServiceBookings.Count >0)
+                {
+                    foreach (ServiceBooking booingDetail in item.ServiceBookings)
+                    {
+                        Service service = await _unitOfWork.GetRepository<Service>().GetByIdAsync(booingDetail.ServiceID);
+                        GetServiceBookingDTO serviceBookingDTO = new GetServiceBookingDTO()
+                        {
+                            ServiceName = service.Name,
+                        };
+                        bookingModel.Services.Add(serviceBookingDTO);
+                    }
+                }
+                getBookingDTO.Add(bookingModel);
+            }
+            return getBookingDTO;
+        }
         public async Task<GetBookingDTO> CreateBooking(PostBookingDTO model)
         {
             string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
@@ -134,6 +194,17 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống số điện thoại khách hàng");
 
             }
+         
+            Voucher voucher = new Voucher();
+            if (!String.IsNullOrWhiteSpace(model.VoucherId))
+            {
+                 voucher = await _unitOfWork.GetRepository<Voucher>().Entities
+                    .Where(v => v.Id == model.VoucherId && v.DeletedTime != null
+                    && v.StartDate <= CoreHelper.SystemDateOnly && v.EndDate >= CoreHelper.SystemDateOnly
+                    && v.Quantity > 0).FirstOrDefaultAsync()
+                    ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Voucher không khả dụng!");
+              
+            }
             // Insert Booking
             Booking booking = new Booking
             {
@@ -147,9 +218,9 @@ namespace Hotel.Application.Services
                 TotalAmount = 0,
                 Deposit=model.Deposit,
                 PhoneNumber=model.PhoneNumber,
-                PromotionalPrice=0,
+                PromotionalPrice=voucher.DiscountAmount,
                 UnpaidAmount=0,
-                VoucherId=null,
+                VoucherId= voucher.Id,
                 CheckInDate = model.CheckInDate,
                 CheckOutDate = model.CheckOutDate,
                 BookingDetails = new List<BookingDetail>(),
@@ -272,13 +343,13 @@ namespace Hotel.Application.Services
                     {
                         BookingID = booking.Id,
                         ServiceID = item.ServiceID,
+                        Quantity=item.Quantity,
                     };
 
                     await _unitOfWork.GetRepository<ServiceBooking>().InsertAsync(service);
 
                     //Tính tiền dịch vụ
-                    booking.TotalAmount += service.Service.Price;
-
+                    booking.TotalAmount += service.Service.Price * service.Quantity;
                 }
             }
 
@@ -286,7 +357,16 @@ namespace Hotel.Application.Services
             if(booking.Deposit >0)
             {
                 booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
-            }    
+            }
+            //Trừ số lượng voucher
+            voucher.Quantity = voucher.Quantity - 1;
+            booking.TotalAmount = booking.TotalAmount - booking.PromotionalPrice;
+
+            if(voucher.Quantity ==0)
+            {
+                await _unitOfWork.GetRepository<Voucher>().UpdateAsync(voucher);
+                await _unitOfWork.SaveChangesAsync();
+            }
             await _unitOfWork.SaveChangesAsync();
 
             // Trả dữ liệu ra
@@ -312,10 +392,10 @@ namespace Hotel.Application.Services
                 if (item != null)
                 {
                     // Gán dữ liệu cho GetBookingDetailDTO
+                    Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(item.RoomID);
                     GetBookingDetailDTO getBookingDetail = new GetBookingDetailDTO
                     {
-                        RoomID = item.RoomID,
-                        RoomName=item.Room != null ? item.Room.Name : ""
+                        RoomName=room.Name,
                     };
                     getBookingDTO.BookingDetail.Add(getBookingDetail);
                 }
@@ -325,11 +405,11 @@ namespace Hotel.Application.Services
             {
                 if (item != null)
                 {
+                    Service servier =await _unitOfWork.GetRepository<Service>().GetByIdAsync(item.ServiceID);
                     // Gán dữ liệu cho GetBookingDetailDTO
                     GetServiceBookingDTO getservice = new GetServiceBookingDTO
                     {
-                        ServiceID = item.ServiceID,
-                        ServiceName = item.Service != null ? item.Service.Name : ""
+                        ServiceName = servier.Name,
                     };
                     getBookingDTO.Services.Add(getservice);
                 }
@@ -359,10 +439,22 @@ namespace Hotel.Application.Services
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy booking!");
 
             booking.Status = enumBooking;
-            if(booking.Status==EnumBooking.CONFIRMED)
+            if(booking.Status ==EnumBooking.CONFIRMED)
             {
                 //Gửi mail đã xác nhận 
+                return;
+            }   
+            //Yêu cầu huỷ từ khách hàng
+            if(booking.Status == EnumBooking.CANCELLATIONREQUEST)
+            {
+                return;
+            }  
+            //Nhân viên sẽ huỷ phòng cho khách hàng -- liên hệ trả cọc rồi huỷ
+            if(booking.Status == EnumBooking.CANCELED)
+            {
+                return;
             }    
+
             await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
         }

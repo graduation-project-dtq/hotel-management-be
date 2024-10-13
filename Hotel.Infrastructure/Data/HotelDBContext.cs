@@ -19,7 +19,7 @@ namespace Hotel.Infrastructure.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Booking> Bookings { get; set; }
-        public DbSet<CustomerVoucher> CustomerVouchers {  get; set; }
+      
         public DbSet<Evaluation> Evaluations { get; set; }
         public DbSet<Facilities> Facilities { get; set; }
         public DbSet<FacilitiesRoom> FacilitiesRooms { get; set; }
@@ -126,6 +126,11 @@ namespace Hotel.Infrastructure.Data
              .Property(f => f.DiscountAmount)
              .HasColumnType("decimal(18, 2)");
 
+            modelBuilder.Entity<Voucher>()
+                .HasIndex(v => v.Code)
+                .IsUnique();
+
+
             // Định nghĩa cho bảng Booking
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Employee)
@@ -139,11 +144,6 @@ namespace Hotel.Infrastructure.Data
                 .WithMany(c => c.Bookings)
                 .HasForeignKey(b => b.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-           
-
-            
-
             // Định nghĩa cho bảng Punish
             modelBuilder.Entity<Punish>()
                 .HasOne(p => p.Booking)
@@ -156,21 +156,6 @@ namespace Hotel.Infrastructure.Data
                 .WithMany(f => f.Punishes)
                 .HasForeignKey(p => p.FacilitiesID)
                 .OnDelete(DeleteBehavior.Restrict);
-
-
-            //Customer voucher
-            modelBuilder.Entity<CustomerVoucher>()
-                .HasKey(bk => new { bk.CustomerId, bk.VoucherID });
-            modelBuilder.Entity<CustomerVoucher>()
-                .HasOne(ft => ft.Customer)
-                .WithMany(f => f.CustomerVouchers)
-                .HasForeignKey(ft => ft.CustomerId);
-            modelBuilder.Entity<CustomerVoucher>()
-                .HasOne(ft => ft.Voucher)
-                .WithMany(t => t.CustomerVouchers)
-                .HasForeignKey(ft => ft.VoucherID);
-
-
             //FacilitiesRoom
             modelBuilder.Entity<FacilitiesRoom>()
                 .HasKey(bk => new { bk.RoomID, bk.FacilitiesID });

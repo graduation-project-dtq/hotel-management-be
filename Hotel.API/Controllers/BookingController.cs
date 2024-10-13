@@ -44,16 +44,28 @@ namespace Hotel.API.Controllers
               message: "Đặt phòng thành công!"
              ));
         }
-        [HttpPost("UpdateStatus")]
+        [HttpPut("UpdateStatus")]
         public async Task<IActionResult> UpdateStatusBooking(string bookingID, EnumBooking enumBooking)
         {
             await _bookingService.UpdateStatusBooking(bookingID, enumBooking);
-            return Ok(new BaseResponse<string ?>(
+            return Ok(new BaseResponse<string?>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
                 data: null,
                 message: "Xác nhận thành công!"
            ));
+        }
+
+        [HttpGet("GetBooking")]
+        public async Task<IActionResult> GetBookingByCustomerId(string customerId, EnumBooking enumBooking)
+        {
+            List<GetBookingDTO> result = await _bookingService.GetBookingByCustomerId(customerId, enumBooking);
+            return Ok(new BaseResponse<List<GetBookingDTO>>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Lấy danh sách đặt phòng thành công!"
+             ));
         }
     }
 }

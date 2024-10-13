@@ -9,9 +9,7 @@ namespace Hotel.Domain.Entities
 
         [ForeignKey("Service")]
         public string ServiceID { get; set; } = string.Empty;
-        public int Quantity { get; set; }
-        public float Total { get; set; }
-
+        public int Quantity { get; set; } 
         public virtual Booking ? Booking { get; set; }
         public virtual Service ? Service { get; set; }
     }

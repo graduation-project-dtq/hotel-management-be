@@ -18,13 +18,13 @@ namespace Hotel.Domain.Entities
         public DateOnly CheckInDate { get; set; }
         public DateOnly CheckOutDate { get; set; }
         //Tiền đặt cọc
-        public decimal ? Deposit {  get; set; }
+        public decimal  Deposit {  get; set; }
         //Tiền khuyến mãi
-        public decimal ? PromotionalPrice { get; set; }
+        public decimal  PromotionalPrice { get; set; }
         //Tổng tiền
         public decimal TotalAmount { get; set; }
         //Tiền chưa thanh toán
-        public decimal ? UnpaidAmount {  get; set; }
+        public decimal  UnpaidAmount {  get; set; }
         public EnumBooking Status { get; set; }
         public virtual Customer ? Customer { get; set; }
         public virtual Employee ? Employee { get; set; }
