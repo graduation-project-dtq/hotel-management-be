@@ -196,18 +196,15 @@ namespace Hotel.Application.Services
                 .ToListAsync();
 
             var availableRooms = rooms.Where(r => !bookedRooms.Contains(r.Id)).ToList();
-            if(availableRooms.Count ==0)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng nào còn trống");
-
-            }
-
             var roomDTOs = _mapper.Map<List<GetRoomDTO>>(availableRooms.Select(r => new GetRoomDTO
             {
                 Id = r.Id,
                 Name = r.Name,
             }).ToList());
-
+            if (roomDTOs.Count == 0)
+            {
+                return null;
+            }
             return roomDTOs;
         }
 

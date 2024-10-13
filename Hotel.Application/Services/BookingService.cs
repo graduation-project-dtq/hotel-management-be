@@ -316,29 +316,13 @@ namespace Hotel.Application.Services
                         RoomTypeDetailID = item.RoomTypeDetailID,
                     };
                     List<GetRoomDTO> listRoomActive = await _roomService.FindRoomBooking(findRoomDTO);
-                    if (listRoomActive == null || listRoomActive.Count == 0)
+                    if (listRoomActive == null )
                     {
                         //Xoá dữ liệu
                         //Xoá   
-                        Booking bkDelete = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID);
-
-                        List<BookingDetail> listDetail = await _unitOfWork.GetRepository<BookingDetail>().Entities.Where(bd => bd.BookingId == bookingID).ToListAsync();
-
-                        if (listDetail != null && listDetail.Count > 0)
-                        {
-                            foreach (var bd in listDetail)
-                            {
-                                await _unitOfWork.GetRepository<BookingDetail>().DeleteAsync(bd.BookingId);
-                                await _unitOfWork.SaveChangesAsync();
-                            }
-                            await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
-
-                        }
-
-
-                        await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
-                        await _unitOfWork.SaveChangesAsync();
+                        await DeleteBookingAsync(bookingID);
                         throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không còn phòng nào trống!");
+                        
                     }
 
                     string roomID = listRoomActive[0].Id;
@@ -361,7 +345,6 @@ namespace Hotel.Application.Services
                     }
                     else
                     {
-
                         Room room = await _unitOfWork.GetRepository<Room>().Entities
                             .Include(r => r.RoomTypeDetail)
                             .Where(r => r.Id == bookingDetail.RoomID)
@@ -381,43 +364,8 @@ namespace Hotel.Application.Services
                     Service initService = await _unitOfWork.GetRepository<Service>().GetByIdAsync(item.ServiceID);
                     if (initService == null)
                     {
-                        Booking bkDelete = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID);
-
-                        List<BookingDetail> listDetail = await _unitOfWork.GetRepository<BookingDetail>().Entities.Where(bd => bd.BookingId == bkDelete.Id).ToListAsync();
-
-                        if (listDetail != null && listDetail.Count > 0)
-                        {
-                            foreach (var bd in listDetail)
-                            {
-                                await _unitOfWork.GetRepository<BookingDetail>().Entities
-                                 .Where(dt => dt.BookingId == bd.BookingId && dt.RoomID == bd.RoomID)
-                                 .ExecuteDeleteAsync();
-
-                                //await _unitOfWork.GetRepository<BookingDetail>().Entities.Where(bd=>bd.BookingId=bookingID && bd.RoomID== );
-
-                                await _unitOfWork.SaveChangesAsync();
-                            }
-                            //await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
-
-                        }
-                        List<ServiceBooking> serviceBookings = await _unitOfWork.GetRepository<ServiceBooking>().Entities.Where(sb => sb.BookingID == bookingID).ToListAsync();
-
-                        if (serviceBookings != null && serviceBookings.Count > 0)
-                        {
-                            foreach (var servicebooking in serviceBookings)
-                            {
-                                await _unitOfWork.GetRepository<ServiceBooking>().Entities
-                                .Where(sb => sb.BookingID == bkDelete.Id && sb.ServiceID == servicebooking.ServiceID)
-                                .ExecuteDeleteAsync();
-                               // await _unitOfWork.GetRepository<ServiceBooking>().DeleteAsync(sb.BookingID);
-                                await _unitOfWork.SaveChangesAsync();
-                            }
-                           
-                        }
-                        await _unitOfWork.GetRepository<Booking>().DeleteAsync(bkDelete.Id);
-                        await _unitOfWork.SaveChangesAsync();
+                        await DeleteBookingAsync(bookingID);
                         throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dịch vụ không tồn tại!");
-
                     }
 
                     ServiceBooking service = new ServiceBooking()
@@ -491,6 +439,7 @@ namespace Hotel.Application.Services
                     GetServiceBookingDTO getservice = new GetServiceBookingDTO
                     {
                         ServiceName = servier.Name,
+                        Quantity=item.Quantity,
                     };
                     getBookingDTO.Services.Add(getservice);
                 }
@@ -540,6 +489,44 @@ namespace Hotel.Application.Services
             await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
         }
+        private async Task DeleteBookingAsync(string bookingID)
+        {
+            Booking bkDelete = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID);
+
+            if (bkDelete != null)
+            {
+                List<BookingDetail> listDetail = await _unitOfWork.GetRepository<BookingDetail>().Entities
+                    .Where(bd => bd.BookingId == bkDelete.Id)
+                    .ToListAsync();
+
+                foreach (var bd in listDetail)
+                {
+                    await _unitOfWork.GetRepository<BookingDetail>().Entities
+                        .Where(dt => dt.BookingId == bkDelete.Id && dt.RoomID == bd.RoomID)
+                        .ExecuteDeleteAsync();
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                List<ServiceBooking> serviceBookings = await _unitOfWork.GetRepository<ServiceBooking>().Entities
+                    .Where(sb => sb.BookingID == bookingID)
+                    .ToListAsync();
+
+                foreach (var servicebooking in serviceBookings)
+                {
+                    await _unitOfWork.GetRepository<ServiceBooking>().Entities
+                        .Where(sb => sb.BookingID == bkDelete.Id && sb.ServiceID == servicebooking.ServiceID)
+                        .ExecuteDeleteAsync();
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                await _unitOfWork.GetRepository<Booking>().Entities
+                    .Where(b => b.Id == bookingID)
+                    .ExecuteDeleteAsync();
+
+                await _unitOfWork.SaveChangesAsync();
+            }
+        }
+
     }
 }
 

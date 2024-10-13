@@ -70,7 +70,15 @@ namespace Hotel.API.Controllers
         {
             // Tìm kiếm phòng
             List<GetRoomDTO> rooms = await _roomService.FindRoomBooking(findRoomDTO);
-
+            if(rooms == null)
+            {
+                return Ok(new BaseResponseModel<string ?>(
+              statusCode: StatusCodes.Status200OK,
+              code: ResponseCodeConstants.SUCCESS,
+              data: null,
+              message: "Không còn phòng nào trống"
+          ));
+            }    
             // Số lượng phòng còn trống
             int availableRoomCount = rooms.Count;
 

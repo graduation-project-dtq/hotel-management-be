@@ -84,16 +84,20 @@ public class EmailService : IEmailService
         {
             sb.AppendLine($"<tr><td><strong>Phòng:</strong></td><td>{detail.RoomName}</td></tr>");
         }
-
-        // Thêm dịch vụ
-        sb.AppendLine("<tr><th colspan='2'>Dịch vụ</th></tr>");
-        foreach (var service in bookingDTO.Services)
+        if (bookingDTO.Services.Count > 0)
         {
-            sb.AppendLine($"<tr><td><strong>Dịch vụ:</strong></td><td>{service.ServiceName}</td></tr>");
+            sb.AppendLine("<tr><th colspan='2'>Dịch vụ</th></tr>");
+            sb.AppendLine("<tr><td><strong>Tên:</strong></td><td>Số lượng</td></tr>");
+            foreach (var service in bookingDTO.Services)
+            {
+                sb.AppendLine($"<tr><td><strong>{service.ServiceName}</strong></td><td>{service.Quantity}</td></tr>");
+            }
         }
+        // Thêm dịch vụ
+      
         sb.AppendLine("<tr><th colspan='2'>Thông tin thanh toán</th></tr>");
         sb.AppendLine($"<tr><td><strong>Tổng tiền:</strong></td><td>{bookingDTO.TotalAmount:N0} VND</td></tr>");
-        sb.AppendLine($"<tr><td><strong>Giá khuyến mãi:</strong></td><td>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td><strong>Tiền khuyến mãi:</strong></td><td>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
         sb.AppendLine($"<tr><td><strong>Số tiền đã đặt cọc:</strong></td><td>{bookingDTO.Deposit:N0} VND</td></tr>");
         sb.AppendLine($"<tr><td><strong>Số tiền chưa thanh toán:</strong></td><td>{bookingDTO.UnpaidAmount:N0} VND</td></tr>");
         // Kết thúc bảng
