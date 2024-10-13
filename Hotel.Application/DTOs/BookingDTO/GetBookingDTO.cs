@@ -10,7 +10,9 @@ namespace Hotel.Application.DTOs.BookingDTO
         public string ? Id {  get; set; }
         public string ? EmployeeId { get; set; }
         public string ?CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public string? PhoneNumber {  get; set; }
+     
         public decimal? Deposit { get; set; }
         //Tiền khuyến mãi
         public decimal? PromotionalPrice { get; set; }
