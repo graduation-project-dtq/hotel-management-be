@@ -16,6 +16,12 @@ namespace Hotel.API.Controllers
         {
             _customerService = customerService;
         }
+
+        /// <summary>
+        /// Tìm khách hàng bằng Email
+        /// </summary>
+        /// <param name="email"></param>
+
         [HttpGet("{email}")]
         public async Task<IActionResult> GetCustomerByEmailAsync(string email)
         {
@@ -27,6 +33,13 @@ namespace Hotel.API.Controllers
               message: "Lấy thông tin khách hàng thành công"
            ));
         }
+
+        /// <summary>
+        /// Cập nhật thông tin của khách hàng
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="model"></param>
+
         [HttpPut("{email}")]
         [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
         public async Task<IActionResult> UpdateCustomerAsync(string email, PutCustomerDTO model)
@@ -39,6 +52,5 @@ namespace Hotel.API.Controllers
                 message: "Sửa thông tin thành công"
              ));
         }
-
     }
 }

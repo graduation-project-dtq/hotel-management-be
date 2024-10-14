@@ -4,6 +4,7 @@ using Hotel.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hotel.Infrastructure.Migrations
 {
     [DbContext(typeof(HotelDBContext))]
-    partial class HotelDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241014075433_updateBooking")]
+    partial class updateBooking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -455,6 +458,44 @@ namespace Hotel.Infrastructure.Migrations
                     b.ToTable("Floors");
                 });
 
+            modelBuilder.Entity("Hotel.Domain.Entities.HouseType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InternalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HouseType");
+                });
+
             modelBuilder.Entity("Hotel.Domain.Entities.Image", b =>
                 {
                     b.Property<string>("Id")
@@ -734,6 +775,10 @@ namespace Hotel.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("HouseTypeID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("InternalCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -760,6 +805,8 @@ namespace Hotel.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FloorId");
+
+                    b.HasIndex("HouseTypeID");
 
                     b.HasIndex("RoomTypeDetailId");
 
@@ -1259,6 +1306,12 @@ namespace Hotel.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Hotel.Domain.Entities.HouseType", "HouseType")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HouseTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Hotel.Domain.Entities.RoomTypeDetail", "RoomTypeDetail")
                         .WithMany()
                         .HasForeignKey("RoomTypeDetailId")
@@ -1266,6 +1319,8 @@ namespace Hotel.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Floor");
+
+                    b.Navigation("HouseType");
 
                     b.Navigation("RoomTypeDetail");
                 });
@@ -1387,6 +1442,11 @@ namespace Hotel.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.Floor", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Hotel.Domain.Entities.HouseType", b =>
                 {
                     b.Navigation("Rooms");
                 });

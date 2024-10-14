@@ -71,12 +71,7 @@ namespace Hotel.Application.Mappings
             CreateMap<Service, PostServiceDTO>().ReverseMap();
             CreateMap<Service, PutServiceDTO>().ReverseMap();
 
-            //HouseType
-
-            CreateMap<HouseType, GetHoustTypeDTO>().ReverseMap();
-            CreateMap<HouseType, PostHouseTypeDTO>().ReverseMap();
-            CreateMap<HouseType, PutHouseTypeDTO>().ReverseMap();
-
+           
             //Voucher
 
             CreateMap<Voucher, GetVoucherDTO>().ReverseMap();

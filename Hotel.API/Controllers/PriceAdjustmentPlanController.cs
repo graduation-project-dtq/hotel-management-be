@@ -19,13 +19,19 @@ namespace Hotel.API.Controllers
     public class PriceAdjustmentPlanController : ControllerBase
     {
         private readonly IPriceAdjustmentPlanService _priceAdjustmentPlanService;
-        private readonly IUnitOfWork _unitOfWork;
-        public PriceAdjustmentPlanController(IPriceAdjustmentPlanService priceAdjustmentPlanService,IUnitOfWork unitOfWork)
+        public PriceAdjustmentPlanController(IPriceAdjustmentPlanService priceAdjustmentPlanService)
         {
             _priceAdjustmentPlanService = priceAdjustmentPlanService;
-            _unitOfWork = unitOfWork;
         }
 
+        /// <summary>
+        /// Lấy danh sách điều chỉnh giá phòng
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="idSearch"></param>
+        /// <param name="nameSreach"></param>
+        /// 
         [HttpGet]
         public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string nameSreach = "")
         {
@@ -37,8 +43,12 @@ namespace Hotel.API.Controllers
                 data: result
             ));
         }
+        /// <summary>
+        /// Tạo điều chỉnh giá phòng
+        /// </summary>
+        /// <param name="model"></param>
         [HttpPost]
-        public async Task<IActionResult> CreateRoomPriceAdjustmentPlan(PostPriceAdjustmentPlanDTO model)
+        public async Task<IActionResult> CreateRoomPriceAdjustmentPlan([FromBody] PostPriceAdjustmentPlanDTO model)
         {
             await _priceAdjustmentPlanService.CreateRoomPriceAdjustmentPlan(model);
             return Ok(new BaseResponseModel<string ?>(
@@ -48,10 +58,16 @@ namespace Hotel.API.Controllers
                  data: null
              ));
         }
+
+        /// <summary>
+        /// Chỉnh sửa điều chỉnh giá phòng
+        /// </summary>
+        /// <param name="index"></param>
+        /// 
         [HttpPut]
         public async Task<IActionResult> UpdateRoomPriceAdjustmentPlan(string id, PutPriceAdjustmentPlanDTO model)
         {
-            await _priceAdjustmentPlanService.UpdateRoomPriceAdjustmentPlan(id,model);
+            await _priceAdjustmentPlanService.UpdateRoomPriceAdjustmentPlan(id, model);
             return Ok(new BaseResponseModel<string?>(
                  statusCode: StatusCodes.Status200OK,
                  code: ResponseCodeConstants.SUCCESS,
@@ -59,6 +75,12 @@ namespace Hotel.API.Controllers
                  data: null
              ));
         }
+
+        /// <summary>
+        /// Xoá điều chỉnh giá phòng
+        /// </summary>
+        /// <param name="index"></param>
+
         [HttpDelete]
         public async Task<IActionResult> DeleteRoomPriceAdjustmentPlan(string id)
         {
@@ -69,13 +91,6 @@ namespace Hotel.API.Controllers
                  message: "Xoá điều chỉnh giá phòng thành công!",
                  data: null
              ));
-        }
-        [HttpGet("Test")]
-        public async Task<IActionResult> GetAll()
-        {
-            return Ok(_unitOfWork.GetRepository<PriceAdjustmentPlan>().Entities.Where(p => p.StartDate <= CoreHelper.SystemTimeNow && p.EndDate >= CoreHelper.SystemTimeNow)
-                    .OrderByDescending(p => p.StartDate)
-                    .FirstOrDefault());
         }
     }
 }

@@ -4,8 +4,10 @@ namespace Hotel.Application.DTOs.BookingDTO
 {
     public class PostPunishesDTO
     {
-        [Required(ErrorMessage = "FacilitiesID không được để trống!")]
+        [Required(ErrorMessage = "Không được để trống mã đồ dùng, tài sản!")]
         public string FacilitiesID { get; set; } = string.Empty;
-        public string? Note { get; set; }
+        [Required(ErrorMessage = "Không được để trống tiền phạt, tài sản!")]
+        public decimal Fine {  get; set; }
+        public int Quantity {  get; set; }
     }
 }

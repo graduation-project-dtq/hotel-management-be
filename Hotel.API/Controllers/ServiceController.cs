@@ -19,6 +19,13 @@ namespace Hotel.API.Controllers
             _serviceService = serviceService;
         }
 
+        /// <summary>
+        /// Lấy danh sách dịch vụ
+        /// <param name="index"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="idSearch"></param>
+        /// <param name="nameSearch"></param>
+
         [HttpGet]
         public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
         {
@@ -31,7 +38,7 @@ namespace Hotel.API.Controllers
            ));
         }
         [HttpPost]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> CreateService([FromBody] PostServiceDTO model)
         {
            
@@ -46,7 +53,7 @@ namespace Hotel.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> CreateService(string id,[FromBody] PutServiceDTO model)
         {
 
@@ -60,7 +67,7 @@ namespace Hotel.API.Controllers
 
         }
         [HttpDelete("{id}")]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> DeleteService(string id)
         {
             await _serviceService.DeleteService(id);

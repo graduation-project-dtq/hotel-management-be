@@ -64,8 +64,6 @@ namespace Hotel.Aplication.Extensions
             //Service
             services.AddScoped<IServiceService, ServiceService>();
 
-            //HouseTyoe
-            services.AddScoped<IHouseTypeService, HouseTypeService>();
             
             //Voucher
             services.AddScoped<IVoucherService, VoucherService>();
