@@ -1,1 +1,1 @@
-Add-Migration INIT -Project Hotel.Infrastructure -StartupProject Hotel.API
+Add-Migration update -Project Hotel.Infrastructure -StartupProject Hotel.API

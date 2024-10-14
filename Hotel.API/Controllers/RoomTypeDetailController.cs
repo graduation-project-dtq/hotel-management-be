@@ -21,6 +21,10 @@ namespace Hotel.API.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Lấy danh sách loại phòng
+        /// <param name="id"></param>
+
         [HttpGet]
         public async Task<IActionResult> GetAllRoomTypeDetail()
         {
@@ -31,19 +35,11 @@ namespace Hotel.API.Controllers
                 data: roomTypeDetails));
         }
 
-        [HttpGet("/GetByID{id}")]
-        public async Task<IActionResult> GetById(string id)
-        {
-            GetRoomTypeDetailDTO result = await _roomTypeDetailService.GetById(id);
-            return Ok(new BaseResponse<GetRoomTypeDetailDTO>(
-               statusCode: StatusCodes.Status200OK,
-               code: ResponseCodeConstants.SUCCESS,
-               message:"Lấy thông tin thành công",
-               data: result));
-        }
-
+        /// <summary>
+        /// Tạo loại phòng mới
+        /// <param name="model"></param>
         [HttpPost]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> CreateRoomTypeDetail([FromBody] PostRoomTypeDetailDTO model)
         {
             if (!ModelState.IsValid)
@@ -56,6 +52,27 @@ namespace Hotel.API.Controllers
              data: roomTypeDetail));
         }
 
+        /// <summary>
+        /// Tìm kiếm loại phòng theo ID
+        /// <param name="id"></param>
+
+        [HttpGet("/GetByID{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            GetRoomTypeDetailDTO result = await _roomTypeDetailService.GetById(id);
+            return Ok(new BaseResponse<GetRoomTypeDetailDTO>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               message:"Lấy thông tin thành công",
+               data: result));
+        }
+
+       
+
+
+        /// <summary>
+        /// Gợi ý phòng 
+        /// <param name="id"></param>
         [HttpGet("{soNguoi},{roomTypeDetailID}")]
         public async Task<IActionResult> FindRoom(int soNguoi, string roomTypeDetailID)
         {
@@ -67,10 +84,14 @@ namespace Hotel.API.Controllers
                 data: roomTypeDetails));
         }
 
+        /// <summary>
+        /// Tìm kiếm loại phòng theo ID loại bự
+        /// <param name="id"></param>
+
         [HttpGet("{roomTypeID}")]
-        public async Task<IActionResult> GetByRoomTypeId(string roomTypeID)
+        public async Task<IActionResult> GetByRoomTypeId(string id)
         {
-            List<GetRoomTypeDetailDTO> roomTypeDetails = await _roomTypeDetailService.GetByRoomTypeId(roomTypeID);
+            List<GetRoomTypeDetailDTO> roomTypeDetails = await _roomTypeDetailService.GetByRoomTypeId(id);
 
             return Ok(new BaseResponse<List<GetRoomTypeDetailDTO>>(
                 statusCode: StatusCodes.Status200OK,

@@ -11,6 +11,7 @@ namespace Hotel.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+   
     public class RoomController : ControllerBase
     {
         private readonly IRoomService _roomService;
@@ -20,7 +21,15 @@ namespace Hotel.API.Controllers
             _roomService = roomService;
             _logger = logger;
         }
+
+        /// <summary>
+        /// Lấy danh sách phòng
+        /// <param name="index"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="idSearch"></param>
+        /// <param name="nameSearch"></param>
         [HttpGet]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
         {
             PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch);
@@ -31,14 +40,12 @@ namespace Hotel.API.Controllers
                 data: result
             ));
         }
-        //[HttpGet]
-        //public async Task<IActionResult> GetAllRoom()
-        //{
-        //    return Ok(await _roomService.GetAllRoom());
-        //}
-
+        /// <summary>
+        /// Tìm phòng bằng ID
+        /// <param name="id"></param>
         //Tìm theo id
         [HttpGet("{id}")]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult>GetRoomById(string id)
         {
             var room = await _roomService.GetRoomById(id);
@@ -48,9 +55,14 @@ namespace Hotel.API.Controllers
                    data: room
                ));
         }
-        
+
+
+        /// <summary>
+        /// Tạo phòng mới
+        /// <param name="model"></param>
+
         [HttpPost]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult>CreateRoom([FromBody] PostRoomDTO model)
         {
             if (!ModelState.IsValid)
@@ -64,7 +76,8 @@ namespace Hotel.API.Controllers
                     message:"Thêm phòng thành công"
                 ));
         }
-
+        /// <summary>
+        /// Lấy danh sách phòng
         [HttpPost("FindRoom")]
         public async Task<IActionResult> FindRoomBooking([FromBody] FindRoomDTO findRoomDTO)
         {
@@ -89,6 +102,5 @@ namespace Hotel.API.Controllers
                 message: "Tìm phòng thành công"
             ));
         }
-
     }
 }

@@ -21,7 +21,9 @@ namespace Hotel.API.Controllers
             _roomTypeService = roomTypeService;
             _logger = logger;
         }
-        // Lấy tất cả RoomType
+
+        /// <summary>
+        /// Lấy danh sách phòng loại phòng 
         [HttpGet]
         public async Task<IActionResult> GetAllRoomType()
         {
@@ -32,6 +34,11 @@ namespace Hotel.API.Controllers
                    data: roomTypes
                ));
         }
+
+        /// <summary>
+        /// Tìm kiếm loại phòng theo ID
+        /// <param name="id"></param>
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoomTypeById(string id)
         {
@@ -43,9 +50,12 @@ namespace Hotel.API.Controllers
                    data: roomType
                ));
         }
-        // Tạo RoomType mới
+
+        /// <summary>
+        /// Tạo loại phòng mới
+        /// <param name="id"></param>
         [HttpPost]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> CreateRoomType([FromBody] PortRoomTypeDTO model)
         {
             if (!ModelState.IsValid)
@@ -55,8 +65,11 @@ namespace Hotel.API.Controllers
             return CreatedAtAction(nameof(GetAllRoomType), new { id = roomType.Id }, roomType);
         }
 
-        // Xóa RoomType theo ID
+        /// <summary>
+        /// Xoá loại phòng theo ID
+        /// <param name="id"></param>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> DeleteRoomType(string id)
         {
             await _roomTypeService.DeleteRoomType(id);

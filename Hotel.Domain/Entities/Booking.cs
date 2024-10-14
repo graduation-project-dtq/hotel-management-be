@@ -26,6 +26,8 @@ namespace Hotel.Domain.Entities
         //Tiền chưa thanh toán
         public decimal  UnpaidAmount {  get; set; }
         public EnumBooking Status { get; set; }
+        public string ? CustomerName {  get; set; }
+        public string ? IdentityCard { get; set; }
         public virtual Customer ? Customer { get; set; }
         public virtual Employee ? Employee { get; set; }
         public virtual Voucher ? Voucher { get; set; }

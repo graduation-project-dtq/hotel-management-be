@@ -16,6 +16,12 @@ namespace Hotel.API.Controllers
         {
             _imageService = imageService;
         }
+
+        /// <summary>
+        /// Lấy danh sách hình ảnh
+        /// </summary>
+        /// <param name="id"></param>
+        /// 
         [HttpGet]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> GetAllImageAsync()

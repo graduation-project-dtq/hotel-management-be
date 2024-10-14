@@ -10,6 +10,9 @@ using Sprache;
 
 namespace Hotel.API.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -20,6 +23,18 @@ namespace Hotel.API.Controllers
         {
             _bookingService = bookingService;
         }
+
+        /// <summary>
+        /// Lấy danh sách đặt phòng
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="idSearch"></param>
+        /// <param name="customerID"></param>
+        /// <param name="customerName"></param>
+        /// <param name="bookingDate"></param>
+        /// <param name="checkInDate"></param>
+
         [HttpGet]
         public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string customerID = ""
             , string customerName = "", DateOnly? bookingDate = null, DateOnly ? checkInDate = null)
@@ -33,6 +48,11 @@ namespace Hotel.API.Controllers
            ));
         }
 
+        /// <summary>
+        /// Tạo đặt phòng mới
+        /// </summary>
+        /// <param name="model"></param>
+
         [HttpPost]
         public async Task<IActionResult> CreateBooking(PostBookingDTO model)
         {
@@ -45,10 +65,16 @@ namespace Hotel.API.Controllers
               message: "Đặt phòng thành công!"
              ));
         }
-        [HttpPut("UpdateStatus")]
-        public async Task<IActionResult> UpdateStatusBooking(string bookingID, EnumBooking enumBooking)
+
+        /// <summary>
+        /// Cập nhật trạng thái của một đặt phòng  --Duyệt hoặc huỷ dựa theo Status hiện tại
+        /// </summary>
+        /// <param name="id"></param>
+        /// 
+        [HttpPut("UpdateStatus{id}")]
+        public async Task<IActionResult> UpdateStatusBooking(string id  )
         {
-            await _bookingService.UpdateStatusBooking(bookingID, enumBooking);
+            await _bookingService.UpdateStatusBooking(id);
             return Ok(new BaseResponse<string?>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
@@ -57,6 +83,11 @@ namespace Hotel.API.Controllers
            ));
         }
 
+        /// <summary>
+        /// Lấy danh sách đặt phòng của một khách hàng
+        /// </summary>
+        /// <param name="customerId"></param>
+        /// <param name="enumBooking"></param>
         [HttpGet("GetBooking")]
         public async Task<IActionResult> GetBookingByCustomerId(string customerId, EnumBooking enumBooking)
         {
@@ -67,6 +98,38 @@ namespace Hotel.API.Controllers
                 data: result,
                 message: "Lấy danh sách đặt phòng thành công!"
              ));
+        }
+
+        /// <summary>
+        /// CheckIn tại khách sạn
+        /// </summary>
+        /// <param name="model"></param>
+        [HttpPost("CheckIn")]
+        public async Task<IActionResult> CheckIn(CheckInDTO model)
+        {
+            await _bookingService.CheckIn(model);
+            return Ok(new BaseResponse<string ?>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               data: null,
+               message: "CheckIn thành công"
+            ));
+        }
+
+        /// <summary>
+        /// CheckOut tại khách sạn
+        /// </summary>
+        /// <param name="model"></param>
+        [HttpPost("CheckOut")]
+        public async Task<IActionResult> CheckOut(CheckOutDTO model)
+        {
+            await _bookingService.CheckOut(model);
+            return Ok(new BaseResponse<string?>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               data: null,
+               message: "CheckOut thành công"
+            ));
         }
     }
 }

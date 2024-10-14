@@ -37,7 +37,6 @@ namespace Hotel.Application.Services
             IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
                 .Include(r=>r.Floor)
                 .Include(r=>r.RoomTypeDetail)
-                .Include(r => r.HouseType)
                  .Where(c => !c.DeletedTime.HasValue)
                  .OrderByDescending(c => c.CreatedTime);
 
@@ -82,7 +81,6 @@ namespace Hotel.Application.Services
                     Id = item.Id,
                     FloorID = item.Floor != null ? item.Floor.Name : null,
                     RoomTypeDetailId = item.RoomTypeDetail != null ? item.RoomTypeDetail.Name : null,
-                    HouseTypeID= item.HouseType !=null ? item.HouseType.Name : null,
                     Name=item.Name,
                     CreateBy=account !=null ? account.Name : item.CreatedBy,
                 };
@@ -140,16 +138,8 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
             }
 
-            if (String.IsNullOrWhiteSpace(model.HouseTypeID))
-            {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Không được để trống loại phòng!");
-            }
-
-            var houseType =await _unitOfWork.GetRepository<HouseType>().Entities.FirstOrDefaultAsync(h=>h.Id== model.HouseTypeID);
-            if (houseType == null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
-            }
+           
+          
 
             if (String.IsNullOrWhiteSpace(model.FloorID))
             {

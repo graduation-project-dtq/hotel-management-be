@@ -16,6 +16,11 @@ namespace Hotel.API.Controllers
         {
             _authService = authService;
         }
+
+        /// <summary>
+        /// Đăng nhập
+        /// </summary>
+        /// <param name="loginRequestDto"></param>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
         {
@@ -26,6 +31,10 @@ namespace Hotel.API.Controllers
                 data: loginResponseDto));
         }
 
+        /// <summary>
+        /// Đăng ký tài khoản khách hàng
+        /// </summary>
+        /// <param name="registerRequestDto"></param>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
         {
@@ -36,7 +45,10 @@ namespace Hotel.API.Controllers
                 data: "Register success "));
         }
 
-   
+        /// <summary>
+        /// Tạo token mới
+        /// </summary>
+        /// <param name="refeshTokenRequest"></param>
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefeshTokenRequestDto refeshTokenRequest)
         {

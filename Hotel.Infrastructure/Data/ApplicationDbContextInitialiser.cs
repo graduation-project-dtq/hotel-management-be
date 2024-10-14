@@ -66,7 +66,6 @@ namespace Hotel.Infrastructure.Data
                 await addImage();
                 await addRoomTypeDetail();
                 await addFloor();
-                await addHouse();
                 await addRoom();
                 await addFacilities();
                 await addFacilitiesRoom();
@@ -444,82 +443,62 @@ namespace Hotel.Infrastructure.Data
             }
             await _unitOfWork.SaveChangesAsync();
         }
-        public async Task addHouse()
-        {
-
-            HouseType[] floors =
-            {
-                new HouseType(){Id="c401bb08da4849sdg35ggggdfffffff2",Name="Phòng gia đình",Description="phòng gia đình"},
-                new HouseType(){Id="c401bb08da4849sd346tgbdfgc271712",Name="Studio",Description="studio xịn xò con bò"},
-                new HouseType(){Id="c401bb08da4849sdg35gggg75c271712",Name="Duplex",Description="không biết"},
-            };
-            foreach (var item in floors)
-            {
-
-                if (!await _unitOfWork.GetRepository<HouseType>().Entities.AnyAsync(i => i.Id == item.Id))
-                {
-                    item.CreatedTime = CoreHelper.SystemTimeNow;
-                    item.LastUpdatedTime = CoreHelper.SystemTimeNow;
-                    await _unitOfWork.GetRepository<HouseType>().InsertAsync(item);
-                }
-            }
-            await _unitOfWork.SaveChangesAsync();
-        }
+        
         public async Task addRoom()
         {
             Room[] rooms =
             {
                 // Toà A Standard
-                new Room(){Id="c401bbdffa4849sdg35gggdd1ffffff2",Name="A101",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35gggdd2ffffff2",Name="A102",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="ffffbb08da4849sdg35gggdd3ffffff2",Name="A103",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-               // new Room(){Id="c4fghdf8da4849sdg35gggdd4ffffff2",Name="A104",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-               // new Room(){Id="c401bbdfggggfdbbefffsgg5ff4ffff2",Name="A105",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35gggdd6ffffff2",Name="A106",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="ffffbb08da4849sdg35gggdd7ffffff2",Name="A107",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c4fghdf8da4849sdg35gggdd8ffffff2",Name="A108",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bbdffa4849sdg35gggdd9ffffff2",Name="A201",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35gggdd10fffff2",Name="A202",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"}, //
-                new Room(){Id="ffffbbfggg4849sdg35gggdd11fffff2",Name="A203",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c4fghdf8da4849sdg35gggdd12fffff2",Name="A204",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bbdffa4849sdg35gggdd13fffff2",Name="A205",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35gggdd14fffff2",Name="A206",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="ffffbb08da4849sdg35gggdd15fffff2",Name="A207",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c4fghdf8da4849sdg35gggdd16fffff2",Name="A208",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
+                new Room(){Id="c401bbdffa4849sdg35gggdd1ffffff2",Name="A101",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8"},
+                new Room(){Id="c401bb08da4849sdg35gggdd2ffffff2",Name="A102",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8"},
+                new Room(){Id="ffffbb08da4849sdg35gggdd3ffffff2",Name="A103",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8"},
+               // new Room(){Id="c4fghdf8da4849sdg35gggdd4ffffff2",Name="A104",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8"},
+               // new Room(){Id="c401bbdfggggfdbbefffsgg5ff4ffff2",Name="A105",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da484fdgdggfsv575c2717f8"},
+                new Room(){Id="c401bb08da4849sdg35gggdd6ffffff2",Name="A106",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8"},
+                new Room(){Id="ffffbb08da4849sdg35gggdd7ffffff2",Name="A107",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8"},
+                new Room(){Id="c4fghdf8da4849sdg35gggdd8ffffff2",Name="A108",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8"},
+                new Room(){Id="c401bbdffa4849sdg35gggdd9ffffff2",Name="A201",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8"},
+                new Room(){Id="c401bb08da4849sdg35gggdd10fffff2",Name="A202",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8"}, //
+                new Room(){Id="ffffbbfggg4849sdg35gggdd11fffff2",Name="A203",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08dfggggggrfffsv575c2717f8"},
+                new Room(){Id="c4fghdf8da4849sdg35gggdd12fffff2",Name="A204",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9"},
+                new Room(){Id="c401bbdffa4849sdg35gggdd13fffff2",Name="A205",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9" },
+                new Room(){Id="c401bb08da4849sdg35gggdd14fffff2",Name="A206",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9"},
+                new Room(){Id="ffffbb08da4849sdg35gggdd15fffff2",Name="A207",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9",},
+                new Room(){Id="c4fghdf8da4849sdg35gggdd16fffff2",Name="A208",FloorId="c401bb08da4849sdg35ggggdfffffff2",RoomTypeDetailId="c401bb08da48493erfffsv575c2717f9"},
                 // Toà B Luxury
-                new Room(){Id="c401bbdffa4849sdg35ggggdfffff001",Name="B101",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff002",Name="B102",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="ffffbb08da4849sdg35ggggdfffff003",Name="B103",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff004",Name="B104",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bbdfggggfdbbefffsggdfffff005",Name="B105",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff006",Name="B106",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="ffffbb08da4849sdg35ggggdfffff007",Name="B107",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff008",Name="B108",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bbdffa4849sdg35ggggdfffff100",Name="B201",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff110",Name="B202",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="ffffbb08da4849sdg35ggggdfffff120",Name="B203",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff130",Name="B204",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bbdffa4849sdg35ggggdfffff140",Name="B205",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff150",Name="B206",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="ffffbb08da4849sdg35ggggdfffff160",Name="B207",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff170",Name="B208",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
+                new Room(){Id="c401bbdffa4849sdg35ggggdfffff001",Name="B101",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff002",Name="B102",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new Room(){Id="ffffbb08da4849sdg35ggggdfffff003",Name="B103",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff004",Name="B104",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new Room(){Id="c401bbdfggggfdbbefffsggdfffff005",Name="B105",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff006",Name="B106",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasgsdgdsggdgggg5c2717f8"},
+                new Room(){Id="ffffbb08da4849sdg35ggggdfffff007",Name="B107",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710"},
+                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff008",Name="B108",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710"},
+                new Room(){Id="c401bbdffa4849sdg35ggggdfffff100",Name="B201",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff110",Name="B202",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710"},
+                new Room(){Id="ffffbb08da4849sdg35ggggdfffff120",Name="B203",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dasdgswfsvwawfffhs271710"},
+                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff130",Name="B204",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8"},
+                new Room(){Id="c401bbdffa4849sdg35ggggdfffff140",Name="B205",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff150",Name="B206",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8"},
+                new Room(){Id="ffffbb08da4849sdg35ggggdfffff160",Name="B207",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8"},
+                new Room(){Id="c4fghdf8da4849sdg35ggggdfffff170",Name="B208",FloorId="c401bb08da4849sd346tgbdfgc271712",RoomTypeDetailId="c401bb08dfdgggggggffsv575c2717f8"},
                 // Toà C Premium
-                new Room(){Id="c401bbdffa4849sdg35ggggdfffff200",Name="C101",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff210",Name="C102",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff220",Name="C103",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff230",Name="C104",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff240",Name="C105",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710",HouseTypeID="c401bb08da4849sd346tgbdfgc271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff250",Name="C106",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff260",Name="C107",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff270",Name="C108",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff280",Name="C201",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff290",Name="C202",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff300",Name="C203",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711",HouseTypeID="c401bb08da4849sdg35gggg75c271712"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff310",Name="C204",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff320",Name="C205",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff330",Name="C206",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff340",Name="C207",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
-                new Room(){Id="c401bb08da4849sdg35ggggdfffff350",Name="C208",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712",HouseTypeID="c401bb08da4849sdg35ggggdfffffff2"},
+                new Room(){Id="c401bbdffa4849sdg35ggggdfffff200",Name="C101",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff210",Name="C102",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff220",Name="C103",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff230",Name="C104",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff240",Name="C105",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4sddggggggfv575c271710"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff250",Name="C106",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff260",Name="C107",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff270",Name="C108",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff280",Name="C201",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff290",Name="C202",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff300",Name="C203",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da48493erdffsv575c271711"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff310",Name="C204",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff320",Name="C205",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff330",Name="C206",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff340",Name="C207",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712"},
+                new Room(){Id="c401bb08da4849sdg35ggggdfffff350",Name="C208",FloorId="c401bb08da4849sdg35gggg75c271712",RoomTypeDetailId="c401bb08da4849sdg35gggg75c271712"},
 
             };
 

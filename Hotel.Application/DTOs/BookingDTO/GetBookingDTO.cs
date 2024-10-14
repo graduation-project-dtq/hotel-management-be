@@ -26,6 +26,6 @@ namespace Hotel.Application.DTOs.BookingDTO
         public string? CheckOutDate { get; set; }
         public virtual ICollection<GetBookingDetailDTO> ? BookingDetail { get; set; }
         public virtual ICollection<GetServiceBookingDTO>? Services {  get; set; }
- 
+        public virtual ICollection<GetPunishesDTO> Punishes { get; set; }
     }
 }
