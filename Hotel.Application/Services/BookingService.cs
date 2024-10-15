@@ -205,7 +205,7 @@ namespace Hotel.Application.Services
                 bookingModel.PhoneNumber = item.PhoneNumber;
                 bookingModel.PromotionalPrice = item.PromotionalPrice;
                 bookingModel.Deposit = item.Deposit;
-                bookingModel.BookingDate = DateOnly.FromDateTime(item.CreatedTime.Date).ToString("dd/MM/yyyy HH:mm:ss");
+                bookingModel.BookingDate = item.CreatedTime.Date.ToString("dd/MM/yyyy HH:mm:ss");
                 bookingModel.TotalAmount = item.TotalAmount;
                 bookingModel.UnpaidAmount = item.UnpaidAmount;
                 bookingModel.CheckInDate = item.CheckInDate.ToString("dd/MM/yyyy");
@@ -719,6 +719,24 @@ namespace Hotel.Application.Services
                     _logger.LogError("Gửi mail thất bại!");
                 }
             }
+        }
+        public async Task HuyPhong(string id)
+        {
+            String userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+            if(String.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập mã booking!");
+            }
+            Booking booking  = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(id)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Mã booking không hợp lệ!");
+
+            //Update status huỷ phòng 
+            booking.Status = EnumBooking.CANCELLATIONREQUEST;
+            booking.LastUpdatedBy = userID;
+            booking.LastUpdatedTime = CoreHelper.SystemTimeNow;
+
+            await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

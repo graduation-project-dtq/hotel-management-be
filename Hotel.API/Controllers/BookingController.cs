@@ -131,5 +131,17 @@ namespace Hotel.API.Controllers
                message: "CheckOut thành công"
             ));
         }
+
+        [HttpPost("{idHuy}")]
+        public async Task<IActionResult> HuyPhong(string idHuy)
+        {
+            await _bookingService.HuyPhong(idHuy);
+            return Ok(new BaseResponse<string?>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               data: null,
+               message: "Huỷ phòng thành công"
+            ));
+        }
     }
 }
