@@ -14,5 +14,6 @@ namespace Hotel.Application.Interfaces
         Task<List<GetBookingDTO>> GetBookingByCustomerId(string CustomerId, EnumBooking enumBooking);
         Task CheckIn(CheckInDTO model);
         Task CheckOut(CheckOutDTO model);
+        Task HuyPhong(string id);
     }
 }
