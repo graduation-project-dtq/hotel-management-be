@@ -8,6 +8,7 @@ namespace Hotel.Domain.Entities
     {
         [ForeignKey("Customer")]
         public string CustomerId {  get; set; } = string.Empty;
+        public string Title {  get; set; } = string.Empty;
         public string Content {  get; set; } = string.Empty;
         public virtual Customer ? Customer { get; set; }
     }

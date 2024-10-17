@@ -73,6 +73,9 @@ namespace Hotel.Aplication.Extensions
 
             //PriceAdjustmentPlan
             services.AddScoped<IPriceAdjustmentPlanService, PriceAdjustmentPlanService>();
+
+            //Notification
+            services.AddScoped<INotificationService, NotificationService>();
         }
 
         //Đăng ký mapper
