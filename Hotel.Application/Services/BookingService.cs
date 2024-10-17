@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hotel.Application.DTOs.BookingDetailDTO;
 using Hotel.Application.DTOs.BookingDTO;
+using Hotel.Application.DTOs.NotificationDTO;
 using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.Extensions;
@@ -30,9 +31,11 @@ namespace Hotel.Application.Services
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly IRoomTypeDetailService _roomTypeDetailService;
+        private readonly INotificationService _notificationService;
         public BookingService(IUnitOfWork unitOfWork, ILogger<BookingService> logger, IMapper mapper,
             IHttpContextAccessor contextAccessor, IRoomService roomService, IEmailService emailService
-            , IConfiguration configuration, IRoomTypeDetailService roomTypeDetailService)
+            , IConfiguration configuration, IRoomTypeDetailService roomTypeDetailService
+            , INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -42,6 +45,7 @@ namespace Hotel.Application.Services
             _emailService = emailService;
             _configuration = configuration;
             _roomTypeDetailService = roomTypeDetailService;
+            _notificationService = notificationService;
         }
 
         public async Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string customerName, DateOnly? bookingDate, DateOnly? checkInDate)
@@ -422,7 +426,15 @@ namespace Hotel.Application.Services
                 await _unitOfWork.SaveChangesAsync();
             }
             await _unitOfWork.SaveChangesAsync();
+            //Tạo thông báo
+            PostNotificationDTO notificationDTO = new PostNotificationDTO()
+            {
+                CustomerId = booking.CustomerId,
+                Title = "Đơn đặt phòng thành công",
+                Content = "Đơn đặt phòng có mã " + booking.Id + " của bạn đã đặt thành công"
+            };
 
+            await _notificationService.CreateNotification(notificationDTO);
             // Trả dữ liệu ra
             GetBookingDTO getBookingDTO = new GetBookingDTO
             {
@@ -493,12 +505,16 @@ namespace Hotel.Application.Services
             }
             Booking booking = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy booking!");
-
+            PostNotificationDTO notificationDTO = new PostNotificationDTO()
+            {
+                CustomerId = booking.CustomerId,
+            };
             //Khách hàng yêu cầu huỷ
-            if(booking.Status == EnumBooking.CANCELLATIONREQUEST)
+            if (booking.Status == EnumBooking.CANCELLATIONREQUEST)
             {
                 booking.Status = EnumBooking.CANCELED;
                 //Kiểm tra nếu ngày huỷ và ngày CheckIn > 2 thì sẽ trả lại tiền cọc <=2 thì sẽ không được trả lại tiền
+                
                 int count = (booking.CheckInDate.DayNumber - DateOnly.FromDateTime(CoreHelper.SystemTime).DayNumber);
                 if(count >2)
                 {
@@ -510,7 +526,9 @@ namespace Hotel.Application.Services
                 {
                     //Gửi mail thông báo không được hoàn tiền
                     await _emailService.SendEmailAsync(booking.Customer.Email, false, new GetBookingDTO { Id = booking.Id, Deposit = booking.Deposit }, count);
-                }    
+                }
+                notificationDTO.Title = "Thông tin huỷ phòng";
+                notificationDTO.Content = "Yêu cầu huỷ đặt phòng có mã " + booking.Id + " đã được huỷ thành công";
             }
             //Xác nhận đặt phòng
             if (booking.Status == EnumBooking.UNCONFIRMED)
@@ -530,6 +548,8 @@ namespace Hotel.Application.Services
                     Deposit = booking.Deposit
                 };
                 await _emailService.SendEmailAsync(booking.Customer.Email, true, bookingDTO, 0);
+                notificationDTO.Title = "Xác nhân phòng";
+                notificationDTO.Content = "Đặt phòng có mã " + booking.Id + " đã được xác khách sạn xác nhận thành công thành công";
             }
 
             await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
@@ -737,6 +757,15 @@ namespace Hotel.Application.Services
 
             await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
             await _unitOfWork.SaveChangesAsync();
+
+            //Tạo thông báo huỷ phòng
+            PostNotificationDTO notificationDTO = new PostNotificationDTO()
+            {
+                CustomerId = booking.CustomerId,
+                Title="Yêu cầu huỷ phòng",
+                Content="Bạn đã yêu cầu huỷ đặc phòng cho mã đặc phòng "+ booking.Id+" thành công",
+            };
+            await _notificationService.CreateNotification(notificationDTO);
         }
     }
 }
