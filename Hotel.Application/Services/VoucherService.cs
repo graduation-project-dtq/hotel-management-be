@@ -83,13 +83,18 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập khách hàng để xem voucher!");
             }
+            Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(customerID)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không tồn tại!");
+
             List<Voucher> vouchers = await _unitOfWork.GetRepository<Voucher>().Entities
-                  .Where(v => (v.CustomerId == null || v.CustomerId == customerID) && v.IsActive == true && v.DeletedTime == null)
+                  .Where(v => (v.CustomerId == null || v.CustomerId == customerID) && v.IsActive == true  && v.DeletedTime == null)
                   .ToListAsync();
-            if(vouchers.Count == 0)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không có voucher!");
-            }
+            Console.WriteLine($"CustomerId: {customerID}, Found Vouchers: {vouchers.Count}");
+            //
+            //if(vouchers.Count == 0)
+            //{
+            //    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không có voucher!");
+            //}
             List<GetVoucherDTO> voucherModel = _mapper.Map<List<GetVoucherDTO>>(vouchers);
             return voucherModel;
         }
@@ -101,18 +106,20 @@ namespace Hotel.Application.Services
             }
 
             Voucher voucher = await _unitOfWork.GetRepository<Voucher>().Entities.Where(v=>v.Code.Equals(model.Code) && v.IsActive == true).FirstOrDefaultAsync();
-            if(model.StartDate > model.EndDate)
+            if (voucher != null)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Mã voucher đã tồn tại!");
+
+            }
+            if (model.StartDate > model.EndDate)
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!");
 
             }
-            if (voucher != null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.DUPLICATE, "Trùng mã giảm giá vui lòng chọn mã khác!");
-            }
             Voucher voucherInsert =_mapper.Map<Voucher>(model);
             string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
 
+            voucherInsert.IsActive = true;
             voucherInsert.CreatedBy=userId;
             voucherInsert.LastUpdatedBy=userId;
             await _unitOfWork.GetRepository<Voucher>().InsertAsync(voucherInsert);

@@ -296,7 +296,7 @@ namespace Hotel.Application.Services
             if (!String.IsNullOrWhiteSpace(model.VoucherId))
             {
                 voucher = await _unitOfWork.GetRepository<Voucher>().Entities
-                   .Where(v => v.Id == model.VoucherId && v.DeletedTime != null
+                   .Where(v => v.Id == model.VoucherId && v.DeletedTime == null
                    && v.StartDate <= CoreHelper.SystemDateOnly && v.EndDate >= CoreHelper.SystemDateOnly
                    && v.Quantity > 0).FirstOrDefaultAsync()
                    ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Voucher không khả dụng!");
@@ -410,15 +410,16 @@ namespace Hotel.Application.Services
                 }
             }
 
-            booking.UnpaidAmount = booking.TotalAmount;
+           
+          
+            //Trừ số lượng voucher
+            voucher.Quantity = voucher.Quantity - 1;
+            booking.TotalAmount = booking.TotalAmount - booking.PromotionalPrice;
             if (booking.Deposit > 0)
             {
                 booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
             }
-            //Trừ số lượng voucher
-            voucher.Quantity = voucher.Quantity - 1;
-            booking.TotalAmount = booking.TotalAmount - booking.PromotionalPrice;
-
+           
             if (voucher.Quantity == 0)
             {
                 voucher.IsActive = false; //Đã sử dụng hết voucher
@@ -426,6 +427,7 @@ namespace Hotel.Application.Services
                 await _unitOfWork.SaveChangesAsync();
             }
             await _unitOfWork.SaveChangesAsync();
+
             //Tạo thông báo
             PostNotificationDTO notificationDTO = new PostNotificationDTO()
             {

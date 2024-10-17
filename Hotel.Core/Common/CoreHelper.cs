@@ -8,7 +8,8 @@ namespace Hotel.Core.Common
 
         public static DateTime SystemTime=>DateTimeParsing.ConvertToUtcPlus7(DateTime.Now);
 
-        public static DateOnly SystemDateOnly => DateOnly.FromDateTime(DateTimeParsing.ConvertToUtcPlus7(DateTime.Now));
+     
+        public static DateOnly SystemDateOnly => DateOnly.FromDateTime(DateTimeParsing.ConvertToUtcPlus7(DateTimeOffset.Now).DateTime);
 
 
     }

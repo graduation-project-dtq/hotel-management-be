@@ -31,10 +31,10 @@ namespace Hotel.API.Controllers
             ));
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetVoucherByCustomerId(string id)
+        [HttpGet("{customerId}")]
+        public async Task<IActionResult> GetVoucherByCustomerId(string customerId)
         {
-            List<GetVoucherDTO> result =await _voucherService.GetVoucherByCustomerId(id);
+            List<GetVoucherDTO> result =await _voucherService.GetVoucherByCustomerId(customerId);
             return Ok(new BaseResponse<List<GetVoucherDTO>>(
               statusCode: StatusCodes.Status200OK,
               code: ResponseCodeConstants.SUCCESS,
