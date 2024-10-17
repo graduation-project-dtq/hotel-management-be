@@ -6,6 +6,7 @@ namespace Hotel.Domain.Entities
 {
     public class Voucher : BaseEntity
     {
+        public string Name { get; set; } = string.Empty;
         [ForeignKey("Customer")]
         public string ? CustomerId {  get; set; }
         public string ? Description { get; set; } = string.Empty;
