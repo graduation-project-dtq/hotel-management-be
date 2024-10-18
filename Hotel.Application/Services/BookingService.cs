@@ -433,7 +433,7 @@ namespace Hotel.Application.Services
             {
                 CustomerId = booking.CustomerId,
                 Title = "Đơn đặt phòng thành công",
-                Content = "Đơn đặt phòng có mã " + booking.Id + " của bạn đã đặt thành công"
+                Content = "Đã đặt phòng thành công , vui lòng chờ khách sạn chúng tôi xác nhận.Xin cảm ơn quý khách"
             };
 
             await _notificationService.CreateNotification(notificationDTO);

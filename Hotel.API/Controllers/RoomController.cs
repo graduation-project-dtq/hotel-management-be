@@ -29,7 +29,7 @@ namespace Hotel.API.Controllers
         /// <param name="idSearch"></param>
         /// <param name="nameSearch"></param>
         [HttpGet]
-        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        //[Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
         {
             PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch);
