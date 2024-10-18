@@ -56,10 +56,10 @@ namespace Hotel.API.Controllers
         /// Tìm kiếm loại phòng theo ID
         /// <param name="id"></param>
 
-        [HttpGet("/GetByID{id}")]
-        public async Task<IActionResult> GetById(string id)
+        [HttpGet("/GetByID{roomtypedetailId}")]
+        public async Task<IActionResult> GetById(string roomtypedetailId)
         {
-            GetRoomTypeDetailDTO result = await _roomTypeDetailService.GetById(id);
+            GetRoomTypeDetailDTO result = await _roomTypeDetailService.GetById(roomtypedetailId);
             return Ok(new BaseResponse<GetRoomTypeDetailDTO>(
                statusCode: StatusCodes.Status200OK,
                code: ResponseCodeConstants.SUCCESS,

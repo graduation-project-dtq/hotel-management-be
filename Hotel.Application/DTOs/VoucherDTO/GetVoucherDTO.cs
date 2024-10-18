@@ -6,8 +6,8 @@
         public string Name { get; set; } = string.Empty;
         public string ? Description { get; set; } = string.Empty;
         public decimal DiscountAmount { get; set; }
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
+        public string StartDate { get; set; } = string.Empty;
+        public string EndDate { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public bool IsActive { get; set; }
         public string? CustomerId { get; set; }
