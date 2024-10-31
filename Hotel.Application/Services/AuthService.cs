@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Google.Apis.Auth;
 using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Common;
@@ -168,6 +169,80 @@ namespace Hotel.Application.Services
             await _emailService.ActiveAccountEmailAsync(account.Code, email);
             await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        //đăng nhập GG
+        public async Task<LoginResponseDto> SignInWithGoogleAsync(GoogleSignInDto googleSignInDto)
+        {
+            // Kiểm tra xem tài khoản đã tồn tại chưa
+            Account account = await _unitOfWork.GetRepository<Account>().Entities
+                .FirstOrDefaultAsync(x => x.Email == googleSignInDto.Email && x.DeletedTime == null);
+
+            if (account == null)
+            {
+                // Nếu chưa có tài khoản, tạo tài khoản mới
+                string randomPassword = GenerateRandomPassword();
+                FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
+
+                account = new Account
+                {
+                    Email = googleSignInDto.Email,
+                    Name = googleSignInDto.TenND ?? "Khách hàng",
+                    IsActive = true, // Tài khoản Google đã được xác thực
+                    RoleId = "c401bb08da484925900a63575c3717f8", // RoleId cho Customer
+                    CreatedTime = CoreHelper.SystemTimeNow,
+                    LastUpdatedTime = CoreHelper.SystemTimeNow,
+                    Password = passwordHasher.HashPassword(null, randomPassword),
+                    Code = randActiveCode() // Tạo mã xác thực (có thể không cần thiết cho Google Sign-In)
+                };
+
+                // Tạo Customer tương ứng
+                Customer customer = new Customer()
+                {
+                    Id = account.Id,
+                    AccountID = account.Id,
+                    Name = account.Name,
+                    Email = account.Email,
+                    CreatedTime = CoreHelper.SystemTimeNow,
+                    LastUpdatedTime = CoreHelper.SystemTimeNow,
+                    CredibilityScore = 100,
+                    AccumulatedPoints = 0,
+                };
+
+                await _unitOfWork.GetRepository<Account>().InsertAsync(account);
+                await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            // Kiểm tra trạng thái tài khoản (có thể bỏ qua vì tài khoản Google luôn active)
+            if (!account.IsActive)
+            {
+                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.BADREQUEST, "Tài khoản chưa được kích hoạt");
+            }
+
+            // Lấy thông tin role
+            Role role = await _unitOfWork.GetRepository<Role>().Entities
+                .FirstOrDefaultAsync(x => x.Id == account.RoleId && x.DeletedTime == null)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Role not found for the account");
+
+            // Tạo token
+            TokenResponseDto tokenResponseDto = _tokenService.GenerateToken(account, role.RoleName);
+
+            // Tạo response
+            LoginResponseDto loginResponseDto = new LoginResponseDto
+            {
+                TokenResponse = tokenResponseDto,
+            };
+
+            return loginResponseDto;
+        }
+
+        private string GenerateRandomPassword()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 12)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
