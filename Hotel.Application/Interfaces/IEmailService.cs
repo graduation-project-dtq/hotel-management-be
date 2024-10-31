@@ -7,5 +7,6 @@ namespace Hotel.Application.Interfaces
     {
         Task<bool> SendBookingConfirmationEmailAsync(Booking booking, string customerId, GetBookingDTO bookingDTO);
         Task SendEmailAsync(string recipientEmail, bool isConfirmation, GetBookingDTO model, int count);
+        Task<bool> ActiveAccountEmailAsync(string code, string email);
     }
 }

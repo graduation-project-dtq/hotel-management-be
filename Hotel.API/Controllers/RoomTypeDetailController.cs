@@ -54,7 +54,7 @@ namespace Hotel.API.Controllers
 
         /// <summary>
         /// Tìm kiếm loại phòng theo ID
-        /// <param name="id"></param>
+        /// <param name="roomtypedetailId"></param>
 
         [HttpGet("/GetByID{roomtypedetailId}")]
         public async Task<IActionResult> GetById(string roomtypedetailId)

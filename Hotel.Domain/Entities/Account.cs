@@ -8,16 +8,16 @@ namespace Hotel.Domain.Entities
     {
         [Required]
         [StringLength(255)]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
         [Required]
         [StringLength(255)]
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
         public string? Name { get; set; }
 
         [ForeignKey("Role")]
-        public string RoleId { get; set; }
+        public string RoleId { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public bool IsAdmin { get; set; }
-
+        public string ? Code { get; set; }
     }
 }

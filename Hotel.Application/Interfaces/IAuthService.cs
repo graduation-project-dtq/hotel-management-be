@@ -12,5 +12,7 @@ namespace Hotel.Application.Interfaces
         Task RegisterAsync(RegisterRequestDto registerRequestDto);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequestDto);
         Task<TokenResponseDto> RefreshAccessTokenAsync(RefeshTokenRequestDto refeshTokenRequest);
+        Task ActiveAccountAsync(string email, string code);
+        Task ReponseCode(string email);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Hotel.Application.DTOs.UserDTO;
+﻿using Google.Apis.Auth.OAuth2.Requests;
+using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
@@ -42,7 +43,7 @@ namespace Hotel.API.Controllers
             return Ok(new BaseResponse<string>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
-                data: "Register success "));
+                data: "Đăng ký thành công hãy kiểm tra Email để xác thực tài khoản"));
         }
 
         /// <summary>
@@ -57,6 +58,29 @@ namespace Hotel.API.Controllers
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
                 data: tokenResponseDto));
+        }
+
+        [HttpPost("active-account")]
+        public async Task<IActionResult> ActiveAccountAsync(string email, string code)
+        {
+              await _authService.ActiveAccountAsync(email,code);
+            return Ok(new BaseResponse<string?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,
+                message: "Kích hoạt tài khoản thành công!"
+                ));
+        }
+        [HttpPost("reponse-code")]
+        public  async Task<IActionResult> ReponseCode(string email)
+        {
+            await _authService.ReponseCode(email);
+            return Ok(new BaseResponse<string?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,
+                message: "Đã gửi mã kích hoạt tài khoản thành công!"
+                ));
         }
     }
 }

@@ -22,12 +22,14 @@ namespace Hotel.Application.Services
         private readonly ICustomerService _customerService;
         private readonly IEmployeeService _employeeService;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
         public AuthService(IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AuthService> logger,
             ICustomerService customerService,
             IEmployeeService employeeService,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -35,6 +37,7 @@ namespace Hotel.Application.Services
             _customerService = customerService;
             _employeeService = employeeService;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
         public async Task RegisterAsync(RegisterRequestDto registerRequestDto)
         {
@@ -47,11 +50,11 @@ namespace Hotel.Application.Services
             //Role role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(x => x.RoleName == registerRequestDto.RoleName && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "The specified role was not found. Please provide a valid role.");
 
             Account account = _mapper.Map<Account>(registerRequestDto);
-
+            
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
             account.Password = passwordHasher.HashPassword(account, account.Password);
             account.RoleId = "c401bb08da484925900a63575c3717f8";
-            account.IsActive = true;
+            account.IsActive = false;
 
             //Add Customer
             Customer customer = new Customer()
@@ -64,23 +67,29 @@ namespace Hotel.Application.Services
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
                 CredibilityScore=100,
                 AccumulatedPoints=0,
+                
             };
 
+            account.Code = randActiveCode();
+            await _emailService.ActiveAccountEmailAsync( account.Code,  account.Email);
             await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);
             await _unitOfWork.GetRepository<Account>().InsertAsync(account);
             await _unitOfWork.SaveChangesAsync();
-            //Add thêm khách hàng vào đây
-            //await AssignRoleSpecificService(account.Id, registerRequestDto);
+
+            //Gửi code 
+          
+
         }
 
       
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequestDto)
         {
-            Account account = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == loginRequestDto.Email && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.BADREQUEST, "Email or password is incorrect");
+            Account account = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == loginRequestDto.Email && x.DeletedTime == null) 
+                ?? throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.BADREQUEST, "Tài khoản hoặc mật khẩu không chính xác");
             //check status
             if (account.IsActive == false)
             {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.BADREQUEST, "This account is not active");
+                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.BADREQUEST, "Tài khoản chưa được kích hoạt");
             }
 
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
@@ -105,6 +114,60 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Refresh token is required");
             }
             return await _tokenService.RefreshAccessToken(refeshTokenRequest);
+        }
+        public string randActiveCode()
+        {
+            var random = new Random();
+            int randomNumber = random.Next(100000, 1000000); // Tạo số ngẫu nhiên từ 100000 đến 999999
+            return randomNumber.ToString("D6"); // Định dạng chuỗi 6 chữ số
+        }
+        public async Task ActiveAccountAsync(string email,string code)
+        {
+            if(string.IsNullOrWhiteSpace(email))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống Email");
+            }
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống mã xác thực");
+            }
+
+            Account account = await _unitOfWork.GetRepository<Account>().Entities.Where( a=>a.Email.Equals(email) && !a.DeletedTime.HasValue).FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không tìm thấy tài khoản ngươi dùng");
+            if(account.IsActive)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Tài khoản đã xác thực rồi");
+            }    
+            if(!code.Equals(account.Code))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Mã xác thực không chính xác");
+            }
+
+            account.IsActive = true;
+            account.LastUpdatedTime = CoreHelper.SystemTimeNow;
+            await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task ReponseCode(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống Email");
+            }
+            Account account = await _unitOfWork.GetRepository<Account>().Entities.Where(a => a.Email.Equals(email) && !a.DeletedTime.HasValue).FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không tìm thấy tài khoản ngươi dùng");
+            if(account.IsActive)
+            {
+                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.BADREQUEST, "Tài khoản đã được kích hoạt rồi");
+            }
+            //Tạo code mới
+            account.Code = randActiveCode();
+            account.LastUpdatedTime = CoreHelper.SystemTimeNow;
+
+            //Gửi mail
+            await _emailService.ActiveAccountEmailAsync(account.Code, email);
+            await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

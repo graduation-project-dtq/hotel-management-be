@@ -16,7 +16,46 @@ public class EmailService : IEmailService
         _configuration = configuration;
         _unitOfWork = unitOfWork;
     }
+    public async Task<bool> ActiveAccountEmailAsync( string code, string email)
+    {
+        var emailBody = await CreateEmailBody(email,code); // Tạo nội dung email từ DTO
+        var sender = _configuration["EmailSettings:Sender"];
+        var password = _configuration["EmailSettings:Password"];
+        var host = _configuration["EmailSettings:Host"];
+        var port = int.Parse(_configuration["EmailSettings:Port"]);
 
+        var mailMessage = new MailMessage
+        {
+            From = new MailAddress(sender),
+            Subject = "Xác thực người dùng",
+            Body = emailBody,
+            IsBodyHtml = true
+        };
+
+        mailMessage.To.Add(email); // Địa chỉ email của khách hàng
+
+        using (var smtpClient = new SmtpClient(host, port))
+        {
+            smtpClient.Credentials = new NetworkCredential(sender, password);
+            smtpClient.EnableSsl = true;
+
+            try
+            {
+                await smtpClient.SendMailAsync(mailMessage);
+                return true;
+            }
+            catch (SmtpException smtpEx)
+            {
+
+                throw new Exception("Lỗi gửi email xác nhận: " + smtpEx.Message, smtpEx);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Lỗi gửi email xác nhận: " + ex.Message, ex);
+            }
+        }
+    }
     public async Task<bool> SendBookingConfirmationEmailAsync(Booking booking, string customerId, GetBookingDTO bookingDTO)
     {
         var emailBody = await CreateEmailBody(bookingDTO); // Tạo nội dung email từ DTO
@@ -266,5 +305,36 @@ public class EmailService : IEmailService
 
         return sb.ToString();
     }
+    public async Task<string> CreateEmailBody(string email, string code)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("<div style='font-family: Arial, sans-serif; color: #333;'>");
+        sb.AppendLine("<div style='background-color: #f7f7f7; padding: 20px; border-radius: 8px;'>");
+
+        // Tiêu đề
+        sb.AppendLine("<h2 style='color: #2E86C1; text-align: center;'>Xác Thực Tài Khoản</h2>");
+        sb.AppendLine("<p style='font-size: 16px; line-height: 1.5;'>Xin chào,</p>");
+        sb.AppendLine("<p style='font-size: 16px; line-height: 1.5;'>Cảm ơn bạn đã đăng ký tài khoản. Để hoàn tất quá trình, vui lòng xác thực email của bạn bằng cách sử dụng mã dưới đây:</p>");
+
+        // Mã xác thực
+        sb.AppendLine($"<div style='font-size: 24px; font-weight: bold; color: #2E86C1; text-align: center; margin: 20px 0;'>{code}</div>");
+
+        // Thông tin tài khoản
+        sb.AppendLine("<h3 style='color: #2E86C1;'>Thông tin tài khoản</h3>");
+        sb.AppendLine($"<p><strong>Email:</strong> {email}</p>");
+
+        // Nút liên kết
+        sb.AppendLine("<div style='text-align: center; margin-top: 30px;'>");
+        sb.AppendLine("<a href='#' style='text-decoration: none; background-color: #2E86C1; color: #fff; padding: 10px 20px; border-radius: 5px; font-size: 16px;'>Xác Thực Tài Khoản</a>");
+        sb.AppendLine("</div>");
+
+        sb.AppendLine("<p style='margin-top: 30px; font-size: 14px; color: #888;'>Nếu bạn không yêu cầu xác thực tài khoản này, vui lòng bỏ qua email này.</p>");
+
+        sb.AppendLine("</div>");
+        sb.AppendLine("</div>");
+
+        return sb.ToString();
+    }
+
 }
 
