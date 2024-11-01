@@ -14,5 +14,6 @@ namespace Hotel.Application.Interfaces
         Task<TokenResponseDto> RefreshAccessTokenAsync(RefeshTokenRequestDto refeshTokenRequest);
         Task ActiveAccountAsync(string email, string code);
         Task ReponseCode(string email);
+        Task<LoginResponseDto> SignInWithGoogleAsync(GoogleSignInDto googleSignInDto);
     }
 }

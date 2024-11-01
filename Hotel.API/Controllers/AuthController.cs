@@ -3,6 +3,7 @@ using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
+using Hotel.Core.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -81,6 +82,40 @@ namespace Hotel.API.Controllers
                 data: null,
                 message: "Đã gửi mã kích hoạt tài khoản thành công!"
                 ));
+        }
+
+        /// <summary>
+        /// Đăng nhập bằng Google
+        /// </summary>
+        /// <param name="googleSignInDto">Thông tin đăng nhập từ Google</param>
+        [HttpPost("google-signin")]
+        public async Task<IActionResult> GoogleSignIn([FromBody] GoogleSignInDto googleSignInDto)
+        {
+            try
+            {
+                if (googleSignInDto == null || string.IsNullOrEmpty(googleSignInDto.Email))
+                {
+                    return BadRequest(new BaseResponse<string>(
+                        statusCode: StatusCodes.Status400BadRequest,
+                        code: ResponseCodeConstants.FAILED,
+                        message: "Thông tin đăng nhập không hợp lệ"));
+                }
+
+                LoginResponseDto loginResponseDto = await _authService.SignInWithGoogleAsync(googleSignInDto);
+
+                return Ok(new BaseResponse<LoginResponseDto>(
+                    statusCode: StatusCodes.Status200OK,
+                    code: ResponseCodeConstants.SUCCESS,
+                    data: loginResponseDto,
+                    message: "Đăng nhập bằng Google thành công"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse<string>(
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    code: ResponseCodeConstants.FAILED,
+                    message: "Đã xảy ra lỗi khi đăng nhập bằng Google: " + ex.Message));
+            }
         }
     }
 }
