@@ -107,6 +107,10 @@ namespace Hotel.Application.Services
             };
             return loginResponseDto;
         }
+        public async Task LoginWithGoogle()
+        {
+
+        }
         public async Task<TokenResponseDto> RefreshAccessTokenAsync(RefeshTokenRequestDto refeshTokenRequest)
         {
             if (string.IsNullOrEmpty(refeshTokenRequest.RefreshToken))
