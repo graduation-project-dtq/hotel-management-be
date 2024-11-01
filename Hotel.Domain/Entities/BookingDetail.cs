@@ -5,7 +5,7 @@ namespace Hotel.Domain.Entities
     public class BookingDetail 
     {
         [ForeignKey("Booking")]
-        public string BookingId { get; set; }
+        public string BookingId { get; set; } = string.Empty;
 
         [ForeignKey("RoomID")]
         public string ? RoomID { get; set; }

@@ -37,8 +37,8 @@ namespace Hotel.Application.Mappings
 
             CreateMap<PortRoomTypeDTO, RoomType>().ReverseMap();
             // Ánh xạ ImageRoomType sang GetImageRoomTypeDTO
-            CreateMap<ImageRoomType, GetImageRoomTypeDTO>()
-                .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.Image.URL)); // Cập nhật ở đây
+            //CreateMap<ImageRoomType, GetImageRoomTypeDTO>()
+            //    .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.Image.URL)); // Cập nhật ở đây
 
             // Ánh xạ RoomTypeDetail sang GetRoomTypeDetailDTO
             CreateMap<RoomTypeDetail, GetRoomTypeDetailDTO>().ReverseMap();

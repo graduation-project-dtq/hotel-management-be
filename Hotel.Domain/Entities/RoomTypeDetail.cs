@@ -17,7 +17,6 @@ namespace Hotel.Domain.Entities
         public float AverageStart { get; set; }
         public virtual RoomType ? RoomType { get; set; }
         public virtual ICollection<ImageRoomTypeDetail> ? ImageRoomTypeDetails { get; set; }
-        public virtual ICollection<VoucherRoomTypeDetail>? VoucherRoomTypeDetails { get; set; }
         public virtual ICollection<RoomPriceAdjustment> ? RoomPriceAdjustments { get; set; }
     }
 }

@@ -7,11 +7,11 @@ namespace Hotel.Domain.Entities
     public class Room : BaseEntity
     {
         [ForeignKey("Floor")]
-        public string FloorId { get; set; }
+        public string FloorId { get; set; } = string.Empty;
 
-        
+
         [ForeignKey("RoomTypeDetail")]
-        public string RoomTypeDetailId { get; set; }
+        public string RoomTypeDetailId { get; set; } = string.Empty;
 
         public string Name { get; set; }
         public EnumRoom ? Status { get; set; } = EnumRoom.Uninhabited;

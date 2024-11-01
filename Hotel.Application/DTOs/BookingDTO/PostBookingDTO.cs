@@ -18,7 +18,7 @@ namespace Hotel.Application.DTOs.BookingDTO
         //Tiền đặt cọc
         public decimal  Deposit { get; set; }
         [Phone]
-        public string PhoneNumber {  get; set; }
+        public string PhoneNumber {  get; set; } = string.Empty;
         public virtual ICollection<PostBookingDetailDTO> ? BookingDetails { get; set; }
         public virtual ICollection<PostServiceBookingDTO> ? Services {  get; set; }
     }

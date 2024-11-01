@@ -15,5 +15,6 @@ namespace Hotel.Application.Interfaces
         Task ActiveAccountAsync(string email, string code);
         Task ReponseCode(string email);
         Task<LoginResponseDto> SignInWithGoogleAsync(GoogleSignInDto googleSignInDto);
+        Task DeleteAccount(string id);
     }
 }

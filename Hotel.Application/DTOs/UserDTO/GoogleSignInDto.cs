@@ -8,7 +8,7 @@ namespace Hotel.Application.DTOs.UserDTO
 {
     public class GoogleSignInDto
     {
-        public string Email { get; set; }
-        public string TenND { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string TenND { get; set; } = string.Empty;
     }
 }

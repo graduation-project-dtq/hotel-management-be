@@ -8,8 +8,8 @@ namespace Hotel.Domain.Entities
     public  class Customer : BaseEntity
     {
         [ForeignKey("Account")]
-        public string AccountID { get; set; }
-        public string Name { get; set; }
+        public string AccountID { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string? IdentityCard { get; set; }
         public string? Sex  { get; set; } 
         public DateOnly ? DateOfBirth { get; set; }

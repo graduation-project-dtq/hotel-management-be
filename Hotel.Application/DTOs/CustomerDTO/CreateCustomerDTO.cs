@@ -10,7 +10,7 @@ namespace Hotel.Application.DTOs.CustomerDTO
     public class CreateCustomerDTO
     {
         [Required(ErrorMessage = "Name is required")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         [EmailAddress(ErrorMessage = "Email is not valid")]
         public string? Email { get; set; }
         [Phone(ErrorMessage = "Phone number is not valid")]

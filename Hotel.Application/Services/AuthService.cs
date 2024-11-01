@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Google.Apis.Auth;
 using Hotel.Application.DTOs.UserDTO;
+using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Core.Common;
 using Hotel.Core.Constants;
@@ -24,13 +24,15 @@ namespace Hotel.Application.Services
         private readonly IEmployeeService _employeeService;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
+        private readonly IHttpContextAccessor _contextAccessor;
         public AuthService(IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AuthService> logger,
             ICustomerService customerService,
             IEmployeeService employeeService,
             ITokenService tokenService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IHttpContextAccessor contextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -39,7 +41,10 @@ namespace Hotel.Application.Services
             _employeeService = employeeService;
             _tokenService = tokenService;
             _emailService = emailService;
+            _contextAccessor = contextAccessor;
         }
+
+        private string currentUser => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
         public async Task RegisterAsync(RegisterRequestDto registerRequestDto)
         {
             Account? existAccount = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == registerRequestDto.Email && x.DeletedTime == null);
@@ -76,10 +81,6 @@ namespace Hotel.Application.Services
             await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);
             await _unitOfWork.GetRepository<Account>().InsertAsync(account);
             await _unitOfWork.SaveChangesAsync();
-
-            //Gửi code 
-          
-
         }
 
       
@@ -108,10 +109,7 @@ namespace Hotel.Application.Services
             };
             return loginResponseDto;
         }
-        public async Task LoginWithGoogle()
-        {
 
-        }
         public async Task<TokenResponseDto> RefreshAccessTokenAsync(RefeshTokenRequestDto refeshTokenRequest)
         {
             if (string.IsNullOrEmpty(refeshTokenRequest.RefreshToken))
@@ -138,7 +136,7 @@ namespace Hotel.Application.Services
             }
 
             Account account = await _unitOfWork.GetRepository<Account>().Entities.Where( a=>a.Email.Equals(email) && !a.DeletedTime.HasValue).FirstOrDefaultAsync()
-                ?? throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không tìm thấy tài khoản ngươi dùng");
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tài khoản ngươi dùng");
             if(account.IsActive)
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Tài khoản đã xác thực rồi");
@@ -179,9 +177,9 @@ namespace Hotel.Application.Services
         public async Task<LoginResponseDto> SignInWithGoogleAsync(GoogleSignInDto googleSignInDto)
         {
             // Kiểm tra xem tài khoản đã tồn tại chưa
-            Account account = await _unitOfWork.GetRepository<Account>().Entities
+            Account ? account = await _unitOfWork.GetRepository<Account>().Entities
                 .FirstOrDefaultAsync(x => x.Email == googleSignInDto.Email && x.DeletedTime == null);
-
+               
             if (account == null)
             {
                 // Nếu chưa có tài khoản, tạo tài khoản mới
@@ -247,6 +245,46 @@ namespace Hotel.Application.Services
             var random = new Random();
             return new string(Enumerable.Repeat(chars, 12)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        public async Task DeleteAccount(string id)
+        {
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống người dùng");
+            }
+
+            Account account=await _unitOfWork.GetRepository<Account>().Entities.Where(r => !r.DeletedTime.HasValue).FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Người dùng không tồn tại");
+
+            //Kiểm tra có phải tài khoản khách hàng hay không
+            if (account.IsAdmin != true)
+            {
+                Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(account.Id)
+                    ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Tài khoản không tồn tại");
+
+                //Xoá khách hàng
+                customer.DeletedTime = CoreHelper.SystemTimeNow;
+                customer.DeletedBy = currentUser;
+
+                await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
+            }
+            else 
+            {
+                Employee employee = await _unitOfWork.GetRepository<Employee>().GetByIdAsync(account.Id)
+                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Tài khoản không tồn tại");
+
+                //Xoá khách hàng
+                employee.DeletedTime = CoreHelper.SystemTimeNow;
+                employee.DeletedBy = currentUser;
+
+                await _unitOfWork.GetRepository<Employee>().UpdateAsync(employee);
+            }
+            account.DeletedTime = CoreHelper.SystemTimeNow;
+            account.DeletedBy = currentUser;
+
+            await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

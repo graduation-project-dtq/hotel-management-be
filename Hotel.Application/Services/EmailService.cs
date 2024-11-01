@@ -19,7 +19,7 @@ public class EmailService : IEmailService
     public async Task<bool> ActiveAccountEmailAsync( string code, string email)
     {
         var emailBody = await CreateEmailBody(email,code); // Tạo nội dung email từ DTO
-        var sender = _configuration["EmailSettings:Sender"];
+        var sender = _configuration["EmailSettings:Sender"] != null ? _configuration["EmailSettings:Sender"] : null;
         var password = _configuration["EmailSettings:Password"];
         var host = _configuration["EmailSettings:Host"];
         var port = int.Parse(_configuration["EmailSettings:Port"]);
@@ -325,7 +325,7 @@ public class EmailService : IEmailService
 
         // Nút liên kết
         sb.AppendLine("<div style='text-align: center; margin-top: 30px;'>");
-        sb.AppendLine("<a href='#' style='text-decoration: none; background-color: #2E86C1; color: #fff; padding: 10px 20px; border-radius: 5px; font-size: 16px;'>Xác Thực Tài Khoản</a>");
+        sb.AppendLine("<a href='http://localhost:3000/booking/KichHoat_TaiKhoan' style='text-decoration: none; background-color: #2E86C1; color: #fff; padding: 10px 20px; border-radius: 5px; font-size: 16px;'>Xác Thực Tài Khoản</a>");
         sb.AppendLine("</div>");
 
         sb.AppendLine("<p style='margin-top: 30px; font-size: 14px; color: #888;'>Nếu bạn không yêu cầu xác thực tài khoản này, vui lòng bỏ qua email này.</p>");
