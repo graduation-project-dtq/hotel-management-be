@@ -27,7 +27,7 @@ namespace Hotel.API.Controllers
                statusCode: StatusCodes.Status200OK,
                code: ResponseCodeConstants.SUCCESS,
                data: result,
-               message: "Lấy thông tin giá thành công!"
+               message: "Lấy thông tin đánh giá thành công!"
            ));
         }
         [HttpGet("all")]

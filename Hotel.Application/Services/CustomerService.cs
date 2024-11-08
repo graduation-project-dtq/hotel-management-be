@@ -1,8 +1,11 @@
 ﻿
 using AutoMapper;
 using Hotel.Application.DTOs.CustomerDTO;
+using Hotel.Application.DTOs.EvaluationDTO;
+using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
+using Hotel.Application.PaggingItems;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -26,6 +29,83 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _logger = logger;
             _contextAccessor = contextAccessor;
+        }
+        public async Task<GetCustomerDTO> GetCustomerByEmailAsync(string email)
+        {
+            if (String.IsNullOrWhiteSpace(email))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không được để trống!");
+            }
+            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            if (!Regex.IsMatch(email, emailRegex))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ!");
+            }
+            Customer customer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Email == email && c.DeletedTime == null).FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy khách hàng có email là !" + email);
+
+            GetCustomerDTO dto = _mapper.Map<GetCustomerDTO>(customer);
+            return dto;
+        }
+
+        public async Task<PaginatedList<GetCustomerDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch, string phoneNumberSearch, string identityCardSearch)
+        {
+            if (index <= 0 || pageSize <= 0)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
+            }
+            IQueryable<Customer> query = _unitOfWork.GetRepository<Customer>().Entities
+               .Where(e => !e.DeletedTime.HasValue)
+               .OrderByDescending(c => c.CreatedTime);
+            //Tìm theo Id
+            if (!string.IsNullOrWhiteSpace(idSearch))
+            {
+                query = query.Where(r => r.Id.ToString() == idSearch);
+            }
+
+            //Tìm theo id
+            if (!string.IsNullOrWhiteSpace(idSearch))
+            {
+                query = query.Where(r => r.Id.ToString() == idSearch);
+            }
+
+            //Tìm theo tên
+            if (!string.IsNullOrWhiteSpace(nameSearch))
+            {
+                query = query.Where(r => r.Name.Contains(nameSearch));
+            }
+
+            //Tìm theo SDT
+            if (!string.IsNullOrWhiteSpace(phoneNumberSearch))
+            {
+                query = query.Where(r => r.Phone.Equals(phoneNumberSearch));
+            }
+            //Tìm theo CCCD
+            if (!string.IsNullOrWhiteSpace(identityCardSearch))
+            {
+                query = query.Where(r => r.IdentityCard.Equals(identityCardSearch));
+            }
+            var totalCount = await query.CountAsync();  // Tổng số bản ghi
+            if (totalCount == 0)
+            {
+                return new PaginatedList<GetCustomerDTO>(new List<GetCustomerDTO>(), totalCount, index, pageSize);
+            }
+
+            var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            List<GetCustomerDTO> responseItems = _mapper.Map<List<GetCustomerDTO>>(resultQuery);
+
+            // Tạo danh sách phân trang
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var responsePaginatedList = new PaginatedList<GetCustomerDTO>(
+                responseItems,
+                totalCount,
+                index,
+                pageSize
+            );
+
+            return responsePaginatedList;
         }
         public async Task<GetCustomerDTO> CreateCustomerAsync(CreateCustomerDTO model)
         {
@@ -72,23 +152,7 @@ namespace Hotel.Application.Services
             return result;
         }
 
-        public async Task<GetCustomerDTO> GetCustomerByEmailAsync(string email)
-        {
-            if (String.IsNullOrWhiteSpace(email))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không được để trống!");
-            }
-            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            if (!Regex.IsMatch(email, emailRegex))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ!");
-            }
-            Customer customer =await _unitOfWork.GetRepository<Customer>().Entities.Where(c=>c.Email == email && c.DeletedTime==null).FirstOrDefaultAsync()
-                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy khách hàng có email là !"+email);
-
-            GetCustomerDTO dto= _mapper.Map<GetCustomerDTO>(customer);
-            return dto;
-        }
+       
         public async Task UpdateCustomerAsync(string email, PutCustomerDTO model)
         {
             // Kiểm tra ID khách hàng

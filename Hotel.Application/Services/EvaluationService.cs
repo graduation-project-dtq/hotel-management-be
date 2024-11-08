@@ -69,6 +69,7 @@ namespace Hotel.Application.Services
                    CustomerId = e.CustomerId,
                    Comment = e.Comment,
                    RoomTypeDetailId = e.RoomTypeDetailId,
+                   Starts= e.Starts,
                    Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                    {
                        URL = img.Image != null && img.Image.URL != null
@@ -110,6 +111,7 @@ namespace Hotel.Application.Services
                     CustomerId = e.CustomerId,
                     Comment = e.Comment,
                     RoomTypeDetailId = e.RoomTypeDetailId,
+                    Starts = e.Starts,
                     Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                     {
                         URL = img.Image != null && img.Image.URL != null
@@ -148,6 +150,9 @@ namespace Hotel.Application.Services
             Evaluation evaluation = _mapper.Map<Evaluation>(model);
             evaluation.CreatedBy = evaluation.LastUpdatedBy = curenUserId;
 
+            roomTypeDetail.AverageStart = (roomTypeDetail.AverageStart + model.Starts) / 2;
+
+            await _unitOfWork.GetRepository<RoomTypeDetail>().InsertAsync(roomTypeDetail);
             await _unitOfWork.GetRepository<Evaluation>().InsertAsync(evaluation);
             await _unitOfWork.SaveChangesAsync();
             //Thêm hình ảnh

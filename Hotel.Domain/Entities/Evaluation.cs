@@ -11,7 +11,7 @@ namespace Hotel.Domain.Entities
         [ForeignKey("RoomTypeDetail")]
         public string RoomTypeDetailId { get; set; } = string.Empty;
         public string Comment { get; set; } = string.Empty;
-        public int Starts { get; set; }
+        public float Starts { get; set; }
         public virtual Customer ? Customer { get; set; }
         public virtual RoomTypeDetail ? RoomTypeDetail { get; set; }
 

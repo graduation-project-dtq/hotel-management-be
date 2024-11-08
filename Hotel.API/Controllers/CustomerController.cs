@@ -1,7 +1,11 @@
 ﻿using Hotel.Application.DTOs.CustomerDTO;
+using Hotel.Application.DTOs.EvaluationDTO;
 using Hotel.Application.Interfaces;
+using Hotel.Application.PaggingItems;
+using Hotel.Application.Services;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
+using Hotel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +19,21 @@ namespace Hotel.API.Controllers
         public CustomerController(ICustomerService customerService)
         {
             _customerService = customerService;
+        }
+
+        
+
+        [HttpGet]
+        public async Task<IActionResult> GetPageAsync(int index =1, int pageSize = 10, string idSearch = "",
+        string nameSearch = "", string phoneNumberSearch = "", string identityCardSearch = "")
+        {
+            PaginatedList<GetCustomerDTO> result = await _customerService.GetPageAsync(index, pageSize, idSearch, nameSearch ,phoneNumberSearch, identityCardSearch);
+            return Ok(new BaseResponse<PaginatedList<GetCustomerDTO>>(
+            statusCode: StatusCodes.Status200OK,
+            code: ResponseCodeConstants.SUCCESS,
+               data: result,
+               message: "Lấy danh sách khách hàng thành công!"
+           ));
         }
 
         /// <summary>

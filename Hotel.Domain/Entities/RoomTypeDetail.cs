@@ -18,5 +18,9 @@ namespace Hotel.Domain.Entities
         public virtual RoomType ? RoomType { get; set; }
         public virtual ICollection<ImageRoomTypeDetail> ? ImageRoomTypeDetails { get; set; }
         public virtual ICollection<RoomPriceAdjustment> ? RoomPriceAdjustments { get; set; }
+        public RoomTypeDetail()
+        {
+            AverageStart = 5;
+        }
     }
 }

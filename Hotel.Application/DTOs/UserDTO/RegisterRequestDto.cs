@@ -14,6 +14,7 @@ namespace Hotel.Application.DTOs.UserDTO
         [Required(ErrorMessage = "Password is required")]
         [PasswordPropertyText]
         public string Password { get; set; } = string.Empty;
+        public string ? Phone { get; set; }
     }
 
 }

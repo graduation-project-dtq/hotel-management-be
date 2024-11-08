@@ -16,6 +16,6 @@ namespace Hotel.Application.DTOs.EvaluationDTO
         public string Comment { get; set; } = string.Empty;
         [Required(ErrorMessage = "Không được để trống số sao")]
         [FromForm]
-        public int Starts { get; set; }
+        public float Starts { get; set; }
     }
 }

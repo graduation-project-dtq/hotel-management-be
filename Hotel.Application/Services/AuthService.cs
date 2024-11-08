@@ -50,7 +50,7 @@ namespace Hotel.Application.Services
             Account? existAccount = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == registerRequestDto.Email && x.DeletedTime == null);
             if (existAccount != null)
             {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "This email is already registered.");
+                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Email đã tồn tại");
             }
 
             //Role role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(x => x.RoleName == registerRequestDto.RoleName && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "The specified role was not found. Please provide a valid role.");
@@ -62,18 +62,26 @@ namespace Hotel.Application.Services
             account.RoleId = "c401bb08da484925900a63575c3717f8";
             account.IsActive = false;
 
+            //Check SDT
+            Customer ? exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c=>c.Phone.ToString()==registerRequestDto.Phone).FirstOrDefaultAsync();
+
+            if(exitCustomer != null)
+            {
+                throw new ErrorException(StatusCodes.Status409Conflict, ResponseCodeConstants.DUPLICATE, "SDT đã tồn tại");
+
+            }
             //Add Customer
             Customer customer = new Customer()
             {
-                Id=account.Id,
+                Id = account.Id,
                 AccountID = account.Id,
                 Name = account.Name ?? "Khách hàng",
                 Email = account.Email,
                 CreatedTime = CoreHelper.SystemTimeNow,
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
-                CredibilityScore=100,
-                AccumulatedPoints=0,
-                
+                CredibilityScore = 100,
+                AccumulatedPoints = 0,
+                Phone = string.IsNullOrWhiteSpace(registerRequestDto.Phone) != true ? registerRequestDto.Phone : string.Empty
             };
 
             account.Code = randActiveCode();
@@ -98,7 +106,7 @@ namespace Hotel.Application.Services
             string hashedInputPassWord = passwordHasher.HashPassword(null, loginRequestDto.Password);
             if (hashedInputPassWord != account.Password)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Email or password is incorrect");
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Sai tài khoản hoặc mật khẩy");
             }
             Role role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(x => x.Id == account.RoleId && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Role not found for the account");
             string roleName = role.RoleName;
@@ -112,9 +120,9 @@ namespace Hotel.Application.Services
 
         public async Task<TokenResponseDto> RefreshAccessTokenAsync(RefeshTokenRequestDto refeshTokenRequest)
         {
-            if (string.IsNullOrEmpty(refeshTokenRequest.RefreshToken))
+            if (string.IsNullOrWhiteSpace(refeshTokenRequest.RefreshToken))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Refresh token is required");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập dữ liệu hợp lệ");
             }
             return await _tokenService.RefreshAccessToken(refeshTokenRequest);
         }
