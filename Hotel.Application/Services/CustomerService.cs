@@ -127,7 +127,7 @@ namespace Hotel.Application.Services
 
                 if (exitCustomer != null)
                 {
-                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có số điện thoại :" + model.IdentityCard);
+                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có số điện thoại :" + model.Phone);
                 }
             }
             if (!string.IsNullOrWhiteSpace(model.Email))
@@ -150,7 +150,8 @@ namespace Hotel.Application.Services
                 {
                     throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Tài khoản không tồn tại");
                 }
-            }    
+            }   
+            
             Customer customer = _mapper.Map<Customer>(model);
 
             customer.AccumulatedPoints = 0;
