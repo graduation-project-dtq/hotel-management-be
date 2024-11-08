@@ -24,6 +24,7 @@ namespace Hotel.API.Controllers
         
 
         [HttpGet]
+       
         public async Task<IActionResult> GetPageAsync(int index =1, int pageSize = 10, string idSearch = "",
         string nameSearch = "", string phoneNumberSearch = "", string identityCardSearch = "")
         {
@@ -53,6 +54,7 @@ namespace Hotel.API.Controllers
            ));
         }
         [HttpPost]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult>  CreateCustomerAsync(CreateCustomerDTO model)
         {
             GetCustomerDTO result = await _customerService.CreateCustomerAsync(model);

@@ -120,9 +120,9 @@ namespace Hotel.Application.Services
                     throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có số CCCD :"+model.IdentityCard);
                 }
             }
-            if (!string.IsNullOrWhiteSpace(model.NumberPhone))
+            if (!string.IsNullOrWhiteSpace(model.Phone))
             {
-                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Phone.Equals(model.NumberPhone)
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Phone.Equals(model.Phone)
                 && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
 
                 if (exitCustomer != null)
