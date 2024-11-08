@@ -10,7 +10,7 @@ namespace Hotel.Application.DTOs.CustomerDTO
         public string ? Sex {  get; set; } = string.Empty;
         public DateOnly? DateOfBirth { get; set; } //Thêm khi booking off
         public string? Email { get; set; }
-        public string? NumberPhone { get; set; } //Thêm khi booking off
+        public string? Phone { get; set; } //Thêm khi booking off
         public string? AccountId { get; set; }
         public string? Address { get; set; }
 
