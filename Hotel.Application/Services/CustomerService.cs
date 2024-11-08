@@ -140,7 +140,17 @@ namespace Hotel.Application.Services
                     throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có email :" + model.Email);
                 }
             }
-    
+            
+            if(!string.IsNullOrWhiteSpace(model.AccountId))
+            {
+                Account ? exitAccount = await _unitOfWork.GetRepository<Account>().Entities.Where(c => c.Id.Equals(model.AccountId)
+                && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
+
+                if (exitAccount != null)
+                {
+                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Tài khoản không tồn tại");
+                }
+            }    
             Customer customer = _mapper.Map<Customer>(model);
 
             customer.AccumulatedPoints = 0;
