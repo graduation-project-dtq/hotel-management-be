@@ -69,6 +69,8 @@
 //     app.Logger.LogError(ex, "Đã xảy ra lỗi khi khởi động ứng dụng.");
 // }
 using dotenv.net;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Hotel.API.Extensions;
 using Hotel.API.Middleware;
 using Hotel.Aplication.Extensions;

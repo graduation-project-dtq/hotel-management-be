@@ -9,6 +9,7 @@ using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 
 namespace Hotel.Application.Services
@@ -18,11 +19,16 @@ namespace Hotel.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
-        public ImageService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
+        private IHostEnvironment _environment;
+        private readonly IFirebaseService _firebaseService;
+        private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+        public ImageService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IHostEnvironment environment, IFirebaseService firebaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _contextAccessor = contextAccessor;
+            _environment = environment;
+            _firebaseService = firebaseService; 
         }
         public async Task<List<GetImageDTO>> GetAllImage()
         {
@@ -51,5 +57,20 @@ namespace Hotel.Application.Services
             return getImage;
 
         }
+        public async Task Post(PostImageViewModel model)
+        {
+            string url=  await _firebaseService.UploadFileAsync(model);
+            Image image = new Image()
+            {
+                URL = url,
+            };
+
+            image.CreatedBy = currentUserId;
+            image.LastUpdatedBy= currentUserId;
+
+            await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+            await _unitOfWork.SaveAsync();
+        }
+
     }
 }

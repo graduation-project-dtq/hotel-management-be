@@ -1,5 +1,6 @@
 ﻿using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Interfaces;
+using Hotel.Core.Constants;
 using Hotel.Domain.Base;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,16 @@ namespace Hotel.API.Controllers
                   code: "Thêm ảnh thành công",
                   data: image
               ));
+        }
+
+        [HttpPost("image")]
+        public async Task<IActionResult> Post(PostImageViewModel model)
+        {
+            await _imageService.Post(model);
+            return Ok(new BaseResponseModel<string?>(
+                    statusCode: StatusCodes.Status200OK,
+                    code: ResponseCodeConstants.SUCCESS,
+                    message: "Tạo mới hình ảnh thành công"));
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Hotel.Infrastructure.Data
         public DbSet<ImageRoomType> ImageRoomTypes { get; set; }
         public DbSet<ImageRoomTypeDetail> ImageRoomTypeDetails { get; set; }
         public DbSet<ImageService> ImageServices { get; set; }
-
+        public DbSet<Overview> Overview { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

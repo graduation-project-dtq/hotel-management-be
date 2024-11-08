@@ -76,6 +76,12 @@ namespace Hotel.Aplication.Extensions
 
             //Notification
             services.AddScoped<INotificationService, NotificationService>();
+
+            //FireBase
+            services.AddScoped<IFirebaseService, FirebaseService>();
+
+            //Overview 
+            services.AddScoped<IOverviewService, OverviewService>();
         }
 
         //Đăng ký mapper

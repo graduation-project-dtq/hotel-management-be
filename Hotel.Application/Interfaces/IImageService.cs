@@ -8,7 +8,8 @@ namespace Hotel.Application.Interfaces
     {
         Task<List<GetImageDTO>> GetAllImage();
         Task<GetImageDTO> CreateImage(PostImageDTO model);
-    }
 
+        Task Post(PostImageViewModel model);
+    }
 
 }

@@ -117,5 +117,7 @@ namespace Hotel.API.Controllers
                     message: "Đã xảy ra lỗi khi đăng nhập bằng Google: " + ex.Message));
             }
         }
+
+     
     }
 }
