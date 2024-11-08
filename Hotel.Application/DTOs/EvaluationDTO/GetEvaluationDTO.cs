@@ -1,14 +1,12 @@
-﻿
-using Hotel.Application.DTOs.CustomerDTO;
+﻿using Hotel.Application.DTOs.CustomerDTO;
 using Hotel.Application.DTOs.ImageDTO;
-using Hotel.Domain.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hotel.Application.DTOs.EvaluationDTO
 {
     public class GetEvaluationDTO
     {
     
+        public string Id {  get; set; }= string.Empty;
         public string CustomerId { get; set; } = string.Empty;
 
         public string RoomTypeDetailId { get; set; } = string.Empty;

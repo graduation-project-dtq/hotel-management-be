@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Hotel.Application.DTOs.CustomerDTO
 {
     public class CreateCustomerDTO
     {
         [Required(ErrorMessage = "Name is required")]
-        public string Name { get; set; } = string.Empty;
-        [EmailAddress(ErrorMessage = "Email is not valid")]
+        public string Name { get; set; } = string.Empty; //Thêm khi booking off
+        public string ? IdentityCard { get; set; } = string.Empty; //Thêm khi booking off
+        public string ? Sex {  get; set; } = string.Empty;
+        public DateOnly? DateOfBirth { get; set; } //Thêm khi booking off
         public string? Email { get; set; }
-        [Phone(ErrorMessage = "Phone number is not valid")]
-        [StringLength(10, MinimumLength = 10, ErrorMessage = "Phone number must be 10 digits")]
-        public string? NumberPhone { get; set; }
-        public string? InternalCode { get; set; }
+        public string? NumberPhone { get; set; } //Thêm khi booking off
         public string? AccountId { get; set; }
-    
+        public string? Address { get; set; }
+
     }
 }

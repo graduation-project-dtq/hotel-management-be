@@ -71,6 +71,5 @@ namespace Hotel.Application.Services
             await _unitOfWork.GetRepository<Image>().InsertAsync(image);
             await _unitOfWork.SaveAsync();
         }
-
     }
 }

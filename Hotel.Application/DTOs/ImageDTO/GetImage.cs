@@ -1,5 +1,4 @@
 ﻿
-
 namespace Hotel.Application.DTOs.ImageDTO
 {
     public class GetImage

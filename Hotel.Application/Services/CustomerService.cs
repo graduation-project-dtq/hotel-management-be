@@ -3,7 +3,6 @@ using AutoMapper;
 using Hotel.Application.DTOs.CustomerDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
-using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -28,22 +27,49 @@ namespace Hotel.Application.Services
             _logger = logger;
             _contextAccessor = contextAccessor;
         }
-        public async Task<Customer> CreateCustomerAsync(CreateCustomerDTO createCustomerDTO)
+        public async Task<GetCustomerDTO> CreateCustomerAsync(CreateCustomerDTO model)
         {
-            Customer? existsCustomer = await _unitOfWork.GetRepository<Customer>().Entities.FirstOrDefaultAsync(a => a.AccountID == createCustomerDTO.AccountId);
-            if (existsCustomer != null)
+            Customer ? exitCustomer = new Customer();
+            if (!string.IsNullOrWhiteSpace(model.IdentityCard))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.EXISTED, "Khacsh hang");
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.IdentityCard.Equals(model.IdentityCard)
+                && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
+
+                if (exitCustomer != null)
+                {
+                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có số CCCD :"+model.IdentityCard);
+                }
             }
+            if (!string.IsNullOrWhiteSpace(model.NumberPhone))
+            {
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Phone.Equals(model.NumberPhone)
+                && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
 
-            Customer customer = _mapper.Map<Customer>(createCustomerDTO);
+                if (exitCustomer != null)
+                {
+                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có số điện thoại :" + model.IdentityCard);
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Email.Equals(model.Email)
+                && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
 
-            customer.CreatedTime=customer.LastUpdatedTime = CoreHelper.SystemTimeNow;
+                if (exitCustomer != null)
+                {
+                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Đã tồn tại khách hàng có email :" + model.Email);
+                }
+            }
+    
+            Customer customer = _mapper.Map<Customer>(model);
 
+            customer.AccumulatedPoints = 0;
+            customer.CredibilityScore = 100; //Điểm uy tín 
             await _unitOfWork.GetRepository<Customer>().InsertAsync(customer);
             await _unitOfWork.SaveChangesAsync();
 
-            return customer;
+            GetCustomerDTO result = _mapper.Map<GetCustomerDTO>(customer);
+            return result;
         }
 
         public async Task<GetCustomerDTO> GetCustomerByEmailAsync(string email)

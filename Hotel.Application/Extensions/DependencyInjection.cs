@@ -82,6 +82,9 @@ namespace Hotel.Aplication.Extensions
 
             //Overview 
             services.AddScoped<IOverviewService, OverviewService>();
+
+            //Evaluation
+            services.AddScoped<IEvaluationService, EvaluationService>();
         }
 
         //Đăng ký mapper

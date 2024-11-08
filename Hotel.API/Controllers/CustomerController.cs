@@ -33,7 +33,17 @@ namespace Hotel.API.Controllers
               message: "Lấy thông tin khách hàng thành công"
            ));
         }
-
+        [HttpPost]
+        public async Task<IActionResult>  CreateCustomerAsync(CreateCustomerDTO model)
+        {
+            GetCustomerDTO result = await _customerService.CreateCustomerAsync(model);
+            return Ok(new BaseResponse<GetCustomerDTO>(
+            statusCode: StatusCodes.Status200OK,
+            code: ResponseCodeConstants.SUCCESS,
+            data: result,
+            message: "Tạo khách hàng thành công"
+         ));
+        }
         /// <summary>
         /// Cập nhật thông tin của khách hàng
         /// </summary>
