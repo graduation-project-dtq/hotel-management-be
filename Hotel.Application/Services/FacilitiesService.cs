@@ -27,13 +27,30 @@ namespace Hotel.Application.Services
             _mapper = mapper;
             _contextAccessor = contextAccessor;
         }
-        public async Task<GetFacilitiesDTO> CreateFacilities(PostFacilitiesDTO model)
+        public async Task<GetFacilitiesDTO> CreateFacilities(ICollection<IFormFile> ? images,PostFacilitiesDTO model)
         {
             Facilities ? exitFacilities = await _unitOfWork.GetRepository<Facilities>().Entities.Where(f => f.Name.Equals(model) && !f.DeletedTime.HasValue).FirstOrDefaultAsync();
             if(exitFacilities != null)
             {
                 throw new ErrorException(StatusCodes.Status409Conflict, ResponseCodeConstants.DUPLICATE, "Đã tồn tại tên này");
             }
+
+            if(model.Price<0 && model.Price %1 != 0)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Giá tiền không hợp lệ");
+
+            }
+
+            Facilities facilities = _mapper.Map<Facilities>(model);
+            facilities.CreatedBy = currentUserId;
+            facilities.LastUpdatedBy = currentUserId;
+
+            await _unitOfWork.GetRepository<Facilities>().InsertAsync(facilities);
+            await _unitOfWork.SaveChangesAsync();
+
+            //Trả dữ liệu ra
+
+          
             return null;
         }
         //public async Task<GetFacilitiesDTO> UpdateFacilities(string id, PutFacilitiesDTO model)

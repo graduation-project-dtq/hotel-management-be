@@ -12,6 +12,5 @@ namespace Hotel.Application.DTOs.FacilitiesDTO
         [Required(ErrorMessage = "Vui lòng nhập giá tiền")]
         public decimal Price { get; set; }
         public string? Description { get; set; }
-        public ICollection<IFormFile> ? Images { get; set; }
     }
 }
