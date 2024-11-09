@@ -62,6 +62,7 @@ namespace Hotel.Infrastructure.Data
             {
                 await addRole();
                 await addAccount();
+                await addEmployee();
                 await addRoomType();
                 await addImage();
                 await addRoomTypeDetail();
