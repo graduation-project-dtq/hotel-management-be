@@ -326,7 +326,7 @@ namespace Hotel.Application.Services
             };
             if(!string.IsNullOrWhiteSpace(model.EmployeeId))
             {
-                Employee employee = await _unitOfWork.GetRepository<Employee>().Entities.Where(e => e.Equals(model.EmployeeId)).FirstOrDefaultAsync()
+                Employee employee = await _unitOfWork.GetRepository<Employee>().Entities.Where(e => e.Id.Equals(model.EmployeeId)).FirstOrDefaultAsync()
                     ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nhân viên không tồn tại");
                 
                 booking.EmployeeId = model.EmployeeId;

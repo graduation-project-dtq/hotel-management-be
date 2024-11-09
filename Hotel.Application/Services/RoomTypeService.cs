@@ -126,7 +126,6 @@ namespace Hotel.Application.Services
         }
         public async Task<RoomType> CreateRoomType(PortRoomTypeDTO model)
         {
-            
             RoomType roomType = _mapper.Map<RoomType>(model);
             roomType.CreatedBy = currentUserId;
             roomType.LastUpdatedBy = currentUserId;
@@ -138,11 +137,10 @@ namespace Hotel.Application.Services
         }
         public async Task DeleteRoomType(string id)
         {
-            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
-            if (!regex.IsMatch(id.Trim()))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
-            }
+           if(string.IsNullOrWhiteSpace(id))
+           {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập loại phòng");
+           }
             RoomType roomType=await _unitOfWork.GetRepository<RoomType>().Entities.FirstOrDefaultAsync(r=>r.Id ==id && r.DeletedTime==null)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
 
