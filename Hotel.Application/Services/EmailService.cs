@@ -82,20 +82,23 @@ public class EmailService : IEmailService
             try
             {
                 await smtpClient.SendMailAsync(mailMessage);
-                return true;
+                return true; // Gửi email thành công
             }
             catch (SmtpException smtpEx)
             {
-
-                throw new Exception("Lỗi gửi email xác nhận: " + smtpEx.Message, smtpEx);
+                // Log lỗi (tuỳ chọn)
+                Console.WriteLine($"Lỗi gửi email xác nhận: {smtpEx.Message}");
             }
             catch (Exception ex)
             {
-
-                throw new Exception("Lỗi gửi email xác nhận: " + ex.Message, ex);
+                // Log lỗi (tuỳ chọn)
+                Console.WriteLine($"Lỗi gửi email xác nhận: {ex.Message}");
             }
         }
+
+        return false; // Trả về false nếu có lỗi xảy ra
     }
+
     public async Task SendEmailAsync(string recipientEmail, bool isConfirmation, GetBookingDTO model, int count)
     {
         var emailBody = CreateEmailBody(isConfirmation,model,count); // Tạo nội dung email từ DTO với kiểu gửi xác nhận

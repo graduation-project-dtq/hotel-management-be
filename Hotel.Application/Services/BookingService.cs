@@ -184,7 +184,7 @@ namespace Hotel.Application.Services
         }
         public async Task<List<GetBookingDTO>> GetBookingByCustomerId(string customerId, EnumBooking enumBooking)
         {
-            if (String.IsNullOrWhiteSpace(customerId))
+            if (string.IsNullOrWhiteSpace(customerId))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống ID khách hàng");
             }
@@ -290,10 +290,10 @@ namespace Hotel.Application.Services
             //Nếu có kiểm tra tính khả dụng của voucher
             Voucher voucher = new Voucher()
             {
-                Id = null,
+                Id = "",
                 DiscountAmount = 0
             };
-            if (!String.IsNullOrWhiteSpace(model.VoucherId))
+            if (!string.IsNullOrWhiteSpace(model.VoucherId))
             {
                 voucher = await _unitOfWork.GetRepository<Voucher>().Entities
                    .Where(v => v.Id == model.VoucherId && v.DeletedTime == null
@@ -321,12 +321,16 @@ namespace Hotel.Application.Services
                 ServiceBookings = new List<ServiceBooking>(),
                 PromotionalPrice = voucher.DiscountAmount,
                 VoucherId = voucher.Id,
-                //PromotionalPrice = 0,
-                //VoucherId = null,
                 Customer = null,
                 IdentityCard = null,
             };
-
+            if(!string.IsNullOrWhiteSpace(model.EmployeeId))
+            {
+                Employee employee = await _unitOfWork.GetRepository<Employee>().Entities.Where(e => e.Equals(model.EmployeeId)).FirstOrDefaultAsync()
+                    ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nhân viên không tồn tại");
+                
+                booking.EmployeeId = model.EmployeeId;
+            }
             await _unitOfWork.GetRepository<Booking>().InsertAsync(booking);
             await _unitOfWork.SaveChangesAsync();
 
@@ -372,7 +376,7 @@ namespace Hotel.Application.Services
                     }
                     else
                     {
-                        Room room = await _unitOfWork.GetRepository<Room>().Entities
+                        Room ? room = await _unitOfWork.GetRepository<Room>().Entities
                             .Include(r => r.RoomTypeDetail)
                             .Where(r => r.Id == bookingDetail.RoomID)
                             .FirstOrDefaultAsync();
@@ -490,10 +494,11 @@ namespace Hotel.Application.Services
             if (customer != null)
             {
                 var emailService = new EmailService(_configuration, _unitOfWork); // Khởi tạo EmailService với logger
-                await emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
+                if(!string.IsNullOrWhiteSpace(customer.Email))
+                {
+                    await emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
+                }
             }
-
-
             return getBookingDTO;
         }
 
