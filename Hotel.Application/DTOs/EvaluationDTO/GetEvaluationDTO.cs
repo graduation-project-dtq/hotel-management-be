@@ -8,8 +8,7 @@ namespace Hotel.Application.DTOs.EvaluationDTO
     
         public string Id {  get; set; }= string.Empty;
         public string CustomerId { get; set; } = string.Empty;
-
-        public string RoomTypeDetailId { get; set; } = string.Empty;
+        public string RoomTypeId { get; set; } = string.Empty;
         public string Comment { get; set; } = string.Empty;
         public float Starts { get; set; }
         public virtual GetCustomerDTO? Customer { get; set; }

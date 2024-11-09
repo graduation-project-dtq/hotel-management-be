@@ -1,6 +1,4 @@
-﻿
-
-using Hotel.Core.Base;
+﻿using Hotel.Core.Base;
 
 namespace Hotel.Domain.Entities
 {
@@ -8,7 +6,7 @@ namespace Hotel.Domain.Entities
     {
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public string Description { get; set; } = string.Empty;
+        public string ? Description { get; set; } = string.Empty;
         public virtual ICollection<FacilitiesRoom> ? FacilitiesRooms { get; set; }
         public virtual ICollection<Punish> ? Punishes { get; set; }
         public virtual ICollection<ImageFacilities>? ImageFacilities { get; set; }

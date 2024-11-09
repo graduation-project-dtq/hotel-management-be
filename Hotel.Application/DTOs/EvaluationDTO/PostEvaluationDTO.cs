@@ -10,7 +10,7 @@ namespace Hotel.Application.DTOs.EvaluationDTO
         public string CustomerId { get; set; } = string.Empty;
         [Required(ErrorMessage = "Không được để trống loại phòng")]
         [FromForm]
-        public string RoomTypeDetailId { get; set; } = string.Empty;
+        public string RoomTypeId { get; set; } = string.Empty;
         [Required(ErrorMessage = "Vui lòng nhập ý kiến góp ý của bạn")]
         [FromForm]
         public string Comment { get; set; } = string.Empty;

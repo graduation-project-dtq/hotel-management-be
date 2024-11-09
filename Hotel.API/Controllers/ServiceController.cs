@@ -1,7 +1,6 @@
 ﻿using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
-using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
 using Microsoft.AspNetCore.Authorization;
@@ -38,23 +37,23 @@ namespace Hotel.API.Controllers
            ));
         }
         [HttpPost]
+        [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
-        public async Task<IActionResult> CreateService([FromBody] PostServiceDTO model)
+        public async Task<IActionResult> CreateService([FromForm] List<IFormFile>? images, [FromForm] PostServiceDTO model)
         {
-           
-            await _serviceService.CreateService(model);
-            return Ok(new BaseResponseModel<string ?>(
+
+           GetServiceDTO result= await _serviceService.CreateService(images,model);
+            return Ok(new BaseResponseModel<GetServiceDTO>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
                 message: "Tạo dịch vụ thành công!",
-                data: null
+                data: result
             ));
-
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
-        public async Task<IActionResult> CreateService(string id,[FromBody] PutServiceDTO model)
+        public async Task<IActionResult> UpdateService(string id,[FromBody] PutServiceDTO model)
         {
 
             await _serviceService.UpdateService(id,model);

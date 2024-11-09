@@ -54,25 +54,7 @@ namespace Hotel.API.Controllers
                ));
         }
 
-        /// <summary>
-        /// Tạo loại phòng mới
-        /// <param name="id"></param>
-        //[HttpPost]
-        //[Consumes("multipart/form-data")]
-       
-        //public async Task<IActionResult> CreateRoomType([FromForm] List<IFormFile> ? images,[FromBody] PortRoomTypeDTO model)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    GetRoomTypeDTO result = await _roomTypeService.CreateRoomType(images,model);
-        //    return Ok(new BaseResponseModel<GetRoomTypeDTO>(
-        //        statusCode: StatusCodes.Status200OK,
-        //        code: ResponseCodeConstants.SUCCESS,
-        //        data: result,
-        //        message: "Tạo thành công"
-        //    ));
-        //}
+      
         [HttpPost]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]

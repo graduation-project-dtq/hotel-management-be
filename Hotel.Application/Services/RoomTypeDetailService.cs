@@ -58,7 +58,6 @@ namespace Hotel.Application.Services
                 BasePrice=roomTypeDetail.BasePrice,
                 DiscountPrice=roomTypeDetail.BasePrice,
                 Area = roomTypeDetail.Area,
-                AverageStart = roomTypeDetail.AverageStart,
             };
             decimal discount = await GetDiscountPrice(roomTypeDetail.Id);
             if(discount > 0)
@@ -135,7 +134,6 @@ namespace Hotel.Application.Services
                     BasePrice= item.BasePrice,
                     DiscountPrice=item.BasePrice,
                     Area=item.Area,
-                    AverageStart= item.AverageStart,
                 };
                 if (item.ImageRoomTypeDetails != null)
                 {
@@ -182,7 +180,7 @@ namespace Hotel.Application.Services
 
             if (roomTypeDetailExit != null)
             {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.DUPLICATE, "Chi tiết loại phòng đã tồn tại!");
+                throw new ErrorException(StatusCodes.Status409Conflict, ResponseCodeConstants.DUPLICATE, "Chi tiết loại phòng đã tồn tại!");
             }
             RoomTypeDetail roomTypeDetail = _mapper.Map<RoomTypeDetail>(model);
 
@@ -192,6 +190,7 @@ namespace Hotel.Application.Services
             await _unitOfWork.GetRepository<RoomTypeDetail>().InsertAsync(roomTypeDetail);
             await _unitOfWork.SaveChangesAsync();
 
+        
             //Thêm hình ảnh
             if (images != null)
             {
@@ -205,45 +204,37 @@ namespace Hotel.Application.Services
 
                     Image image = new Image()
                     {
-                        URL = url
+                        URL = url,
+                        CreatedBy=currentUserId,
+                        LastUpdatedBy=currentUserId,
                     };
+
                     await _unitOfWork.GetRepository<Image>().InsertAsync(image);
                     await _unitOfWork.SaveChangesAsync();
 
                     ImageRoomTypeDetail imageRoomType = new ImageRoomTypeDetail()
                     {
                         ImageID = image.Id,
-                        RoomTypeDetailID = roomType.Id
+                        RoomTypeDetailID = roomTypeDetail.Id
                     };
                     await _unitOfWork.GetRepository<ImageRoomTypeDetail>().InsertAsync(imageRoomType);
                     await _unitOfWork.SaveChangesAsync();
-
                 }
             }
-            RoomTypeDetail ? resultRoomType = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
-                .Where(r=>r.Id.Equals(roomType.Id) && !r.DeletedTime.HasValue).FirstOrDefaultAsync();
 
-            GetRoomTypeDetailDTO getRoomTypeDetailDTO = new GetRoomTypeDetailDTO();
-            if (resultRoomType != null)
-            {
-                //getRoomTypeDetailDTO.Id = resultRoomType.Id;
-                //getRoomTypeDetailDTO.Name = resultRoomType.Name;
-                //getRoomTypeDetailDTO.DiscountPrice= resultRoomType.BasePrice;
-                //getRoomTypeDetailDTO.BasePrice = resultRoomType.BasePrice;
-                //getRoomTypeDetailDTO.RoomTypeID = resultRoomType.RoomTypeID;
-                //getRoomTypeDetailDTO.AverageStart = resultRoomType.AverageStart;
-                //getRoomTypeDetailDTO.CapacityMax = resultRoomType.CapacityMax;
-                getRoomTypeDetailDTO= _mapper.Map<GetRoomTypeDetailDTO>(resultRoomType);
-                getRoomTypeDetailDTO.DiscountPrice = resultRoomType.BasePrice;
-
-                getRoomTypeDetailDTO.ImageRoomTypeDetailDTOs = resultRoomType.ImageRoomTypeDetails != null ?
-                    resultRoomType.ImageRoomTypeDetails.Select(img => new GetImageRoomTypeDetailDTO()
-                    {
-                        URL = img.Image != null ? img.Image.URL : string.Empty,
-                    }).ToList() 
-                    : new List<GetImageRoomTypeDetailDTO>();
-            }
+            RoomTypeDetail? resultRoomType = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
+                .Where(r => r.Id.Equals(roomTypeDetail.Id) && !r.DeletedTime.HasValue).FirstOrDefaultAsync();
+            GetRoomTypeDetailDTO getRoomTypeDetailDTO = _mapper.Map<GetRoomTypeDetailDTO>(resultRoomType);
           
+            getRoomTypeDetailDTO.DiscountPrice = resultRoomType.BasePrice;
+            getRoomTypeDetailDTO.ImageRoomTypeDetailDTOs = resultRoomType.ImageRoomTypeDetails != null ?
+                               resultRoomType.ImageRoomTypeDetails.Select(img => new GetImageRoomTypeDetailDTO()
+                               {
+                                   URL = img.Image != null ? img.Image.URL : string.Empty,
+                               }).ToList()
+                               : new List<GetImageRoomTypeDetailDTO>();
+
+
             return getRoomTypeDetailDTO;
         }
 

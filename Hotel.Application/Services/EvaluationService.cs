@@ -28,7 +28,7 @@ namespace Hotel.Application.Services
             _contextAccessor = contextAccessor;
             _firebaseService = firebaseService;
         }
-        public async Task<PaginatedList<GetEvaluationDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string roomTypeDetailId)
+        public async Task<PaginatedList<GetEvaluationDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string roomTypeId)
         {
             if (index <= 0 || pageSize <= 0)
             {
@@ -48,9 +48,9 @@ namespace Hotel.Application.Services
                 query = query.Where(r => r.CustomerId.ToString() == customerID);
             }
             //Tìm theo loại
-            if (!string.IsNullOrWhiteSpace(roomTypeDetailId))
+            if (!string.IsNullOrWhiteSpace(roomTypeId))
             {
-                query = query.Where(r => r.RoomTypeDetailId.ToString() == roomTypeDetailId);
+                query = query.Where(r => r.RoomTypeId.ToString() == roomTypeId);
             }
 
             var totalCount =await  query.CountAsync();  // Tổng số bản ghi
@@ -68,7 +68,7 @@ namespace Hotel.Application.Services
                    Id = e.Id,
                    CustomerId = e.CustomerId,
                    Comment = e.Comment,
-                   RoomTypeDetailId = e.RoomTypeDetailId,
+                   RoomTypeId = e.RoomTypeId,
                    Starts= e.Starts,
                    Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                    {
@@ -92,9 +92,9 @@ namespace Hotel.Application.Services
             return responsePaginatedList;
 
         }
-        public async Task<List<GetEvaluationDTO>> GetEvaluationAsync(string roomTypeDetailId)
+        public async Task<List<GetEvaluationDTO>> GetEvaluationAsync(string roomTypeId)
         {
-            if (string.IsNullOrWhiteSpace(roomTypeDetailId))
+            if (string.IsNullOrWhiteSpace(roomTypeId))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn loại phòng");
             }
@@ -102,7 +102,7 @@ namespace Hotel.Application.Services
             //Lấy dữ liệu
             List<GetEvaluationDTO> evaluations = await _unitOfWork.GetRepository<Evaluation>()
                 .Entities
-                .Where(e => !e.DeletedTime.HasValue)
+                .Where(e => !e.DeletedTime.HasValue && e.RoomTypeId == roomTypeId)
                 .OrderByDescending(e => e.LastUpdatedTime)
                 .Select(e => new GetEvaluationDTO
                 {
@@ -110,7 +110,7 @@ namespace Hotel.Application.Services
                     Id = e.Id,
                     CustomerId = e.CustomerId,
                     Comment = e.Comment,
-                    RoomTypeDetailId = e.RoomTypeDetailId,
+                    RoomTypeId = e.RoomTypeId,
                     Starts = e.Starts,
                     Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                     {
@@ -131,7 +131,7 @@ namespace Hotel.Application.Services
                 && !c.DeletedTime.HasValue).FirstOrDefaultAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không tồn tại");
 
-            RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.Where(r => r.Id.Equals(model.RoomTypeDetailId)
+            RoomType roomType = await _unitOfWork.GetRepository<RoomType>().Entities.Where(r => r.Id.Equals(model.RoomTypeId)
                && !r.DeletedTime.HasValue).FirstOrDefaultAsync()
                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Loại phòng không tồn tại");
 
@@ -142,17 +142,18 @@ namespace Hotel.Application.Services
                 .Include(b => b.BookingDetails!)
                     .ThenInclude(bd => bd.Room!)
                         .ThenInclude(r => r.RoomTypeDetail!)
+                            .ThenInclude(rt=>rt.RoomType!)
                 .FirstOrDefaultAsync(b => b.BookingDetails != null && b.BookingDetails
-                    .Any(bd => bd.Room != null && bd.Room.RoomTypeDetail != null && bd.Room.RoomTypeDetail.Id == model.RoomTypeDetailId))
+                    .Any(bd => bd.Room != null && bd.Room.RoomTypeDetail.RoomType != null && bd.Room.RoomTypeDetail.RoomType.Id == model.RoomTypeId))
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Bạn chưa thuê phòng nên không thể đánh giá!");
 
             //Thêm đánh giá
             Evaluation evaluation = _mapper.Map<Evaluation>(model);
             evaluation.CreatedBy = evaluation.LastUpdatedBy = curenUserId;
 
-            roomTypeDetail.AverageStart = (roomTypeDetail.AverageStart + model.Starts) / 2;
+            roomType.AverageStart = (roomType.AverageStart + model.Starts) / 2;
 
-            await _unitOfWork.GetRepository<RoomTypeDetail>().InsertAsync(roomTypeDetail);
+            await _unitOfWork.GetRepository<RoomType>().InsertAsync(roomType);
             await _unitOfWork.GetRepository<Evaluation>().InsertAsync(evaluation);
             await _unitOfWork.SaveChangesAsync();
             //Thêm hình ảnh
@@ -178,7 +179,6 @@ namespace Hotel.Application.Services
                         EvaluationID = evaluation.Id,
                     };
 
-                 
                     await _unitOfWork.GetRepository<ImageEvaluation>().InsertAsync(imageEvaluation);
                     await _unitOfWork.SaveChangesAsync();
                 }

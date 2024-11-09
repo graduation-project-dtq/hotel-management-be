@@ -20,11 +20,14 @@ namespace Hotel.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
-        public ServiceService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
+        private readonly IFirebaseService _firebaseService;
+        private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+        public ServiceService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IFirebaseService firebaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _contextAccessor = contextAccessor;
+            _firebaseService = firebaseService;
         }
 
         //Lấy thông tin service
@@ -44,22 +47,12 @@ namespace Hotel.Application.Services
             if (!string.IsNullOrWhiteSpace(idSearch))
             {
                 query = query.Where(r => r.Id.ToString() == idSearch);
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy dịch vu với ID đã cho!");
-                }
             }
 
             // Áp dụng điều kiện tìm kiếm theo tên
             if (!string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(r => r.Name.Contains(nameSearch));
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với tên đã cho!");
-                }
             }
 
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
@@ -114,46 +107,61 @@ namespace Hotel.Application.Services
 
         //Tạo dịch vụ mới
 
-        public async Task CreateService(PostServiceDTO model)
+        public async Task<GetServiceDTO> CreateService(ICollection<IFormFile> ? images,PostServiceDTO model)
         {
             if(model.Price<=0 || model.Price % 1!=0)
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Giá tiền phải lớn hơn không và là số nguyên dương");
             }   
-            string userID=Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
-            Service service = new Service()
-            {
-                Name = model.Name,
-                Price = model.Price > 0 ? model.Price : 0,
-                Description=model.Description,
-            };
-            await _unitOfWork.SaveChangesAsync();
+           
+            Service service = _mapper.Map<Service>(model);
+            service.CreatedBy = currentUserId;
+            service.LastUpdatedBy = currentUserId;
+
             await _unitOfWork.GetRepository<Service>().InsertAsync(service);
-            if (model.PostImageServiceDTOs !=null  )
+            await _unitOfWork.SaveChangesAsync();
+            //Thêm hình ảnh
+
+            if(images != null)
             {
-                //Thêm ảnh
-                foreach(var item in model.PostImageServiceDTOs)
+                foreach (var item in images)
                 {
+                    PostImageViewModel postImageViewModel = new PostImageViewModel()
+                    {
+                        File = item
+                    };
+                    string url = await _firebaseService.UploadFileAsync(postImageViewModel);
+
                     Image image = new Image()
                     {
-                        URL=item.URL,
-                        CreatedBy=userID,
-                        LastUpdatedBy=userID,
-                        CreatedTime=CoreHelper.SystemTimeNow,
-                        LastUpdatedTime=CoreHelper.SystemTimeNow,
+                        URL = url,
+                        CreatedBy = currentUserId,
+                        LastUpdatedBy = currentUserId,
                     };
                     await _unitOfWork.GetRepository<Image>().InsertAsync(image);
                     await _unitOfWork.SaveChangesAsync();
+
                     Hotel.Domain.Entities.ImageService imageService = new Hotel.Domain.Entities.ImageService()
                     {
-                        ImageID = image.Id,
+                        ImageID=image.Id,
                         ServiceID=service.Id,
                     };
-             
                     await _unitOfWork.GetRepository<Hotel.Domain.Entities.ImageService>().InsertAsync(imageService);
+                    await _unitOfWork.SaveChangesAsync();
+
                 }
-            }
-            await _unitOfWork.SaveChangesAsync();
+            }    
+
+            //Trả dữ liệu ra
+            GetServiceDTO getServiceDTO= _mapper.Map<GetServiceDTO>(service);
+
+            getServiceDTO.GetImageServiceDTOs = service.ImageServices != null ? service.ImageServices.Select(img=>new GetImageServiceDTO()
+            { 
+                URL=img.Image != null ? img.Image.URL : string.Empty,
+            }).ToList()
+            : new List<GetImageServiceDTO>();
+
+            return getServiceDTO;
         }
 
         public async Task UpdateService(string id, PutServiceDTO model)
@@ -173,7 +181,6 @@ namespace Hotel.Application.Services
             service.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
             await _unitOfWork.GetRepository<Service>().UpdateAsync(service);
-
             await _unitOfWork.SaveChangesAsync();
         }
 

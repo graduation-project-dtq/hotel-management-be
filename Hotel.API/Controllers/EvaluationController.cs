@@ -1,12 +1,10 @@
-﻿using Hotel.Application.DTOs.BookingDTO;
-using Hotel.Application.DTOs.EvaluationDTO;
+﻿using Hotel.Application.DTOs.EvaluationDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sprache;
 
 namespace Hotel.API.Controllers
 {
@@ -20,9 +18,9 @@ namespace Hotel.API.Controllers
             _evaluationService = evaluationService;
         }
         [HttpGet("getPage")]
-        public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string customerID = "", string roomTypeDetailId = "")
+        public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string customerID = "", string roomTypeId = "")
         {
-            PaginatedList<GetEvaluationDTO> result = await _evaluationService.GetPageAsync( index,  pageSize, idSearch, customerID, roomTypeDetailId);
+            PaginatedList<GetEvaluationDTO> result = await _evaluationService.GetPageAsync( index,  pageSize, idSearch, customerID, roomTypeId);
             return Ok(new BaseResponse<PaginatedList<GetEvaluationDTO>>(
                statusCode: StatusCodes.Status200OK,
                code: ResponseCodeConstants.SUCCESS,
@@ -31,9 +29,9 @@ namespace Hotel.API.Controllers
            ));
         }
         [HttpGet("all")]
-        public async Task<IActionResult>  GetEvaluationAsync(string roomTypeDetailId)
+        public async Task<IActionResult>  GetEvaluationAsync(string roomTypeId)
         {
-            List<GetEvaluationDTO> result = await _evaluationService.GetEvaluationAsync(roomTypeDetailId);
+            List<GetEvaluationDTO> result = await _evaluationService.GetEvaluationAsync(roomTypeId);
             return Ok(new BaseResponse<List<GetEvaluationDTO>>(
                statusCode: StatusCodes.Status200OK,
                code: ResponseCodeConstants.SUCCESS,
@@ -44,6 +42,7 @@ namespace Hotel.API.Controllers
 
         [HttpPost]
         [Consumes("multipart/form-data")]
+        [Authorize(Roles ="CUSTOMER")]
         public async Task<IActionResult> CreateEvaluationAsync([FromForm] List<IFormFile>? images, [FromForm] PostEvaluationDTO model)
         {
             await _evaluationService.CreateEvaluationAsync(images, model);

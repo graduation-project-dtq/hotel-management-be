@@ -9,7 +9,6 @@ namespace Hotel.Domain.Entities
 
         [ForeignKey("PriceAdjustmentPlan")]
         public string PriceAdjustmentPlanId { get; set; } = string.Empty;
-
         public virtual RoomTypeDetail ? RoomTypeDetail { get; set; }
         public virtual PriceAdjustmentPlan ? PriceAdjustmentPlan { get; set; }
     }

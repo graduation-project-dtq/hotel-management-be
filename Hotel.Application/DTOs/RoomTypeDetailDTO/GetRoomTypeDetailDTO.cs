@@ -18,7 +18,7 @@ namespace Hotel.Application.DTOs.RoomTypeDetailDTO
         public int ? CapacityMax { get; set; }
         public decimal ? Area { get; set; }
         public string ? Description { get; set; }
-        public float ? AverageStart { get; set; }
+      
         
         public virtual ICollection<GetImageRoomTypeDetailDTO> ? ImageRoomTypeDetailDTOs {  get; set; }
     }

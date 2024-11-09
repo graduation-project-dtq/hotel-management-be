@@ -14,13 +14,10 @@ namespace Hotel.Domain.Entities
         public decimal Area { get; set; }
         public decimal BasePrice {  get; set; } //Giá cơ bản
         public string ? Description { get; set; } = string.Empty;
-        public float AverageStart { get; set; }
+        //public float AverageStart { get; set; }
         public virtual RoomType ? RoomType { get; set; }
         public virtual ICollection<ImageRoomTypeDetail> ? ImageRoomTypeDetails { get; set; }
         public virtual ICollection<RoomPriceAdjustment> ? RoomPriceAdjustments { get; set; }
-        public RoomTypeDetail()
-        {
-            AverageStart = 5;
-        }
+      
     }
 }

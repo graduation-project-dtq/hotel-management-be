@@ -346,18 +346,18 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("LastUpdatedTime")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("RoomTypeDetailId")
+                    b.Property<string>("RoomTypeId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Starts")
-                        .HasColumnType("int");
+                    b.Property<float>("Starts")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("RoomTypeDetailId");
+                    b.HasIndex("RoomTypeId");
 
                     b.ToTable("Evaluations");
                 });
@@ -380,7 +380,6 @@ namespace Hotel.Infrastructure.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InternalCode")
@@ -847,6 +846,9 @@ namespace Hotel.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<float>("AverageStart")
+                        .HasColumnType("real");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -888,9 +890,6 @@ namespace Hotel.Infrastructure.Migrations
 
                     b.Property<decimal>("Area")
                         .HasColumnType("decimal(18, 2)");
-
-                    b.Property<float>("AverageStart")
-                        .HasColumnType("real");
 
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(18,2)");
@@ -1144,15 +1143,15 @@ namespace Hotel.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Hotel.Domain.Entities.RoomTypeDetail", "RoomTypeDetail")
-                        .WithMany()
-                        .HasForeignKey("RoomTypeDetailId")
+                    b.HasOne("Hotel.Domain.Entities.RoomType", "RoomType")
+                        .WithMany("Evaluations")
+                        .HasForeignKey("RoomTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
 
-                    b.Navigation("RoomTypeDetail");
+                    b.Navigation("RoomType");
                 });
 
             modelBuilder.Entity("Hotel.Domain.Entities.FacilitiesRoom", b =>
@@ -1463,6 +1462,8 @@ namespace Hotel.Infrastructure.Migrations
 
             modelBuilder.Entity("Hotel.Domain.Entities.RoomType", b =>
                 {
+                    b.Navigation("Evaluations");
+
                     b.Navigation("ImageRoomTypes");
 
                     b.Navigation("RoomTypeDetails");
