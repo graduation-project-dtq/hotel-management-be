@@ -1,5 +1,4 @@
 ﻿using Hotel.Application.DTOs.ImageDTO;
-using Hotel.Domain.Entities;
 
 namespace Hotel.Application.DTOs.FacilitiesDTO
 {

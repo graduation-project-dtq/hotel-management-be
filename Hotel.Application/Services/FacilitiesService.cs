@@ -34,6 +34,7 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status409Conflict, ResponseCodeConstants.DUPLICATE, "Đã tồn tại tên này");
             }
+            return null;
         }
         //public async Task<GetFacilitiesDTO> UpdateFacilities(string id, PutFacilitiesDTO model)
         //{
