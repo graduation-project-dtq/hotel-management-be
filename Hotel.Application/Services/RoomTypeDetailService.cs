@@ -1,5 +1,4 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.DTOs.RoomTypeDetailDTO;
 using Hotel.Application.Extensions;
@@ -21,12 +20,16 @@ namespace Hotel.Application.Services
         private readonly IMapper _mapper;
         private readonly ILogger<RoomTypeDetailService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public RoomTypeDetailService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RoomTypeDetailService> logger, IHttpContextAccessor httpContextAccessor)
+        private readonly IFirebaseService _firebaseService;
+        private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_httpContextAccessor);
+        public RoomTypeDetailService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RoomTypeDetailService> logger
+            , IHttpContextAccessor httpContextAccessor, IFirebaseService firebaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _firebaseService = firebaseService;
         }
         public async Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail()
         {
@@ -38,12 +41,10 @@ namespace Hotel.Application.Services
         //Tìm kiếm theo ID
         public async Task<GetRoomTypeDetailDTO> GetById(string id)
         {
-            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
-            if (!regex.IsMatch(id.Trim()))
+            if(string.IsNullOrWhiteSpace(id))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT,"Vui lòng chọn loại phòng");
             }
-
             RoomTypeDetail roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>().
                 Entities.FirstOrDefaultAsync(r=>r.Id== id)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
@@ -90,16 +91,15 @@ namespace Hotel.Application.Services
         //Tìm kiếm theo RoomTypeID
         public async Task<List<GetRoomTypeDetailDTO>> GetByRoomTypeId(string id)
         {
-            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
-            if (!regex.IsMatch(id.Trim()))
+            if (string.IsNullOrWhiteSpace(id))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn loại phòng");
             }
             List<RoomTypeDetail> roomTypeDetails =
                 await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
                 .Include(r=>r.RoomPriceAdjustments)
                 .Where(r=>r.RoomTypeID==id).ToListAsync()
-                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại theo ID!");
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
             //Gắn thêm hình vào
             foreach (var item in roomTypeDetails)
             {
@@ -170,60 +170,91 @@ namespace Hotel.Application.Services
         }
 
         //Tạo loại phòng mới
-        public async Task<RoomTypeDetail> CreateRoomTypeDetail(PostRoomTypeDetailDTO portRoomTypeDetail)
+        public async Task<GetRoomTypeDetailDTO> CreateRoomTypeDetail(ICollection<IFormFile> images,PostRoomTypeDetailDTO model)
         {
-            var roomtype = await _unitOfWork.GetRepository<RoomType>()
-                .Entities.FirstOrDefaultAsync(r => r.Id == portRoomTypeDetail.RoomTypeID);
+            RoomType roomType= await _unitOfWork.GetRepository<RoomType>().Entities
+                .Where(r=>r.Id.Equals(model.RoomTypeID) && !r.DeletedTime.HasValue)
+                .FirstOrDefaultAsync()
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.EXISTED, "Không tồn tại loại phòng!");
 
-            if (roomtype == null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.EXISTED, "Không tồn tại loại phòng!");
-            }
-
-            var roomTypeDetailExit = await _unitOfWork.GetRepository<RoomTypeDetail>()
-                .Entities.FirstOrDefaultAsync(r => r.Name == portRoomTypeDetail.Name);
+            RoomTypeDetail ? roomTypeDetailExit = await _unitOfWork.GetRepository<RoomTypeDetail>()
+                .Entities.FirstOrDefaultAsync(r => r.Name == model.Name);
 
             if (roomTypeDetailExit != null)
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.DUPLICATE, "Chi tiết loại phòng đã tồn tại!");
             }
+            RoomTypeDetail roomTypeDetail = _mapper.Map<RoomTypeDetail>(model);
 
-            try
+            roomTypeDetail.CreatedBy = currentUserId;
+            roomTypeDetail.LastUpdatedBy = currentUserId;
+
+            await _unitOfWork.GetRepository<RoomTypeDetail>().InsertAsync(roomTypeDetail);
+            await _unitOfWork.SaveChangesAsync();
+
+            //Thêm hình ảnh
+            if (images != null)
             {
-                string userID = Authentication.GetUserIdFromHttpContextAccessor(_httpContextAccessor);
-                RoomTypeDetail roomTypeDetail = _mapper.Map<RoomTypeDetail>(portRoomTypeDetail);
+                foreach (var item in images)
+                {
+                    PostImageViewModel postImageView = new PostImageViewModel()
+                    {
+                        File = item
+                    };
+                    string url = await _firebaseService.UploadFileAsync(postImageView);
 
-                roomTypeDetail.CreatedBy = userID;
-                roomTypeDetail.LastUpdatedBy = userID;
+                    Image image = new Image()
+                    {
+                        URL = url
+                    };
+                    await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+                    await _unitOfWork.SaveChangesAsync();
 
-                await _unitOfWork.GetRepository<RoomTypeDetail>().InsertAsync(roomTypeDetail);
-                await _unitOfWork.SaveChangesAsync();
+                    ImageRoomTypeDetail imageRoomType = new ImageRoomTypeDetail()
+                    {
+                        ImageID = image.Id,
+                        RoomTypeDetailID = roomType.Id
+                    };
+                    await _unitOfWork.GetRepository<ImageRoomTypeDetail>().InsertAsync(imageRoomType);
+                    await _unitOfWork.SaveChangesAsync();
 
-                return roomTypeDetail;
+                }
             }
-            catch (DbUpdateException dbEx)
+            RoomTypeDetail ? resultRoomType = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
+                .Where(r=>r.Id.Equals(roomType.Id) && !r.DeletedTime.HasValue).FirstOrDefaultAsync();
+
+            GetRoomTypeDetailDTO getRoomTypeDetailDTO = new GetRoomTypeDetailDTO();
+            if (resultRoomType != null)
             {
-                _logger.LogError(dbEx, "Lỗi khi lưu RoomTypeDetail: {Message}", dbEx.InnerException?.Message);
-                throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, $"Thêm thất bại: {dbEx.InnerException?.Message}");
+                //getRoomTypeDetailDTO.Id = resultRoomType.Id;
+                //getRoomTypeDetailDTO.Name = resultRoomType.Name;
+                //getRoomTypeDetailDTO.DiscountPrice= resultRoomType.BasePrice;
+                //getRoomTypeDetailDTO.BasePrice = resultRoomType.BasePrice;
+                //getRoomTypeDetailDTO.RoomTypeID = resultRoomType.RoomTypeID;
+                //getRoomTypeDetailDTO.AverageStart = resultRoomType.AverageStart;
+                //getRoomTypeDetailDTO.CapacityMax = resultRoomType.CapacityMax;
+                getRoomTypeDetailDTO= _mapper.Map<GetRoomTypeDetailDTO>(resultRoomType);
+                getRoomTypeDetailDTO.DiscountPrice = resultRoomType.BasePrice;
+
+                getRoomTypeDetailDTO.ImageRoomTypeDetailDTOs = resultRoomType.ImageRoomTypeDetails != null ?
+                    resultRoomType.ImageRoomTypeDetails.Select(img => new GetImageRoomTypeDetailDTO()
+                    {
+                        URL = img.Image != null ? img.Image.URL : string.Empty,
+                    }).ToList() 
+                    : new List<GetImageRoomTypeDetailDTO>();
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi không xác định: {Message}", ex.Message);
-                throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Thêm thất bại!");
-            }
+          
+            return getRoomTypeDetailDTO;
         }
 
 
         //TÌm phòng còn trống
         public async Task<List<List<GetRoomTypeDetailDTO>>> FindRoom(int soNguoi,string roomTypeID)
         {
+             
             if(String.IsNullOrWhiteSpace(roomTypeID))
             {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không được để trống số người ở!");
-            }  
-            if(String.IsNullOrWhiteSpace(roomTypeID))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Không được để trống số loại phòng!");
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn loại phòng!");
 
             }
             // Lấy danh sách phòng từ cơ sở dữ liệu mà không có DeletedTime

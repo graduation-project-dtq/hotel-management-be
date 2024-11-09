@@ -124,16 +124,57 @@ namespace Hotel.Application.Services
             }
             return roomTypeDTO;
         }
-        public async Task<RoomType> CreateRoomType(PortRoomTypeDTO model)
+        public async Task<GetRoomTypeDTO> CreateRoomType(ICollection<IFormFile>? images,PortRoomTypeDTO model)
         {
             RoomType roomType = _mapper.Map<RoomType>(model);
             roomType.CreatedBy = currentUserId;
             roomType.LastUpdatedBy = currentUserId;
 
+
             await _unitOfWork.GetRepository<RoomType>().InsertAsync(roomType);
             await _unitOfWork.SaveChangesAsync();
+            if (images != null)
+            {
+                foreach (var item in images)
+                {
+                    PostImageViewModel postImageView = new PostImageViewModel()
+                    {
+                        File = item
+                    };
+                    string url = await _firebaseService.UploadFileAsync(postImageView);
 
-            return roomType;
+                    Image image = new Image()
+                    {
+                        URL = url
+                    };
+                    await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    ImageRoomType imageRoomType = new ImageRoomType()
+                    {
+                        ImageID = image.Id,
+                        RoomTypeID = roomType.Id
+                    };
+                    await _unitOfWork.GetRepository<ImageRoomType>().InsertAsync(imageRoomType);
+                    await _unitOfWork.SaveChangesAsync();
+
+                }
+            }
+
+            RoomType? getroomType = await _unitOfWork.GetRepository<RoomType>().Entities
+                .Where(r=>r.Id.Equals(roomType.Id) && !r.DeletedTime.HasValue).FirstOrDefaultAsync();
+
+            GetRoomTypeDTO getRoomTypeDTO = new GetRoomTypeDTO()
+            {
+                Id= getroomType.Id,
+                Name= getroomType.Name,
+                Description= getroomType.Description,
+                ImageRoomTypes = getroomType.ImageRoomTypes != null ? getroomType.ImageRoomTypes.Select(img=> new GetImageRoomTypeDTO()
+                {
+                    URL=img.ImageID != null ? img.Image.URL : string.Empty,
+                }).ToList(): new List<GetImageRoomTypeDTO>()
+            };
+            return getRoomTypeDTO;
         }
         public async Task DeleteRoomType(string id)
         {

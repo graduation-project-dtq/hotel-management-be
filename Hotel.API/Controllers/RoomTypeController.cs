@@ -1,8 +1,11 @@
-﻿using Hotel.Application.DTOs.RoomTypeDTO;
+﻿using Hotel.Application.DTOs.EvaluationDTO;
+using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
+using Hotel.Application.Services;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
+using Hotel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,17 +57,35 @@ namespace Hotel.API.Controllers
         /// <summary>
         /// Tạo loại phòng mới
         /// <param name="id"></param>
+        //[HttpPost]
+        //[Consumes("multipart/form-data")]
+       
+        //public async Task<IActionResult> CreateRoomType([FromForm] List<IFormFile> ? images,[FromBody] PortRoomTypeDTO model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    GetRoomTypeDTO result = await _roomTypeService.CreateRoomType(images,model);
+        //    return Ok(new BaseResponseModel<GetRoomTypeDTO>(
+        //        statusCode: StatusCodes.Status200OK,
+        //        code: ResponseCodeConstants.SUCCESS,
+        //        data: result,
+        //        message: "Tạo thành công"
+        //    ));
+        //}
         [HttpPost]
+        [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
-        public async Task<IActionResult> CreateRoomType([FromBody] PortRoomTypeDTO model)
+        public async Task<IActionResult> CreateRoomType([FromForm] List<IFormFile>? images, [FromForm] PortRoomTypeDTO model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var roomType = await _roomTypeService.CreateRoomType(model);
-            return CreatedAtAction(nameof(GetAllRoomType), new { id = roomType.Id }, roomType);
+            GetRoomTypeDTO result = await _roomTypeService.CreateRoomType(images, model);
+            return Ok(new BaseResponseModel<GetRoomTypeDTO>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Tạo thành công"
+            ));
         }
-
         /// <summary>
         /// Xoá loại phòng theo ID
         /// <param name="id"></param>

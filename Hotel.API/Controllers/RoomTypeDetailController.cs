@@ -38,19 +38,19 @@ namespace Hotel.API.Controllers
         /// <summary>
         /// Tạo loại phòng mới
         /// <param name="model"></param>
-        [HttpPost]
-        [Authorize(Roles = "ADMIN,EMPLOYEE")]
-        public async Task<IActionResult> CreateRoomTypeDetail([FromBody] PostRoomTypeDetailDTO model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        //[HttpPost]
+        //[Authorize(Roles = "ADMIN,EMPLOYEE")]
+        //public async Task<IActionResult> CreateRoomTypeDetail([FromBody] PostRoomTypeDetailDTO model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
 
-            var roomTypeDetail = await _roomTypeDetailService.CreateRoomTypeDetail(model);
-            return Ok(new BaseResponse<RoomTypeDetail>(
-             statusCode: StatusCodes.Status200OK,
-             code: ResponseCodeConstants.SUCCESS,
-             data: roomTypeDetail));
-        }
+        //    var roomTypeDetail = await _roomTypeDetailService.CreateRoomTypeDetail(model);
+        //    return Ok(new BaseResponse<RoomTypeDetail>(
+        //     statusCode: StatusCodes.Status200OK,
+        //     code: ResponseCodeConstants.SUCCESS,
+        //     data: roomTypeDetail));
+        //}
 
         /// <summary>
         /// Tìm kiếm loại phòng theo ID
