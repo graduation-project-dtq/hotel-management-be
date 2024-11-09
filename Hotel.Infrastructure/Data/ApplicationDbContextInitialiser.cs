@@ -108,7 +108,7 @@ namespace Hotel.Infrastructure.Data
             }
         }
 
-
+       
         private async Task addAccount()
         {
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
@@ -132,6 +132,27 @@ namespace Hotel.Infrastructure.Data
                     await _unitOfWork.SaveChangesAsync();
                 }
             }
+        }
+        private async Task addEmployee()
+        {
+            Employee employee = new Employee()
+            {
+                Id = "bce67c17cdd9476abd8644bd5abd47bf",
+                AccountID = "bce67c17cdd9476abd8644bd5abd47bf",
+                Name = "Admin",
+                IdentityCard = "123456789",
+                Sex = "None",
+                DateOfBirth = DateTime.MinValue, 
+                Address = string.Empty,
+                HireDate = DateTime.MinValue 
+            };
+            bool exitEmploee= await _unitOfWork.GetRepository<Employee>().Entities.Where(e=>e.Id.Equals(employee.Id) && !e.DeletedTime.HasValue).AnyAsync();
+            
+            if(!exitEmploee)
+            {
+                await _unitOfWork.GetRepository<Employee>().InsertAsync(employee);
+                await _unitOfWork.SaveChangesAsync();
+            }    
         }
         private async Task addRoomType()
         {
