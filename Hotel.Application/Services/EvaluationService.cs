@@ -155,7 +155,7 @@ namespace Hotel.Application.Services
 
             roomType.AverageStart = (roomType.AverageStart + model.Starts) / 2;
 
-            await _unitOfWork.GetRepository<RoomType>().InsertAsync(roomType);
+            await _unitOfWork.GetRepository<RoomType>().UpdateAsync(roomType);
             await _unitOfWork.GetRepository<Evaluation>().InsertAsync(evaluation);
             await _unitOfWork.SaveChangesAsync();
             //Thêm hình ảnh
