@@ -71,6 +71,7 @@ namespace Hotel.Application.Services
                    Comment = e.Comment,
                    RoomTypeId = e.RoomTypeId,
                    Starts= e.Starts,
+                   LastUpdatedTime = e.LastUpdatedTime,
                    Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                    {
                        URL = img.Image != null && img.Image.URL != null
@@ -113,6 +114,7 @@ namespace Hotel.Application.Services
                     Comment = e.Comment,
                     RoomTypeId = e.RoomTypeId,
                     Starts = e.Starts,
+                    LastUpdatedTime=e.LastUpdatedTime,
                     Customer = _mapper.Map<GetCustomerDTO>(e.Customer != null ? e.Customer : null),
                     Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                     {

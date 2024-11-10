@@ -11,6 +11,7 @@ namespace Hotel.Application.DTOs.EvaluationDTO
         public string RoomTypeId { get; set; } = string.Empty;
         public string Comment { get; set; } = string.Empty;
         public float Starts { get; set; }
+        public DateTimeOffset LastUpdatedTime { get; set; }
         public virtual GetCustomerDTO ? Customer { get; set; }
         public virtual ICollection<GetImage>? Images { get; set; }
     }

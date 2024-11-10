@@ -33,9 +33,75 @@ namespace Hotel.Application.Services
         }
         public async Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail()
         {
-            List<GetRoomTypeDetailDTO> roomTypeDetails = _mapper.Map<List<GetRoomTypeDetailDTO>>(await _unitOfWork.GetRepository<RoomTypeDetail>()
-              .Entities.Where(r => r.DeletedTime == null).ToListAsync());
-            return roomTypeDetails;
+            List<RoomTypeDetail> roomTypeDetails =
+                await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
+                .Include(r => r.RoomPriceAdjustments)
+                .Where(r => !r.DeletedTime.HasValue).ToListAsync();
+            //Gắn thêm hình vào
+            foreach (var item in roomTypeDetails)
+            {
+                item.ImageRoomTypeDetails = new List<ImageRoomTypeDetail>();
+                var listImage = _unitOfWork.GetRepository<ImageRoomTypeDetail>()
+                    .Entities.Where(i => i.RoomTypeDetailID == item.Id).ToList();
+
+                // Thêm từng ảnh vào 
+                if (listImage != null)
+                {
+                    foreach (var image in listImage)
+                    {
+                        if (!item.ImageRoomTypeDetails.Any(i => i.ImageID == image.ImageID))
+                        {
+                            item.ImageRoomTypeDetails.Add(image);
+                        }
+                    }
+                }
+            }
+
+            List<GetRoomTypeDetailDTO> list = new List<GetRoomTypeDetailDTO>();
+
+            foreach (var item in roomTypeDetails)
+            {
+
+                var roomTypeDetailDTO = new GetRoomTypeDetailDTO()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Description = item.Description,
+                    CapacityMax = item.CapacityMax,
+                    BasePrice = item.BasePrice,
+                    DiscountPrice = item.BasePrice,
+                    Area = item.Area,
+                };
+                if (item.ImageRoomTypeDetails != null)
+                {
+                    roomTypeDetailDTO.ImageRoomTypeDetailDTOs = new List<GetImageRoomTypeDetailDTO>();
+                    foreach (var image in item.ImageRoomTypeDetails)
+                    {
+                        var imageDTO = await _unitOfWork.GetRepository<Image>().Entities.FirstOrDefaultAsync(i => i.Id == image.ImageID);
+                        if (imageDTO != null)
+                        {
+                            var imageRoomTypeDetail = new GetImageRoomTypeDetailDTO()
+                            {
+                                URL = imageDTO.URL
+                            };
+                            if (!roomTypeDetailDTO.ImageRoomTypeDetailDTOs.Any(i => i.URL == imageRoomTypeDetail.URL))
+                            {
+                                roomTypeDetailDTO.ImageRoomTypeDetailDTOs.Add(imageRoomTypeDetail);
+                            }
+                        }
+                    }
+                }
+                if (item.RoomPriceAdjustments != null)
+                {
+                    decimal discount = await GetDiscountPrice(roomTypeDetailDTO.Id);
+                    if (discount != 0)
+                    {
+                        roomTypeDetailDTO.DiscountPrice = discount;
+                    }
+                }
+                list.Add(roomTypeDetailDTO);
+            }
+            return list;
         }
 
         //Tìm kiếm theo ID
