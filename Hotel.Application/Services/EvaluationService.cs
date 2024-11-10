@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hotel.Application.DTOs.CustomerDTO;
 using Hotel.Application.DTOs.EvaluationDTO;
 using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Extensions;
@@ -112,6 +113,7 @@ namespace Hotel.Application.Services
                     Comment = e.Comment,
                     RoomTypeId = e.RoomTypeId,
                     Starts = e.Starts,
+                    Customer = _mapper.Map<GetCustomerDTO>(e.Customer != null ? e.Customer : null),
                     Images = e.ImageEvaluations != null ? e.ImageEvaluations.Select(img => new GetImage()
                     {
                         URL = img.Image != null && img.Image.URL != null
