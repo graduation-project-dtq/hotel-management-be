@@ -100,9 +100,12 @@ namespace Hotel.Application.Services
                 query = query.Where(bk => bk.CheckInDate == checkInDate);
             }
             //Tìm theo status
-
+            if(status!= null)
+            {
+                query = query.Where(bk => bk.Status == status);
+            }
             //Tìm theo phone
-            if(string.IsNullOrWhiteSpace(phone))
+            if(!string.IsNullOrWhiteSpace(phone))
             {
                 query = query.Where(bk => bk.PhoneNumber.Equals(phone));
             }
