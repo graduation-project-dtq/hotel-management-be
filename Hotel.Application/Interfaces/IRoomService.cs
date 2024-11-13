@@ -10,7 +10,7 @@ namespace Hotel.Application.Interfaces
         Task<GetRoomDTO> CreateRoom(PostRoomDTO portRoom);
         Task<GetRoomDTO> GetRoomById(string id);
         Task<List<GetRoomDTO>> FindRoomBooking(FindRoomDTO model);
-        Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch,string nameSreach);
+        //Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch,string nameSreach, DateOnly dateToCheck);
 
     }
 }

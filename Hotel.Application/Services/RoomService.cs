@@ -29,112 +29,112 @@ namespace Hotel.Application.Services
             _logger = logger;
             _contextAccessor = contextAccessor;
         }
-        public async Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch, DateOnly dateToCheck)
-        {
-            if (index <= 0 || pageSize <= 0)
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
-            }
+        //public async Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch, DateOnly dateToCheck)
+        //{
+        //    if (index <= 0 || pageSize <= 0)
+        //    {
+        //        throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
+        //    }
 
-            IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
-                .Include(r => r.Floor)
-                .Include(r => r.RoomTypeDetail)
-                .Where(c => !c.DeletedTime.HasValue)
-                .OrderByDescending(c => c.CreatedTime);
+        //    IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
+        //        .Include(r => r.Floor)
+        //        .Include(r => r.RoomTypeDetail)
+        //        .Where(c => !c.DeletedTime.HasValue)
+        //        .OrderByDescending(c => c.CreatedTime);
 
-            // Áp dụng điều kiện tìm kiếm theo ID
-            if (!string.IsNullOrWhiteSpace(idSearch))
-            {
-                query = query.Where(r => r.Id.ToString() == idSearch);
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với ID đã cho!");
-                }
-            }
+        //    // Áp dụng điều kiện tìm kiếm theo ID
+        //    if (!string.IsNullOrWhiteSpace(idSearch))
+        //    {
+        //        query = query.Where(r => r.Id.ToString() == idSearch);
+        //        bool exists = await query.AnyAsync();
+        //        if (!exists)
+        //        {
+        //            throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với ID đã cho!");
+        //        }
+        //    }
 
-            // Áp dụng điều kiện tìm kiếm theo tên
-            if (!string.IsNullOrWhiteSpace(nameSearch))
-            {
-                query = query.Where(r => r.Name.Contains(nameSearch));
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với tên đã cho!");
-                }
-            }
+        //    // Áp dụng điều kiện tìm kiếm theo tên
+        //    if (!string.IsNullOrWhiteSpace(nameSearch))
+        //    {
+        //        query = query.Where(r => r.Name.Contains(nameSearch));
+        //        bool exists = await query.AnyAsync();
+        //        if (!exists)
+        //        {
+        //            throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với tên đã cho!");
+        //        }
+        //    }
 
-            // Kiểm tra trạng thái booking trong ngày kiểm tra và cập nhật trạng thái phòng
-            var roomsWithBookingStatus = await _unitOfWork.GetRepository<Booking>()
-                .Entities
-                .Where(b => b.CheckInDate <= dateToCheck && b.CheckOutDate >= dateToCheck
-                            && (b.Status == EnumBooking.CONFIRMED || b.Status == EnumBooking.CANCELLATIONREQUEST || b.Status == EnumBooking.CHECKEDIN))
-                .Select(b => new
-                {
-                    BookingId = b.Id,
-                    RoomIds = b.BookingDetails.Select(bd => bd.RoomID),
-                    Status = b.Status
-                })
-                .ToListAsync();
+        //    // Kiểm tra trạng thái booking trong ngày kiểm tra và cập nhật trạng thái phòng
+        //    var roomsWithBookingStatus = await _unitOfWork.GetRepository<Booking>()
+        //        .Entities
+        //        .Where(b => b.CheckInDate <= dateToCheck && b.CheckOutDate >= dateToCheck
+        //                    && (b.Status == EnumBooking.CONFIRMED || b.Status == EnumBooking.CANCELLATIONREQUEST || b.Status == EnumBooking.CHECKEDIN))
+        //        .Select(b => new
+        //        {
+        //            BookingId = b.Id,
+        //            RoomIds = b.BookingDetails.Select(bd => bd.RoomID),
+        //            Status = b.Status
+        //        })
+        //        .ToListAsync();
 
-            var roomsBookedIds = roomsWithBookingStatus.SelectMany(b => b.RoomIds).Distinct().ToList();
+        //    var roomsBookedIds = roomsWithBookingStatus.SelectMany(b => b.RoomIds).Distinct().ToList();
 
-            // Cập nhật trạng thái phòng dựa trên trạng thái booking
-            foreach (var room in query)
-            {
-                var roomBookingStatus = roomsWithBookingStatus.FirstOrDefault(b => b.RoomIds.Contains(room.Id));
-                if (roomBookingStatus != null)
-                {
-                    if (roomBookingStatus.Status == EnumBooking.CHECKEDIN)
-                    {
-                        room. = EnumRoom.Inhabited;  // Phòng đã check-in
-                    }
-                    else if (roomBookingStatus.Status == EnumBooking.CONFIRMED)
-                    {
-                        room.Status = EnumRoom.Reserved;  // Phòng đã xác nhận đặt
-                    }
-                    else if (roomBookingStatus.Status == EnumBooking.CANCELLATIONREQUEST)
-                    {
-                        room.Status = EnumRoom.Uninhabited;  // Phòng đã yêu cầu hủy, không có người ở
-                    }
-                }
-            }
+        //    // Cập nhật trạng thái phòng dựa trên trạng thái booking
+        //    foreach (var room in query)
+        //    {
+        //        var roomBookingStatus = roomsWithBookingStatus.FirstOrDefault(b => b.RoomIds.Contains(room.Id));
+        //        if (roomBookingStatus != null)
+        //        {
+        //            if (roomBookingStatus.Status == EnumBooking.CHECKEDIN)
+        //            {
+        //                room. = EnumRoom.Inhabited;  // Phòng đã check-in
+        //            }
+        //            else if (roomBookingStatus.Status == EnumBooking.CONFIRMED)
+        //            {
+        //                room.Status = EnumRoom.Reserved;  // Phòng đã xác nhận đặt
+        //            }
+        //            else if (roomBookingStatus.Status == EnumBooking.CANCELLATIONREQUEST)
+        //            {
+        //                room.Status = EnumRoom.Uninhabited;  // Phòng đã yêu cầu hủy, không có người ở
+        //            }
+        //        }
+        //    }
 
-            var totalCount = await query.CountAsync();  // Tổng số bản ghi
-            if (totalCount == 0)
-            {
-                return new PaginatedList<GetRoomDTO>(new List<GetRoomDTO>(), totalCount, index, pageSize);
-            }
+        //    var totalCount = await query.CountAsync();  // Tổng số bản ghi
+        //    if (totalCount == 0)
+        //    {
+        //        return new PaginatedList<GetRoomDTO>(new List<GetRoomDTO>(), totalCount, index, pageSize);
+        //    }
 
-            var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
+        //    var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            List<GetRoomDTO> responseItems = new List<GetRoomDTO>();
-            foreach (Room item in resultQuery)
-            {
-                Account account = await _unitOfWork.GetRepository<Account>().GetByIdAsync(item.CreatedBy);
-                GetRoomDTO response = new GetRoomDTO()
-                {
-                    Id = item.Id,
-                    FloorID = item.Floor != null ? item.Floor.Name : null,
-                    RoomTypeDetailId = item.RoomTypeDetail != null ? item.RoomTypeDetail.Name : null,
-                    Name = item.Name,
-                    CreateBy = account != null ? account.Name : item.CreatedBy,
-                    Status = item.Status.ToString()  // Gán trạng thái cho DTO
-                };
-                responseItems.Add(response);
-            }
+        //    List<GetRoomDTO> responseItems = new List<GetRoomDTO>();
+        //    foreach (Room item in resultQuery)
+        //    {
+        //        Account account = await _unitOfWork.GetRepository<Account>().GetByIdAsync(item.CreatedBy);
+        //        GetRoomDTO response = new GetRoomDTO()
+        //        {
+        //            Id = item.Id,
+        //            FloorID = item.Floor != null ? item.Floor.Name : null,
+        //            RoomTypeDetailId = item.RoomTypeDetail != null ? item.RoomTypeDetail.Name : null,
+        //            Name = item.Name,
+        //            CreateBy = account != null ? account.Name : item.CreatedBy,
+        //            Status = item.Status.ToString()  // Gán trạng thái cho DTO
+        //        };
+        //        responseItems.Add(response);
+        //    }
 
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        //    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-            var responsePaginatedList = new PaginatedList<GetRoomDTO>(
-                responseItems,
-                totalCount,
-                index,
-                pageSize
-            );
+        //    var responsePaginatedList = new PaginatedList<GetRoomDTO>(
+        //        responseItems,
+        //        totalCount,
+        //        index,
+        //        pageSize
+        //    );
 
-            return responsePaginatedList;
-        }
+        //    return responsePaginatedList;
+        //}
 
 
         public async Task<List<GetRoomDTO>>GetAllRoom()

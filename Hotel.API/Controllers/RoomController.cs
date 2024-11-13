@@ -24,13 +24,13 @@ namespace Hotel.API.Controllers
 
         /// <summary>
         /// Lấy danh sách phòng
-        /// <param name="index"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="idSearch"></param>
-        /// <param name="nameSearch"></param>
+        /// <param name = "index" ></ param >
+        /// < param name="pageSize"></param>
+        /// <param name = "idSearch" ></ param >
+        /// < param name="nameSearch"></param>
         //[HttpGet]
         ////[Authorize(Roles = "ADMIN,EMPLOYEE")]
-        //public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
+        //public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string nameSearch = "")
         //{
         //    PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch);
         //    return Ok(new BaseResponseModel<PaginatedList<GetRoomDTO>>(
