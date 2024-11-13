@@ -28,18 +28,18 @@ namespace Hotel.API.Controllers
         /// <param name="pageSize"></param>
         /// <param name="idSearch"></param>
         /// <param name="nameSearch"></param>
-        [HttpGet]
-        //[Authorize(Roles = "ADMIN,EMPLOYEE")]
-        public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
-        {
-            PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch);
-            return Ok(new BaseResponseModel<PaginatedList<GetRoomDTO>>(
-                statusCode: StatusCodes.Status200OK,
-                code: ResponseCodeConstants.SUCCESS,
-                message: "Lấy danh sách phòng thành công!",
-                data: result
-            ));
-        }
+        //[HttpGet]
+        ////[Authorize(Roles = "ADMIN,EMPLOYEE")]
+        //public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch="", string nameSearch="")
+        //{
+        //    PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch);
+        //    return Ok(new BaseResponseModel<PaginatedList<GetRoomDTO>>(
+        //        statusCode: StatusCodes.Status200OK,
+        //        code: ResponseCodeConstants.SUCCESS,
+        //        message: "Lấy danh sách phòng thành công!",
+        //        data: result
+        //    ));
+        //}
         /// <summary>
         /// Tìm phòng bằng ID
         /// <param name="id"></param>

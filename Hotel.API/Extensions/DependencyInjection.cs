@@ -163,7 +163,7 @@ namespace Hotel.API.Extensions
             using IServiceScope scope = app.ApplicationServices.CreateScope();
             ApplicationDbContextInitialiser initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
             await initialiser.InitialiseAsync();
-            await initialiser.SeedAsync();
+            //await initialiser.SeedAsync();
         }
     }
 }

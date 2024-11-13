@@ -44,12 +44,12 @@ namespace Hotel.Application.Services
             //Tìm theo Id
             if (!string.IsNullOrWhiteSpace(idSearch))
             {
-                query = query.Where(r => r.Id.ToString() == idSearch);
+                query = query.Where(r => r.Id.Equals(idSearch) );
             }
             //Tìm theo tên
             if (!string.IsNullOrWhiteSpace(nameSearch))
             {
-                query = query.Where(r => r.Name.ToString() == nameSearch);
+                query = query.Where(r => r.Name.Contains(nameSearch));
             }
 
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
@@ -77,6 +77,63 @@ namespace Hotel.Application.Services
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             var responsePaginatedList = new PaginatedList<GetFacilitiesDTO>(
+                responseItems,
+                totalCount,
+                index,
+                pageSize
+            );
+
+            return responsePaginatedList;
+        }
+        //Lấy nội thất theo phòng
+        public async Task<PaginatedList<GetFacilitiesRoomDTO>> GetFacilitiesByRoomId(int index, int pageSize, string roomId,
+         string nameSearch)
+        {
+            if (index <= 0 || pageSize <= 0)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
+            }
+            if(string.IsNullOrWhiteSpace(roomId))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn phòng!");
+
+            }
+            IQueryable<FacilitiesRoom> query = _unitOfWork.GetRepository<FacilitiesRoom>().Entities
+               .Where(e => e.Room.Id.Equals(roomId));
+
+          
+            //Tìm theo tên
+            if (!string.IsNullOrWhiteSpace(nameSearch))
+            {
+                query = query.Where(r => r.Facilities.Name.Contains( nameSearch));
+            }
+
+            var totalCount = await query.CountAsync();  // Tổng số bản ghi
+            if (totalCount == 0)
+            {
+                return new PaginatedList<GetFacilitiesRoomDTO>(new List<GetFacilitiesRoomDTO>(), totalCount, index, pageSize);
+            }
+            var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
+            List<GetFacilitiesRoomDTO> responseItems = query
+             .Select(e => new GetFacilitiesRoomDTO
+             {
+                 //Map thuộc tính
+                 roomId=e.RoomID,
+                 roomName=e.Room.Name,
+                 Name = e.Facilities.Name,
+                 Description = e.Facilities.Description,
+                 Price = e.Facilities.Price,
+                 Images = e.Facilities.ImageFacilities != null ? e.Facilities.ImageFacilities.Select(img => new GetImage()
+                 {
+                     URL = img.Image != null && img.Image.URL != null
+                         ? img.Image.URL
+                         : string.Empty
+                 }).ToList() : new List<GetImage>()
+             })
+             .ToList();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var responsePaginatedList = new PaginatedList<GetFacilitiesRoomDTO>(
                 responseItems,
                 totalCount,
                 index,

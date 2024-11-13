@@ -10,6 +10,10 @@ namespace Hotel.Application.Interfaces
     {
         Task<PaginatedList<GetFacilitiesDTO>> GetPageAsync(int index, int pageSize, string idSearch,
           string nameSearch);
+
+        Task<PaginatedList<GetFacilitiesRoomDTO>> GetFacilitiesByRoomId(int index, int pageSize, string roomId,
+         string nameSearch);
+
         Task<GetFacilitiesDTO> CreateFacilities(ICollection<IFormFile>? images,PostFacilitiesDTO model);
         //Task<GetFacilitiesDTO> UpdateFacilities(string id,PutFacilitiesDTO model);
         //Task DeleteFacilities(string id);

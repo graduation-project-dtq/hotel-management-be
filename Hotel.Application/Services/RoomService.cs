@@ -7,6 +7,8 @@ using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
+using Hotel.Domain.Enums.EnumBooking;
+using Hotel.Domain.Enums.EnumRoom;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +29,7 @@ namespace Hotel.Application.Services
             _logger = logger;
             _contextAccessor = contextAccessor;
         }
-        public async Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch)
+        public async Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch, DateOnly dateToCheck)
         {
             if (index <= 0 || pageSize <= 0)
             {
@@ -35,10 +37,10 @@ namespace Hotel.Application.Services
             }
 
             IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
-                .Include(r=>r.Floor)
-                .Include(r=>r.RoomTypeDetail)
-                 .Where(c => !c.DeletedTime.HasValue)
-                 .OrderByDescending(c => c.CreatedTime);
+                .Include(r => r.Floor)
+                .Include(r => r.RoomTypeDetail)
+                .Where(c => !c.DeletedTime.HasValue)
+                .OrderByDescending(c => c.CreatedTime);
 
             // Áp dụng điều kiện tìm kiếm theo ID
             if (!string.IsNullOrWhiteSpace(idSearch))
@@ -62,6 +64,42 @@ namespace Hotel.Application.Services
                 }
             }
 
+            // Kiểm tra trạng thái booking trong ngày kiểm tra và cập nhật trạng thái phòng
+            var roomsWithBookingStatus = await _unitOfWork.GetRepository<Booking>()
+                .Entities
+                .Where(b => b.CheckInDate <= dateToCheck && b.CheckOutDate >= dateToCheck
+                            && (b.Status == EnumBooking.CONFIRMED || b.Status == EnumBooking.CANCELLATIONREQUEST || b.Status == EnumBooking.CHECKEDIN))
+                .Select(b => new
+                {
+                    BookingId = b.Id,
+                    RoomIds = b.BookingDetails.Select(bd => bd.RoomID),
+                    Status = b.Status
+                })
+                .ToListAsync();
+
+            var roomsBookedIds = roomsWithBookingStatus.SelectMany(b => b.RoomIds).Distinct().ToList();
+
+            // Cập nhật trạng thái phòng dựa trên trạng thái booking
+            foreach (var room in query)
+            {
+                var roomBookingStatus = roomsWithBookingStatus.FirstOrDefault(b => b.RoomIds.Contains(room.Id));
+                if (roomBookingStatus != null)
+                {
+                    if (roomBookingStatus.Status == EnumBooking.CHECKEDIN)
+                    {
+                        room. = EnumRoom.Inhabited;  // Phòng đã check-in
+                    }
+                    else if (roomBookingStatus.Status == EnumBooking.CONFIRMED)
+                    {
+                        room.Status = EnumRoom.Reserved;  // Phòng đã xác nhận đặt
+                    }
+                    else if (roomBookingStatus.Status == EnumBooking.CANCELLATIONREQUEST)
+                    {
+                        room.Status = EnumRoom.Uninhabited;  // Phòng đã yêu cầu hủy, không có người ở
+                    }
+                }
+            }
+
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
             if (totalCount == 0)
             {
@@ -70,8 +108,6 @@ namespace Hotel.Application.Services
 
             var resultQuery = await query.Skip((index - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            // Ánh xạ từ Room sang GetRoomDTO
-            //var responseItems = resultQuery.Select(room => _mapper.Map<GetRoomDTO>(room)).ToList();
             List<GetRoomDTO> responseItems = new List<GetRoomDTO>();
             foreach (Room item in resultQuery)
             {
@@ -81,12 +117,13 @@ namespace Hotel.Application.Services
                     Id = item.Id,
                     FloorID = item.Floor != null ? item.Floor.Name : null,
                     RoomTypeDetailId = item.RoomTypeDetail != null ? item.RoomTypeDetail.Name : null,
-                    Name=item.Name,
-                    CreateBy=account !=null ? account.Name : item.CreatedBy,
+                    Name = item.Name,
+                    CreateBy = account != null ? account.Name : item.CreatedBy,
+                    Status = item.Status.ToString()  // Gán trạng thái cho DTO
                 };
                 responseItems.Add(response);
             }
-            // Tạo danh sách phân trang
+
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             var responsePaginatedList = new PaginatedList<GetRoomDTO>(
@@ -98,6 +135,7 @@ namespace Hotel.Application.Services
 
             return responsePaginatedList;
         }
+
 
         public async Task<List<GetRoomDTO>>GetAllRoom()
         {

@@ -6,8 +6,8 @@ namespace Hotel.Application.DTOs.BookingDTO
     {
         [Required(ErrorMessage = "Không được để trống mã đồ dùng, tài sản!")]
         public string FacilitiesID { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Không được để trống tiền phạt, tài sản!")]
-        public decimal Fine {  get; set; }
+        [Required(ErrorMessage = "Số lượng không hợp lệ!")]
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn hoặc bằng 1.")]
         public int Quantity {  get; set; }
     }
 }

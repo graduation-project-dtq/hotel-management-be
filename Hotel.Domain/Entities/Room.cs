@@ -14,7 +14,7 @@ namespace Hotel.Domain.Entities
         public string RoomTypeDetailId { get; set; } = string.Empty;
 
         public string Name { get; set; }
-        public EnumRoom ? Status { get; set; } = EnumRoom.Uninhabited;
+
         public bool IsActive { get; set; }
         public virtual Floor ? Floor { get; set; }
         public virtual RoomTypeDetail ? RoomTypeDetail { get; set; }

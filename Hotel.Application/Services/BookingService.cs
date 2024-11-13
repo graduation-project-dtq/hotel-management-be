@@ -730,7 +730,7 @@ namespace Hotel.Application.Services
             //Kèm theo thông tin của booking
             // Gửi mail về cho khách hàng xác nhận đã booking thành công 
             Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(booking.CustomerId);
-            if (customer != null)
+            if (customer.Email != null)
             {
                 try
                 {
@@ -742,6 +742,11 @@ namespace Hotel.Application.Services
                     _logger.LogError("Gửi mail thất bại!");
                 }
             }
+            //Update thêm điểm cho khách hàng
+            customer.AccumulatedPoints += 20; //Cộng thêm bao nhiêu điểm
+
+            await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
+            await _unitOfWork.SaveChangesAsync();
         }
         public async Task HuyPhong(string id)
         {

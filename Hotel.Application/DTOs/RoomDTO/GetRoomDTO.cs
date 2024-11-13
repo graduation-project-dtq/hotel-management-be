@@ -1,5 +1,7 @@
 ﻿
 
+using Hotel.Domain.Enums.EnumRoom;
+
 namespace Hotel.Application.DTOs.RoomDTO
 {
     public class GetRoomDTO
@@ -9,5 +11,6 @@ namespace Hotel.Application.DTOs.RoomDTO
         public string ? FloorID { get; set; }
         public string ? Name { get; set; }
         public string? CreateBy {  get; set; }
+        public EnumRoom? Status { get; set; } = EnumRoom.Uninhabited;
     }
 }

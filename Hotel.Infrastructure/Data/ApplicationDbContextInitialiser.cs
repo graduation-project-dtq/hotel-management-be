@@ -529,7 +529,7 @@ namespace Hotel.Infrastructure.Data
 
                 if (!await _unitOfWork.GetRepository<Room>().Entities.AnyAsync(i => i.Id == item.Id))
                 {
-                    item.Status = EnumRoom.Uninhabited;
+                   
                     item.IsActive = true;
                     item.CreatedTime = CoreHelper.SystemTimeNow;
                     item.LastUpdatedTime = CoreHelper.SystemTimeNow;
