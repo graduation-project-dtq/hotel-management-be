@@ -37,9 +37,9 @@ namespace Hotel.API.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string customerID = ""
-            , string customerName = "", DateOnly? bookingDate = null, DateOnly ? checkInDate = null)
+            , string customerName = "", DateOnly? bookingDate = null, DateOnly ? checkInDate = null, EnumBooking? status = null, string phone = "")
         {
-            PaginatedList<GetBookingDTO> result= await _bookingService.GetPageAsync(index, pageSize, idSearch, customerID, customerName,bookingDate,checkInDate);
+            PaginatedList<GetBookingDTO> result= await _bookingService.GetPageAsync(index, pageSize, idSearch, customerID, customerName,bookingDate,checkInDate, status, phone);
             return Ok(new BaseResponse<PaginatedList<GetBookingDTO>>(
               statusCode: StatusCodes.Status200OK,
               code: ResponseCodeConstants.SUCCESS,

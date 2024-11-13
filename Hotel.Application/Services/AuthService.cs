@@ -126,7 +126,7 @@ namespace Hotel.Application.Services
             }
             return await _tokenService.RefreshAccessToken(refeshTokenRequest);
         }
-        public string randActiveCode()
+        public static string randActiveCode()
         {
             var random = new Random();
             int randomNumber = random.Next(100000, 1000000); // Tạo số ngẫu nhiên từ 100000 đến 999999
@@ -159,7 +159,7 @@ namespace Hotel.Application.Services
             await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();
         }
-        public async Task ReponseCode(string email)
+        public  async Task ReponseCode(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
             {

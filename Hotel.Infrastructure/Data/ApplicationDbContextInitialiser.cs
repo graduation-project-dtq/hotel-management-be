@@ -143,9 +143,9 @@ namespace Hotel.Infrastructure.Data
                 Name = "Admin",
                 IdentityCard = "123456789",
                 Sex = "None",
-                DateOfBirth = DateTime.MinValue, 
+                DateOfBirth = CoreHelper.SystemDateOnly, 
                 Address = string.Empty,
-                HireDate = DateTime.MinValue 
+                HireDate = CoreHelper.SystemDateOnly
             };
             bool exitEmploee= await _unitOfWork.GetRepository<Employee>().Entities.Where(e=>e.Id.Equals(employee.Id) && !e.DeletedTime.HasValue).AnyAsync();
             

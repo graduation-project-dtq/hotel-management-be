@@ -1,8 +1,6 @@
 ﻿
 using AutoMapper;
 using Hotel.Application.DTOs.CustomerDTO;
-using Hotel.Application.DTOs.EvaluationDTO;
-using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;

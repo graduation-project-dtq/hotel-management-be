@@ -48,7 +48,8 @@ namespace Hotel.Application.Services
             _notificationService = notificationService;
         }
 
-        public async Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID, string customerName, DateOnly? bookingDate, DateOnly? checkInDate)
+        public async Task<PaginatedList<GetBookingDTO>> GetPageAsync(int index, int pageSize, string idSearch, string customerID
+            , string customerName, DateOnly? bookingDate, DateOnly? checkInDate, EnumBooking ? status, string phone)
         {
             if (index <= 0 || pageSize <= 0)
             {
@@ -87,31 +88,23 @@ namespace Hotel.Application.Services
             if (!string.IsNullOrWhiteSpace(customerName))
             {
                 query = query.Where(r => r.Customer.Name.ToString().Contains(customerName));
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin đặt phòng của khách hàng: " + customerName);
-                }
             }
             //Tìm theo ngày đặt phòng
             if (bookingDate != null)
             {
                 query = query.Where(bk => DateOnly.FromDateTime(bk.CreatedTime.Date) == bookingDate);
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy thông tin đặt phòng vào ngày: " + bookingDate.Value.ToString());
-                }
             }
             //Tìm theo ngày checkin
             if (checkInDate != null)
             {
                 query = query.Where(bk => bk.CheckInDate == checkInDate);
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìn thấy lịch sử đặt phòng có ngày checkin là: " + checkInDate.ToString());
-                }
+            }
+            //Tìm theo status
+
+            //Tìm theo phone
+            if(string.IsNullOrWhiteSpace(phone))
+            {
+                query = query.Where(bk => bk.PhoneNumber.Equals(phone));
             }
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
             if (totalCount == 0)

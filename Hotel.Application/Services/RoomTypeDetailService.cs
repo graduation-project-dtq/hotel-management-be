@@ -225,7 +225,7 @@ namespace Hotel.Application.Services
                     decimal discount = await GetDiscountPrice(roomTypeDetailDTO.Id);
                     if (discount != 0)
                     {
-                        roomTypeDetailDTO.DiscountPrice=discount;
+                        roomTypeDetailDTO.DiscountPrice=item.BasePrice-discount;
                     }
                 }
                 list.Add(roomTypeDetailDTO);
