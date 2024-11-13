@@ -506,7 +506,9 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Mã booking không được để trống!");
             }
-            Booking booking = await _unitOfWork.GetRepository<Booking>().GetByIdAsync(bookingID)
+            Booking booking = await _unitOfWork.GetRepository<Booking>().Entities
+                .Include(bk=>bk.Customer)
+                .FirstOrDefaultAsync(bk=>bk.Id.Equals(bookingID) && !bk.DeletedTime.HasValue)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy booking!");
             PostNotificationDTO notificationDTO = new PostNotificationDTO()
             {
@@ -539,18 +541,8 @@ namespace Hotel.Application.Services
                 booking.Status = EnumBooking.CANCELED;
                 //Gửi mail đã xác nhận 
                 // Gửi mail đã xác nhận đặt phòng
-                var bookingDTO = new GetBookingDTO
-                {
-                    Id = booking.Id,
-                    CustomerName = booking.Customer.Name,
-                    PhoneNumber = booking.PhoneNumber,
-                    CheckInDate =booking.CheckInDate.ToString("dd/MM/yyyy"),
-                    CheckOutDate = booking.CheckOutDate.ToString("dd/MM/yyyy"),
-                    TotalAmount = booking.TotalAmount,
-                    PromotionalPrice = booking.PromotionalPrice,
-                    Deposit = booking.Deposit
-                };
-                await _emailService.SendEmailAsync(booking.Customer.Email, true, bookingDTO, 0);
+                GetBookingDTO bookingDTO = _mapper.Map<GetBookingDTO>(booking);
+                await _emailService.SendEmailAsync(booking.Customer != null ? booking.Customer.Email : "", true, bookingDTO, 0);
                 notificationDTO.Title = "Xác nhân phòng";
                 notificationDTO.Content = "Đặt phòng có mã " + booking.Id + " đã được xác khách sạn xác nhận thành công thành công";
             }
