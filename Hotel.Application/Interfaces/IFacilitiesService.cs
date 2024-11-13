@@ -15,7 +15,7 @@ namespace Hotel.Application.Interfaces
          string nameSearch);
 
         Task<GetFacilitiesDTO> CreateFacilities(ICollection<IFormFile>? images,PostFacilitiesDTO model);
-        //Task<GetFacilitiesDTO> UpdateFacilities(string id,PutFacilitiesDTO model);
-        //Task DeleteFacilities(string id);
+        Task<GetFacilitiesDTO> UpdateFacilities(string id, PutFacilitiesDTO model, ICollection<IFormFile>? images);
+        Task DeleteFacilities(string id);
     }
 }

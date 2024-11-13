@@ -10,7 +10,6 @@ using Hotel.Application.DTOs.UserDTO;
 using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.DTOs.BookingDTO;
 using Hotel.Application.DTOs.ServiceDTO;
-using Hotel.Application.DTOs.HouseTypeDTO;
 using Hotel.Application.DTOs.VoucherDTO;
 using Hotel.Application.DTOs.PriceAdjustmentPlanDTO;
 using Hotel.Application.DTOs.NotificationDTO;
@@ -33,7 +32,8 @@ namespace Hotel.Application.Mappings
             CreateMap<Customer, GetCustomerDTO>().ReverseMap();
 
             // Employee
-            CreateMap<CreateEmployeeDTO, Employee>();
+            CreateMap<Employee, CreateEmployeeDTO>().ReverseMap();
+            CreateMap<Employee, GetEmployeeDTO>().ReverseMap();
 
             //RoomType
             CreateMap<GetRoomTypeDTO, RoomType>().ReverseMap();

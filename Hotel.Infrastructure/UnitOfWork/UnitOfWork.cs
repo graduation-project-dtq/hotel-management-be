@@ -1,6 +1,7 @@
 ﻿using Hotel.Domain.Interfaces;
 using Hotel.Infrastructure.Data;
 using Hotel.Infrastructure.Repository;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Hotel.Infrastructure.IOW
 {
@@ -63,6 +64,25 @@ namespace Hotel.Infrastructure.IOW
         public void RollBack()
         {
             _context.Database.RollbackTransaction();
+        }
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            await _context.Database.CommitTransactionAsync();
+        }
+
+        public async Task RollBackAsync()
+        {
+            await _context.Database.RollbackTransactionAsync();
+        }
+
+        public IExecutionStrategy CreateExecutionStrategy()
+        {
+            return _context.Database.CreateExecutionStrategy();
         }
     }
 }

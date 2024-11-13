@@ -6,6 +6,7 @@ using Hotel.Application.DTOs.ImageDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -21,6 +22,7 @@ namespace Hotel.Application.Services
         private readonly IFirebaseService _firebaseService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
+
 
         private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
         public FacilitiesService(IUnitOfWork unitOfWork,IFirebaseService firebaseService, IMapper mapper, IHttpContextAccessor contextAccessor)
@@ -199,7 +201,7 @@ namespace Hotel.Application.Services
           
             return getFacilitiesDTO;
         }
-        public async Task<GetFacilitiesDTO> UpdateFacilities(string id, PutFacilitiesDTO model)
+        public async Task<GetFacilitiesDTO> UpdateFacilities(string id, PutFacilitiesDTO model, ICollection<IFormFile> ? images)
         {
             if(string.IsNullOrWhiteSpace(id))
             {
@@ -215,6 +217,43 @@ namespace Hotel.Application.Services
             }
             facilities = _mapper.Map<Facilities>(model);
 
+            if(images!= null)
+            {
+                //Xoá ảnh củ
+                List<ImageFacilities> imageFacilities = await _unitOfWork.GetRepository<ImageFacilities>()
+                    .Entities.Where(i => i.FacilitiesID.Equals(id)).ToListAsync();
+                if(imageFacilities!=null)
+                {
+                    foreach(ImageFacilities item in imageFacilities)
+                    {
+                        await _unitOfWork.GetRepository<ImageFacilities>().DeleteAsync(item.FacilitiesID);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                }
+                foreach (var item in images)
+                {
+                    PostImageViewModel postImage = new PostImageViewModel()
+                    {
+                        File = item
+                    };
+                    string url = await _firebaseService.UploadFileAsync(postImage);
+                    Image image = new Image()
+                    {
+                        URL = url,
+                    };
+                    await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    ImageFacilities imagef = new ImageFacilities()
+                    {
+                        ImageID = image.Id,
+                        FacilitiesID = facilities.Id,
+                    };
+                    await _unitOfWork.GetRepository<ImageFacilities>().InsertAsync(imagef);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+
             await _unitOfWork.GetRepository<Facilities>().InsertAsync(facilities);
             await _unitOfWork.SaveChangesAsync();
 
@@ -228,9 +267,20 @@ namespace Hotel.Application.Services
             return getFacilitiesDTO;
 
         }
-        //public async Task DeleteFacilities(string id)
-        //{
+        public async Task DeleteFacilities(string id)
+        {
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn nội thất!");
+            }
+            Facilities facilities = await _unitOfWork.GetRepository<Facilities>().Entities.FirstOrDefaultAsync(f => f.Id.Equals(id) && !f.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nội thất không tồn tại!");
 
-        //}
+            facilities.DeletedBy = currentUserId;
+            facilities.DeletedTime = CoreHelper.SystemTimeNow;
+
+            await _unitOfWork.GetRepository<Facilities>().UpdateAsync(facilities);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

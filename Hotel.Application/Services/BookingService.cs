@@ -626,7 +626,7 @@ namespace Hotel.Application.Services
             string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
 
             //Tính tiền phạt
-            if(model.Punishes != null && model.Punishes.Count>0)
+            if(model.Punishes != null)
             {
                 booking.Punishes = new List<Punish>();
                 decimal pricePunish = 0;
@@ -681,38 +681,8 @@ namespace Hotel.Application.Services
                 Punishes = new List<GetPunishesDTO>()
             };
 
-            // Thêm thông tin BookingDetail vào DTO
-            if (booking.BookingDetails.Count > 0)
-            {
-                foreach (var item in booking.BookingDetails)
-                {
-                    // Gán dữ liệu cho GetBookingDetailDTO
-                    //Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(item.RoomID);
-                    GetBookingDetailDTO getBookingDetail = new GetBookingDetailDTO
-                    {
-                        RoomName = item.Room.Name
-                    };
-                    getBookingDTO.BookingDetail.Add(getBookingDetail);
-                }
-            }
-
-
-            //Service
-            if (booking.ServiceBookings.Count > 0)
-            {
-                foreach (var item in booking.ServiceBookings)
-                {
-                    //Service servier = await _unitOfWork.GetRepository<Service>().GetByIdAsync(item.ServiceID);
-                    // Gán dữ liệu cho GetBookingDetailDTO
-                    GetServiceBookingDTO getservice = new GetServiceBookingDTO
-                    {
-                        ServiceName = item.Service.Name,
-                        Quantity = item.Quantity,
-                    };
-                    getBookingDTO.Services.Add(getservice);
-                }
-            }
-            if (booking.Punishes.Count > 0)
+            
+            if (booking.Punishes!= null)
             {
                 foreach (var item in booking.Punishes)
                 {
@@ -744,7 +714,8 @@ namespace Hotel.Application.Services
             }
             //Update thêm điểm cho khách hàng
             customer.AccumulatedPoints += 20; //Cộng thêm bao nhiêu điểm
-
+            booking.Status = EnumBooking.CHECKEDOUT;
+            await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
             await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
         }

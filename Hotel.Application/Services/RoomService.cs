@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
-using Hotel.Application.DTOs.BookingDetailDTO;
-using Hotel.Application.DTOs.BookingDTO;
 using Hotel.Application.DTOs.RoomDTO;
-using Hotel.Application.DTOs.ServiceDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
-using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -16,7 +12,6 @@ using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Numerics;
 
 namespace Hotel.Application.Services
 {
@@ -26,6 +21,8 @@ namespace Hotel.Application.Services
         private readonly IMapper _mapper;
         private readonly ILogger<RoomService> _logger;
         private readonly IHttpContextAccessor _contextAccessor;
+
+        private  string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
         public RoomService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<RoomService> logger, IHttpContextAccessor contextAccessor)
         {
             _unitOfWork = unitOfWork;
@@ -159,48 +156,76 @@ namespace Hotel.Application.Services
 
             return getRoomDTO;
         }
-    
+
         public async Task<GetRoomDTO> CreateRoom(PostRoomDTO model)
         {
-           
-            if (String.IsNullOrWhiteSpace(model.RoomTypeDetailId))
+            var strategy = _unitOfWork.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
             {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Không được để trống loại phòng!");
-            }
+                using (await _unitOfWork.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        // Kiểm tra RoomTypeDetail
+                        RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>()
+                            .Entities.FirstOrDefaultAsync(r => r.Id == model.RoomTypeDetailId)
+                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
 
-            //Check khoá ngoại
-            var roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities.FirstOrDefaultAsync(r => r.Id == model.RoomTypeDetailId);
-            if (roomTypeDetail == null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
-            }
+                        // Kiểm tra Floor
+                        Floor floor = await _unitOfWork.GetRepository<Floor>()
+                            .Entities.FirstOrDefaultAsync(f => f.Id == model.FloorID)
+                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy vị trí!");
 
-           
-          
+                        // Tạo mới phòng
+                        Room room = _mapper.Map<Room>(model);
+                        room.CreatedBy = currentUserId;
+                        room.LastUpdatedBy = currentUserId;
 
-            if (String.IsNullOrWhiteSpace(model.FloorID))
-            {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Không được để trống vị trí!");
-            }
+                        await _unitOfWork.GetRepository<Room>().InsertAsync(room);
+                        await _unitOfWork.SaveChangesAsync();
 
-            var floor = await _unitOfWork.GetRepository<Floor>().Entities.FirstOrDefaultAsync(f => f.Id == model.FloorID);
-            if (floor == null)
-            {
-                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy vị trí!");
-            }
-            string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+                        // Thêm tiện nghi nếu có
+                        if (model.Facilities != null && model.Facilities.Any())
+                        {
+                            foreach (var item in model.Facilities)
+                            {
+                                Facilities? facilities = await _unitOfWork.GetRepository<Facilities>()
+                                    .Entities.FirstOrDefaultAsync(f => f.Id.Equals(item.FacilitiesId) && !f.DeletedTime.HasValue);
 
-            Room room=_mapper.Map<Room>(model);
-            room.CreatedBy = userId;
-            room.LastUpdatedBy = userId;
-            room.CreatedTime=room.LastUpdatedTime = CoreHelper.SystemTimeNow;
+                                if (facilities == null)
+                                {
+                                    await _unitOfWork.RollBackAsync();
+                                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tiện nghi!");
+                                }
 
-            await _unitOfWork.GetRepository<Room>().InsertAsync(room);
-            await _unitOfWork.SaveChangesAsync();
+                                // Tạo mới FacilitiesRoom
+                                FacilitiesRoom facilitiesRoom = new FacilitiesRoom
+                                {
+                                    RoomID = room.Id,
+                                    FacilitiesID = item.FacilitiesId
+                                };
 
-            GetRoomDTO getRoomDTO=_mapper.Map<GetRoomDTO>(room);
-            return getRoomDTO;
+                                await _unitOfWork.GetRepository<FacilitiesRoom>().InsertAsync(facilitiesRoom);
+                            }
+                        }
+
+                        // Lưu và commit giao dịch
+                        await _unitOfWork.SaveChangesAsync();
+                        await _unitOfWork.CommitTransactionAsync();
+
+                        // Trả về kết quả
+                        return _mapper.Map<GetRoomDTO>(room);
+                    }
+                    catch
+                    {
+                        await _unitOfWork.RollBackAsync();
+                        throw; // Ném lỗi để xử lý ở tầng trên
+                    }
+                }
+            });
         }
+
+
 
         //Tìm room khi booking 
         public async Task<List<GetRoomDTO>> FindRoomBooking(FindRoomDTO model)

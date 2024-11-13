@@ -1,11 +1,9 @@
-﻿using Hotel.Application.DTOs.BookingDTO;
-using Hotel.Application.DTOs.EmployeeDTO;
+﻿using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
