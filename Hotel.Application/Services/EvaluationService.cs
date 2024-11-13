@@ -200,6 +200,8 @@ namespace Hotel.Application.Services
             Evaluation evaluation = await _unitOfWork.GetRepository<Evaluation>().Entities.Where(e=>e.Id.Equals(id) && !e.DeletedTime.HasValue).FirstOrDefaultAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy đánh giá");
 
+            evaluation =_mapper.Map<Evaluation>(evaluation);
+
             evaluation.DeletedTime = CoreHelper.SystemTimeNow;
             evaluation.DeletedBy = curenUserId;
 

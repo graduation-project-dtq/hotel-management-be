@@ -227,7 +227,7 @@ namespace Hotel.Application.Services
                     }
                 }
                 //Thêm dịch vụ
-                if (item.ServiceBookings.Count > 0)
+                if (item.ServiceBookings != null)
                 {
                     foreach (ServiceBooking serviceBooking in item.ServiceBookings)
                     {
@@ -241,7 +241,7 @@ namespace Hotel.Application.Services
                     }
                 }
                 //Thêm tiền phạt nếu có
-                if(item.Punishes.Count>0)
+                if(item.Punishes != null)
                 {
                     foreach(Punish punish in item.Punishes)
                     {
@@ -332,7 +332,7 @@ namespace Hotel.Application.Services
 
             string bookingID = booking.Id;
             //Thêm phòng
-            if (model.BookingDetails != null && model.BookingDetails.Count > 0)
+            if (model.BookingDetails != null )
             {
                 foreach (var item in model.BookingDetails)
                 {
@@ -384,7 +384,7 @@ namespace Hotel.Application.Services
                 }
             }
             //Thêm dịch vụ
-            if (model.Services != null && model.Services.Count > 0)
+            if (model.Services != null )
             {
                 foreach (PostServiceBookingDTO item in model.Services)
                 {

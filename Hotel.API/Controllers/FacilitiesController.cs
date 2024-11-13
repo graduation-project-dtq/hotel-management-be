@@ -20,7 +20,18 @@ namespace Hotel.API.Controllers
         {
             _facilitiesService = facilitiesService;
         }
-        
+        [HttpGet]
+        public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "",
+        string nameSearch = "")
+        {
+            PaginatedList<GetFacilitiesDTO> result = await _facilitiesService.GetPageAsync(index, pageSize, idSearch, nameSearch);
+            return Ok(new BaseResponseModel<PaginatedList<GetFacilitiesDTO>>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Lấy danh sách nội thất thành công"
+            ));
+        }
         [HttpPost]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
@@ -35,18 +46,9 @@ namespace Hotel.API.Controllers
             ));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetPageAsync(int index=1, int pageSize=10, string idSearch = "",
-          string nameSearch="")
-        {
-            PaginatedList<GetFacilitiesDTO> result= await _facilitiesService.GetPageAsync(index, pageSize, idSearch, nameSearch);
-            return Ok(new BaseResponseModel<PaginatedList<GetFacilitiesDTO>>(
-                statusCode: StatusCodes.Status200OK,
-                code: ResponseCodeConstants.SUCCESS,
-                data: result,
-                message: "Lấy danh sách nội thất thành công"
-            ));
-        }
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
 
         [HttpGet("room")]
         public async Task<IActionResult> GetFacilitiesByRoomId(int index = 1, int pageSize = 10, string roomId ="",

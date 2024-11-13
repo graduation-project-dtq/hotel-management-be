@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Hotel.Application.DTOs.BookingDTO;
 using Hotel.Application.DTOs.EmployeeDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -138,6 +138,28 @@ namespace Hotel.Application.Services
 
             
             GetEmployeeDTO getEmployeeDTO = _mapper.Map<GetEmployeeDTO>(employee);
+            return getEmployeeDTO;
+        }
+
+        public async Task<GetEmployeeDTO> UpdateEmployeeAsync(string id, PutEmployeeDTO model)
+        {
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn nhân viên");
+            }
+            Employee employee = await _unitOfWork.GetRepository < Employee>()
+                .Entities.FirstOrDefaultAsync(e=>e.Id.Equals(id) && !e.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nhân viên không tồn tại");
+
+            employee = _mapper.Map<Employee>(model);
+
+            employee.LastUpdatedBy=currentUserId;
+            employee.LastUpdatedTime = CoreHelper.SystemTimeNow;
+
+            await _unitOfWork.GetRepository<Employee>().UpdateAsync(employee);
+            await _unitOfWork.SaveChangesAsync();
+
+            GetEmployeeDTO getEmployeeDTO= _mapper.Map<GetEmployeeDTO>(employee);
             return getEmployeeDTO;
         }
     }
