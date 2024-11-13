@@ -16,6 +16,7 @@ using Hotel.Application.DTOs.PriceAdjustmentPlanDTO;
 using Hotel.Application.DTOs.NotificationDTO;
 using Hotel.Application.DTOs.OverviewDTO;
 using Hotel.Application.DTOs.EvaluationDTO;
+using Hotel.Application.DTOs.FacilitiesDTO;
 
 namespace Hotel.Application.Mappings
 {
@@ -100,6 +101,12 @@ namespace Hotel.Application.Mappings
             CreateMap<Evaluation, GetEvaluationDTO>().ReverseMap();
             CreateMap<Evaluation, PostEvaluationDTO>().ReverseMap();
             CreateMap<Evaluation, PutEvaluationDTO>().ReverseMap();
+
+            //Facilities
+            CreateMap<Facilities, GetFacilitiesDTO>().ReverseMap();
+            CreateMap<Facilities, PostFacilitiesDTO>().ReverseMap();
+            CreateMap<Facilities, PutFacilitiesDTO>().ReverseMap();
+
         }
     }
 }

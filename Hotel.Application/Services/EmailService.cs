@@ -3,6 +3,7 @@ using Hotel.Application.Interfaces;
 using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -11,10 +12,12 @@ public class EmailService : IEmailService
 {
     private readonly IConfiguration _configuration;
     private readonly IUnitOfWork _unitOfWork;
-    public EmailService(IConfiguration configuration, IUnitOfWork unitOfWork)
+    private readonly ILogger<EmailService> _logger;
+    public EmailService(IConfiguration configuration, IUnitOfWork unitOfWork,ILogger<EmailService> logger)
     {
         _configuration = configuration;
         _unitOfWork = unitOfWork;
+        _logger = logger;
     }
     public async Task<bool> ActiveAccountEmailAsync( string code, string email)
     {
@@ -46,13 +49,14 @@ public class EmailService : IEmailService
             }
             catch (SmtpException smtpEx)
             {
-
-                throw new Exception("Lỗi gửi email xác nhận: " + smtpEx.Message, smtpEx);
+                _logger.LogError("Lỗi gửi email xác nhận: " + smtpEx.Message, smtpEx);
+                return false;
             }
             catch (Exception ex)
             {
 
-                throw new Exception("Lỗi gửi email xác nhận: " + ex.Message, ex);
+                _logger.LogError("Lỗi gửi email xác nhận: " + ex.Message, ex);
+                return false;
             }
         }
     }

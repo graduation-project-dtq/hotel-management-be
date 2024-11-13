@@ -8,7 +8,7 @@ namespace Hotel.Application.Interfaces
     {
         Task<PaginatedList<GetServiceDTO>> GetPageAsync(int index, int pageSize, string idSearch, string nameSearch);
         Task<GetServiceDTO> CreateService(ICollection<IFormFile>? images, PostServiceDTO model);
-        Task UpdateService(string id, PutServiceDTO model);
+        Task UpdateService(string id, PutServiceDTO model, ICollection<IFormFile>? images);
         Task DeleteService(string id);
     }
 }

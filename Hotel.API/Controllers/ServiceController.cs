@@ -53,10 +53,10 @@ namespace Hotel.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
-        public async Task<IActionResult> UpdateService(string id,[FromBody] PutServiceDTO model)
+        public async Task<IActionResult> UpdateService([FromForm] string id,[FromForm] PutServiceDTO model, [FromForm] List<IFormFile> ? images)
         {
 
-            await _serviceService.UpdateService(id,model);
+            await _serviceService.UpdateService(id,model,images);
             return Ok(new BaseResponseModel<string?>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,

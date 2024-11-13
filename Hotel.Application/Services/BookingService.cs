@@ -489,10 +489,10 @@ namespace Hotel.Application.Services
             Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(booking.CustomerId);
             if (customer != null)
             {
-                var emailService = new EmailService(_configuration, _unitOfWork); // Khởi tạo EmailService với logger
+              
                 if(!string.IsNullOrWhiteSpace(customer.Email))
                 {
-                    await emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
+                    await _emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
                 }
             }
             return getBookingDTO;
@@ -520,17 +520,23 @@ namespace Hotel.Application.Services
                 booking.Status = EnumBooking.CANCELED;
                 //Kiểm tra nếu ngày huỷ và ngày CheckIn > 2 thì sẽ trả lại tiền cọc <=2 thì sẽ không được trả lại tiền
                 
-                int count = (booking.CheckInDate.DayNumber - DateOnly.FromDateTime(CoreHelper.SystemTime).DayNumber);
+                int count = (booking.CheckInDate.DayNumber - CoreHelper.SystemDateOnly.DayNumber);
                 if(count >2)
                 {
                     //Gửi mail liên hệ hoàn tiền
-                    await _emailService.SendEmailAsync(booking.Customer.Email, false, new GetBookingDTO { Id = booking.Id, Deposit = booking.Deposit },count);
+                    if(booking.Customer != null && ! string.IsNullOrWhiteSpace(booking.Customer.Email))
+                    {
+                        await _emailService.SendEmailAsync(booking.Customer != null ? booking.Customer.Email : "", false, new GetBookingDTO { Id = booking.Id, Deposit = booking.Deposit }, count);
+                    }
                 }    
 
                 else
                 {
                     //Gửi mail thông báo không được hoàn tiền
-                    await _emailService.SendEmailAsync(booking.Customer.Email, false, new GetBookingDTO { Id = booking.Id, Deposit = booking.Deposit }, count);
+                    if (booking.Customer != null && !string.IsNullOrWhiteSpace(booking.Customer.Email))
+                    {
+                        await _emailService.SendEmailAsync(booking.Customer != null ? booking.Customer.Email : "", false, new GetBookingDTO { Id = booking.Id, Deposit = booking.Deposit }, count);
+                    }
                 }
                 notificationDTO.Title = "Thông tin huỷ phòng";
                 notificationDTO.Content = "Yêu cầu huỷ đặt phòng có mã " + booking.Id + " đã được huỷ thành công";
@@ -538,11 +544,14 @@ namespace Hotel.Application.Services
             //Xác nhận đặt phòng
             if (booking.Status == EnumBooking.UNCONFIRMED)
             {
-                booking.Status = EnumBooking.CANCELED;
+                booking.Status = EnumBooking.CONFIRMED;
                 //Gửi mail đã xác nhận 
                 // Gửi mail đã xác nhận đặt phòng
                 GetBookingDTO bookingDTO = _mapper.Map<GetBookingDTO>(booking);
-                await _emailService.SendEmailAsync(booking.Customer != null ? booking.Customer.Email : "", true, bookingDTO, 0);
+                if (booking.Customer != null && !string.IsNullOrWhiteSpace(booking.Customer.Email))
+                {
+                    await _emailService.SendEmailAsync(booking.Customer != null ? booking.Customer.Email : "", true, bookingDTO, 0);
+                }
                 notificationDTO.Title = "Xác nhân phòng";
                 notificationDTO.Content = "Đặt phòng có mã " + booking.Id + " đã được xác khách sạn xác nhận thành công thành công";
             }
@@ -723,10 +732,9 @@ namespace Hotel.Application.Services
             Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(booking.CustomerId);
             if (customer != null)
             {
-                var emailService = new EmailService(_configuration, _unitOfWork); // Khởi tạo EmailService với logger
                 try
                 {
-                    await emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
+                    await _emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
                     _logger.LogInformation("Gửi mail thành công!");
                 }
                 catch

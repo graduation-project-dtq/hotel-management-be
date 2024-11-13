@@ -164,7 +164,7 @@ namespace Hotel.Application.Services
             return getServiceDTO;
         }
 
-        public async Task UpdateService(string id, PutServiceDTO model)
+        public async Task UpdateService(string id, PutServiceDTO model, ICollection<IFormFile> ? images)
         {
             if (model.Price <= 0 || model.Price % 1 != 0)
             {
@@ -182,6 +182,45 @@ namespace Hotel.Application.Services
 
             await _unitOfWork.GetRepository<Service>().UpdateAsync(service);
             await _unitOfWork.SaveChangesAsync();
+
+            if(images != null)
+            {
+                if (service.ImageServices != null)
+                {
+                    foreach (var item in service.ImageServices)
+                    {
+                        await _unitOfWork.GetRepository<ImageService>().DeleteAsync(item.ServiceID);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                }
+                //Thêm ảnh mới
+                foreach (var item in images)
+                {
+                    PostImageViewModel postImageViewModel = new PostImageViewModel()
+                    {
+                        File = item
+                    };
+                    string url = await _firebaseService.UploadFileAsync(postImageViewModel);
+
+                    Image image = new Image()
+                    {
+                        URL = url,
+                        CreatedBy = currentUserId,
+                        LastUpdatedBy = currentUserId,
+                    };
+                    await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    Hotel.Domain.Entities.ImageService imageService = new Hotel.Domain.Entities.ImageService()
+                    {
+                        ImageID = image.Id,
+                        ServiceID = service.Id,
+                    };
+                    await _unitOfWork.GetRepository<Hotel.Domain.Entities.ImageService>().InsertAsync(imageService);
+                    await _unitOfWork.SaveChangesAsync();
+
+                }
+            }
         }
 
         public async Task DeleteService(string id)
