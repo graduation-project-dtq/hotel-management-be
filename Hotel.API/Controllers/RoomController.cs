@@ -2,6 +2,7 @@
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
 using Hotel.Core.Base;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
 using Microsoft.AspNetCore.Authorization;
@@ -28,18 +29,22 @@ namespace Hotel.API.Controllers
         /// < param name="pageSize"></param>
         /// <param name = "idSearch" ></ param >
         /// < param name="nameSearch"></param>
-        //[HttpGet]
-        ////[Authorize(Roles = "ADMIN,EMPLOYEE")]
-        //public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string nameSearch = "")
-        //{
-        //    PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch);
-        //    return Ok(new BaseResponseModel<PaginatedList<GetRoomDTO>>(
-        //        statusCode: StatusCodes.Status200OK,
-        //        code: ResponseCodeConstants.SUCCESS,
-        //        message: "Lấy danh sách phòng thành công!",
-        //        data: result
-        //    ));
-        //}
+        [HttpGet]
+        //[Authorize(Roles = "ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> GetPageAsync(int index = 1, int pageSize = 10, string idSearch = "", string nameSearch = "", DateOnly ? dateToCheck = null)
+        {
+            if (dateToCheck == null)
+            {
+                dateToCheck = DateOnly.FromDateTime(DateTime.Now); // Ví dụ: gán ngày hiện tại
+            }
+            PaginatedList<GetRoomDTO> result = await _roomService.GetPageAsync(index, pageSize, idSearch, nameSearch, dateToCheck);
+            return Ok(new BaseResponseModel<PaginatedList<GetRoomDTO>>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                message: "Lấy danh sách phòng thành công!",
+                data: result
+            ));
+        }
         /// <summary>
         /// Tìm phòng bằng ID
         /// <param name="id"></param>
@@ -55,7 +60,6 @@ namespace Hotel.API.Controllers
                    data: room
                ));
         }
-
 
         /// <summary>
         /// Tạo phòng mới
