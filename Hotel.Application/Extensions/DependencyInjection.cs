@@ -88,6 +88,8 @@ namespace Hotel.Aplication.Extensions
 
             //FacilitiesService
             services.AddScoped<IFacilitiesService, FacilitiesService>();
+
+            services.AddScoped<IFloorService , FloorService>();
         }
 
         //Đăng ký mapper

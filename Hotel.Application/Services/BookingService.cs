@@ -56,7 +56,7 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng nhập số trang hợp lệ!");
             }
 
-            IQueryable<Booking> query = _unitOfWork.GetRepository<Booking>().Entities.Include(b => b.Customer)
+            IQueryable<Booking> query = _unitOfWork.GetRepository<Booking>().Entities
                  .Include(c => c.Customer)
                  .Include(bk => bk.BookingDetails)
                     .ThenInclude(bd => bd.Room)
@@ -123,52 +123,36 @@ namespace Hotel.Application.Services
 
 
             List<GetBookingDTO> responseItems = new List<GetBookingDTO>();
-            foreach (Booking item in query)
+            responseItems = query.Select(bk => new GetBookingDTO()
             {
-                GetBookingDTO bookingModel = new GetBookingDTO();
-
-                bookingModel.Id = item.Id;
-                bookingModel.EmployeeId = item.EmployeeId;
-                bookingModel.CustomerId = item.CustomerId;
-                bookingModel.CustomerName = item.Customer != null ? item.Customer.Name : null;
-                bookingModel.PhoneNumber = item.PhoneNumber;
-                bookingModel.PromotionalPrice = item.PromotionalPrice;
-                bookingModel.Deposit = item.Deposit;
-                bookingModel.BookingDate = DateOnly.FromDateTime(item.CreatedTime.Date).ToString("dd/MM/yyyy");
-                bookingModel.TotalAmount = item.TotalAmount;
-                bookingModel.UnpaidAmount = item.UnpaidAmount;
-                bookingModel.CheckInDate = item.CheckInDate.ToString("dd/MM/yyyy");
-                bookingModel.CheckOutDate = item.CheckOutDate.ToString("dd/MM/yyyy");
-                bookingModel.BookingDetail = new List<GetBookingDetailDTO>();
-                bookingModel.Services = new List<GetServiceBookingDTO>();
-
-                if (item.BookingDetails.Count > 0)
+                Id = bk.Id,
+                EmployeeId = bk.EmployeeId,
+                CustomerId = bk.CustomerId,
+                CustomerName = bk.CustomerName,
+                PhoneNumber = bk.PhoneNumber,
+                PromotionalPrice = bk.PromotionalPrice,
+                Deposit = bk.Deposit,
+                BookingDate = bk.CreatedTime.Date.ToString("dd/MM/yyyy HH:mm:ss"),
+                TotalAmount = bk.TotalAmount,
+                UnpaidAmount = bk.UnpaidAmount,
+                CheckInDate = bk.CheckInDate.ToString("dd/MM/yyyy"),
+                CheckOutDate = bk.CheckOutDate.ToString("dd/MM/yyyy"),
+                BookingDetail = bk.BookingDetails != null ? bk.BookingDetails.Select(bd => new GetBookingDetailDTO()
                 {
-                    foreach (BookingDetail bookingDetail in item.BookingDetails)
-                    {
-                        Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(bookingDetail.RoomID);
-                        GetBookingDetailDTO bookingDetailDTO = new GetBookingDetailDTO()
-                        {
-                            RoomName = room.Name,
-                        };
-                        bookingModel.BookingDetail.Add(bookingDetailDTO);
-                    }
-                }
-                if (item.ServiceBookings.Count > 0)
+                    RoomName = bd.Room != null ? bd.Room.Name : string.Empty,
+                }).ToList() : new List<GetBookingDetailDTO>(),
+                Services = bk.ServiceBookings != null ? bk.ServiceBookings.Select(sv => new GetServiceBookingDTO()
                 {
-                    foreach (ServiceBooking serviceBooking in item.ServiceBookings)
-                    {
-                        Service service = await _unitOfWork.GetRepository<Service>().GetByIdAsync(serviceBooking.ServiceID);
-                        GetServiceBookingDTO serviceBookingDTO = new GetServiceBookingDTO()
-                        {
-                            ServiceName = service.Name,
-                            Quantity = serviceBooking.Quantity,
-                        };
-                        bookingModel.Services.Add(serviceBookingDTO);
-                    }
-                }
-                responseItems.Add(bookingModel);
-            }
+                    ServiceName = sv.Service != null ? sv.Service.Name : string.Empty,
+                    Quantity = sv.Quantity,
+                }).ToList() : new List<GetServiceBookingDTO>(),
+                Punishes = bk.Punishes != null ? bk.Punishes.Select(p => new GetPunishesDTO()
+                {
+                    FacilitiesName = p.Facilities != null ? p.Facilities.Name : string.Empty,
+                    Quantity = p.Quantity,
+                    Fine = p.Fine,
+                }).ToList() : new List<GetPunishesDTO>(),
+            }).ToList();
 
             // Tạo danh sách phân trang
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -262,7 +246,7 @@ namespace Hotel.Application.Services
             //Nếu có kiểm tra tính khả dụng của voucher
             Voucher voucher = new Voucher()
             {
-                Id = null,
+                Id = string.Empty,
                 DiscountAmount = 0
             };
             if (!string.IsNullOrWhiteSpace(model.VoucherId))
@@ -328,7 +312,7 @@ namespace Hotel.Application.Services
                         
                     }
 
-                    string roomID = listRoomActive[0].Id;
+                    string ? roomID = listRoomActive != null ? listRoomActive[0].Id : string.Empty;
 
                     // Tạo BookingDetail mới
                     BookingDetail bookingDetail = new BookingDetail()
@@ -341,7 +325,7 @@ namespace Hotel.Application.Services
                     await _unitOfWork.SaveChangesAsync();
 
                     //Tính tiền
-                    decimal price = await _roomTypeDetailService.GetDiscountPrice(bookingDetail.Room.RoomTypeDetailId);
+                    decimal price = await _roomTypeDetailService.GetDiscountPrice(bookingDetail.Room != null ? bookingDetail.Room.RoomTypeDetailId : string.Empty);
                     if (price != 0)
                     {
                         booking.TotalAmount += price;
@@ -354,7 +338,7 @@ namespace Hotel.Application.Services
                             .FirstOrDefaultAsync();
                         if (room != null)
                         {
-                            booking.TotalAmount += room.RoomTypeDetail.BasePrice;
+                            booking.TotalAmount += room.RoomTypeDetail != null ? room.RoomTypeDetail.BasePrice : 0;
                         }
                     }
                 }
@@ -382,7 +366,7 @@ namespace Hotel.Application.Services
                     await _unitOfWork.GetRepository<ServiceBooking>().InsertAsync(service);
 
                     //Tính tiền dịch vụ
-                    booking.TotalAmount += service.Service.Price * service.Quantity;
+                    booking.TotalAmount += service.Service != null ? service.Service.Price : 0 * service.Quantity;
                 }
             }
 
@@ -436,7 +420,7 @@ namespace Hotel.Application.Services
                 if (item != null)
                 {
                     // Gán dữ liệu cho GetBookingDetailDTO
-                    Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(item.RoomID);
+                    Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(item.RoomID != null ? item.RoomID : string.Empty);
                     GetBookingDetailDTO getBookingDetail = new GetBookingDetailDTO
                     {
                         RoomName = room.Name,
