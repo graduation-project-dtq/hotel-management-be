@@ -33,7 +33,7 @@ namespace Hotel.Application.Services
         public async Task<List<GetFloorDTO>> GetAllFloor()
         {
             List<GetFloorDTO> floors = _mapper.Map<List<GetFloorDTO>>(await _unitOfWork.GetRepository<Floor>()
-            .Entities.Where(r => r.DeletedTime == null).ToListAsync());
+            .Entities.Where(r => !r.DeletedTime.HasValue).ToListAsync());
             return floors;
         }
         public async Task<GetFloorDTO> CreateFloor(PostFloorDTO model)
@@ -84,8 +84,8 @@ namespace Hotel.Application.Services
 
             string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
 
-            floor.LastUpdatedBy = userID;
-            floor.LastUpdatedTime = CoreHelper.SystemTimeNow;
+            floor.DeletedBy = userID;
+            floor.DeletedTime = CoreHelper.SystemTimeNow;
 
             await _unitOfWork.GetRepository<Floor>().UpdateAsync(floor);
             await _unitOfWork.SaveChangesAsync();
