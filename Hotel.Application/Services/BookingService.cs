@@ -241,20 +241,36 @@ namespace Hotel.Application.Services
                     }
                 }
                 //Thêm tiền phạt nếu có
-                if(item.Punishes != null)
+                //if(item.Punishes != null)
+                //{
+                //    foreach(Punish punish in item.Punishes)
+                //    {
+                //        GetPunishesDTO punishesDTO = new GetPunishesDTO()
+                //        {
+                //            FacilitiesName = punish.Facilities.Name,
+                //            Quantity=punish.Quantity,
+                //            Fine=punish.Fine,
+                //        };
+                //        item.Punishes.Add(punish);
+                //    }    
+                //}    
+                //getBookingDTO.Add(bookingModel);
+                if (item.Punishes != null)
                 {
-                    foreach(Punish punish in item.Punishes)
+                    foreach (Punish punish in item.Punishes)
                     {
-                        GetPunishesDTO punishesDTO = new GetPunishesDTO()
+                        if (punish.Facilities != null)  
                         {
-                            FacilitiesName = punish.Facilities.Name,
-                            Quantity=punish.Quantity,
-                            Fine=punish.Fine,
-                        };
-                        item.Punishes.Add(punish);
-                    }    
-                }    
-                getBookingDTO.Add(bookingModel);
+                            GetPunishesDTO punishesDTO = new GetPunishesDTO()
+                            {
+                                FacilitiesName = punish.Facilities.Name,
+                                Quantity = punish.Quantity,
+                                Fine = punish.Fine,
+                            };
+                            bookingModel.Punishes.Add(punishesDTO);
+                        }
+                    }
+                }
             }
             return getBookingDTO;
         }
