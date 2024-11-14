@@ -38,16 +38,7 @@ namespace Hotel.Application.Services
         }
         public async Task<GetFloorDTO> CreateFloor(PostFloorDTO model)
         {
-            if (String.IsNullOrWhiteSpace(model.Name))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống tên!");
-            }
-
-            if (await _unitOfWork.GetRepository<Floor>().Entities.FirstOrDefaultAsync(f => f.Name == model.Name)!=null) 
-            {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Đã tồn tại tầng này!");
-
-            }
+            
 
             Floor floorInsert =_mapper.Map<Floor>(model);
 
@@ -63,15 +54,12 @@ namespace Hotel.Application.Services
             return getFloorDTO;
         }
         public async Task<GetFloorDTO> UpdateFloor(string id, PutFloorDTO model)
-       {
-            if (String.IsNullOrWhiteSpace(model.Name))
-            {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Không được để trống tên!");
-            }
-            Floor floor = await _unitOfWork.GetRepository<Floor>().Entities.FirstOrDefaultAsync(f => f.Id == id)
+        {
+           
+            Floor floor = await _unitOfWork.GetRepository<Floor>().Entities.Where(f => f.Id == id && !f.DeletedTime.HasValue).FirstOrDefaultAsync()
                   ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.EXISTED, "Không tồn tại Floor với ID nhập vào!");
 
-            floor = _mapper.Map<Floor>(model);
+            floor.Name = model.Name;
 
             string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
 
@@ -87,11 +75,11 @@ namespace Hotel.Application.Services
    
         public async Task DeleteFloor(string id)
        {
-            if (String.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id))
             {
                 throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Không được để trống ID!");
             }
-            Floor floor = await _unitOfWork.GetRepository<Floor>().Entities.FirstOrDefaultAsync(f => f.Id == id)
+            Floor floor = await _unitOfWork.GetRepository<Floor>().Entities.FirstOrDefaultAsync(f => f.Id.Equals( id) && !f.DeletedTime.HasValue)
                   ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.EXISTED, "Đã tồn tại tầng này!");
 
             string userID = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
@@ -99,8 +87,19 @@ namespace Hotel.Application.Services
             floor.LastUpdatedBy = userID;
             floor.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
-            await _unitOfWork.GetRepository<Floor>().InsertAsync(floor);
+            await _unitOfWork.GetRepository<Floor>().UpdateAsync(floor);
             await _unitOfWork.SaveChangesAsync();
+
+            List<Room> rooms = await _unitOfWork.GetRepository<Room>().Entities.Where(r => r.FloorId.Equals(id) && !r.DeletedTime.HasValue).ToListAsync();
+
+            if (rooms != null)
+            {
+                foreach (Room room in rooms)
+                {
+                    await _unitOfWork.GetRepository<Room>().DeleteAsync(room.Id);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
         }
     }
 }

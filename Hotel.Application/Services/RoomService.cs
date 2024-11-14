@@ -48,22 +48,12 @@ namespace Hotel.Application.Services
             if (!string.IsNullOrWhiteSpace(idSearch))
             {
                 query = query.Where(r => r.Id.ToString() == idSearch);
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với ID đã cho!");
-                }
             }
 
             // Áp dụng điều kiện tìm kiếm theo tên
             if (!string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(r => r.Name.Contains(nameSearch));
-                bool exists = await query.AnyAsync();
-                if (!exists)
-                {
-                    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng với tên đã cho!");
-                }
             }
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
             if (totalCount == 0)

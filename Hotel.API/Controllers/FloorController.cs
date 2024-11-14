@@ -9,7 +9,7 @@ namespace Hotel.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.ADMIN)]
+    [Authorize(Roles = "ADMIN,EMPLOPYEE")]
     public class FloorController : ControllerBase
     {
         private IFloorService _floorService;
@@ -57,7 +57,7 @@ namespace Hotel.API.Controllers
         /// <param name="model"></param>
 
         [HttpPut("{id}")]
-        [Authorize(Roles = CLAIMS_VALUES.ROLE_TYPE.CUSTOMER)]
+      
         public async Task<IActionResult> UpdateFloor(string id,[FromBody] PutFloorDTO model)
         {
             GetFloorDTO floor = await _floorService.UpdateFloor(id,model);
@@ -80,7 +80,7 @@ namespace Hotel.API.Controllers
             return Ok(new BaseResponse<string?>(
              statusCode: StatusCodes.Status200OK,
              code: ResponseCodeConstants.SUCCESS,
-             message: "Sửa thông tin thành công",
+             message: "Xoá thông tin thành công",
              data:""));
         }
     }

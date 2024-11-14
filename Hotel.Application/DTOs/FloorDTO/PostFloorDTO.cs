@@ -1,9 +1,12 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Hotel.Application.DTOs.FloorDTO
 {
     public class PostFloorDTO
     {
-        public string ? Name {  get; set; }
+        [Required(ErrorMessage ="Vui lòng nhập tên")]
+        public string Name { get; set; } = string.Empty;
     }
 }

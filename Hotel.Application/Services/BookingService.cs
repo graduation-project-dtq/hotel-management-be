@@ -246,7 +246,7 @@ namespace Hotel.Application.Services
             //Nếu có kiểm tra tính khả dụng của voucher
             Voucher voucher = new Voucher()
             {
-                Id = string.Empty,
+                Id = null,
                 DiscountAmount = 0
             };
             if (!string.IsNullOrWhiteSpace(model.VoucherId))
