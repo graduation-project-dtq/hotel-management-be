@@ -9,5 +9,7 @@ namespace Hotel.Application.DTOs.BookingDTO
         [Required(ErrorMessage = "Số lượng không hợp lệ!")]
         [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn hoặc bằng 1.")]
         public int Quantity {  get; set; }
+        public string ? Note {  get; set; }
+
     }
 }

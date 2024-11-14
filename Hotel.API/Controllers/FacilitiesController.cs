@@ -50,6 +50,7 @@ namespace Hotel.API.Controllers
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
 
+
         [HttpGet("room")]
         public async Task<IActionResult> GetFacilitiesByRoomId(int index = 1, int pageSize = 10, string roomId ="",
          string nameSearch="")

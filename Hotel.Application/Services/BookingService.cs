@@ -59,7 +59,11 @@ namespace Hotel.Application.Services
             IQueryable<Booking> query = _unitOfWork.GetRepository<Booking>().Entities.Include(b => b.Customer)
                  .Include(c => c.Customer)
                  .Include(bk => bk.BookingDetails)
+                    .ThenInclude(bd => bd.Room)
                  .Include(bk => bk.ServiceBookings)
+                    .ThenInclude(sv=>sv.Service)
+                 .Include(bk=>bk.Punishes)
+                    .ThenInclude(p=>p.Facilities)
                  .Where(c => !c.DeletedTime.HasValue)
                  .OrderByDescending(c => c.CreatedTime);
 
@@ -186,92 +190,48 @@ namespace Hotel.Application.Services
             }
             //Lấy danh sách theo điều kiện
             List<Booking> bookings = await _unitOfWork.GetRepository<Booking>().Entities
-                .Include(b => b.Customer)
-                .Include(b => b.BookingDetails)
-                .Include(b => b.ServiceBookings)
-                .Include(b=>b.Punishes)
-                .Where(b => b.CustomerId == customerId && b.Status == enumBooking && b.DeletedTime == null).ToListAsync();
+                .Include(c => c.Customer)
+                 .Include(bk => bk.BookingDetails)
+                    .ThenInclude(bd => bd.Room)
+                 .Include(bk => bk.ServiceBookings)
+                    .ThenInclude(sv => sv.Service)
+                 .Include(bk => bk.Punishes)
+                    .ThenInclude(p => p.Facilities)
+                .Where(b => b.CustomerId == customerId && b.Status == enumBooking && !b.DeletedTime.HasValue).ToListAsync();
             //Mapping 
             List<GetBookingDTO> getBookingDTO = new List<GetBookingDTO>();
 
-            foreach (Booking item in bookings)
+            getBookingDTO = bookings.Select(bk => new GetBookingDTO()
             {
-                GetBookingDTO bookingModel = new GetBookingDTO();
+                Id = bk.Id,
+                EmployeeId = bk.EmployeeId,
+                CustomerId = bk.CustomerId,
+                CustomerName = bk.CustomerName,
+                PhoneNumber = bk.PhoneNumber,
+                PromotionalPrice = bk.PromotionalPrice,
+                Deposit = bk.Deposit,
+                BookingDate = bk.CreatedTime.Date.ToString("dd/MM/yyyy HH:mm:ss"),
+                TotalAmount = bk.TotalAmount,
+                UnpaidAmount = bk.UnpaidAmount,
+                CheckInDate = bk.CheckInDate.ToString("dd/MM/yyyy"),
+                CheckOutDate = bk.CheckOutDate.ToString("dd/MM/yyyy"),
+                BookingDetail = bk.BookingDetails != null ? bk.BookingDetails.Select(bd => new GetBookingDetailDTO()
+                {
+                    RoomName = bd.Room != null ? bd.Room.Name : string.Empty,
+                }).ToList() : new List<GetBookingDetailDTO>(),
+                Services = bk.ServiceBookings != null ? bk.ServiceBookings.Select(sv => new GetServiceBookingDTO()
+                {
+                    ServiceName = sv.Service != null ? sv.Service.Name : string.Empty,
+                    Quantity = sv.Quantity,
+                }).ToList() : new List<GetServiceBookingDTO>(),
+                Punishes = bk.Punishes != null ? bk.Punishes.Select(p => new GetPunishesDTO()
+                {
+                    FacilitiesName = p.Facilities != null ? p.Facilities.Name : string.Empty,
+                    Quantity = p.Quantity,
+                    Fine = p.Fine,
+                }).ToList() : new List<GetPunishesDTO>(),
+            }).ToList();
 
-                bookingModel.Id = item.Id;
-                bookingModel.EmployeeId = item.EmployeeId;
-                bookingModel.CustomerId = item.CustomerId;
-                bookingModel.CustomerName = item.Customer != null ? item.Customer.Name : null;
-                bookingModel.PhoneNumber = item.PhoneNumber;
-                bookingModel.PromotionalPrice = item.PromotionalPrice;
-                bookingModel.Deposit = item.Deposit;
-                bookingModel.BookingDate = item.CreatedTime.Date.ToString("dd/MM/yyyy HH:mm:ss");
-                bookingModel.TotalAmount = item.TotalAmount;
-                bookingModel.UnpaidAmount = item.UnpaidAmount;
-                bookingModel.CheckInDate = item.CheckInDate.ToString("dd/MM/yyyy");
-                bookingModel.CheckOutDate = item.CheckOutDate.ToString("dd/MM/yyyy");
-                bookingModel.BookingDetail = new List<GetBookingDetailDTO>();
-                bookingModel.Services = new List<GetServiceBookingDTO>();
-                bookingModel.Punishes = new List<GetPunishesDTO>();
-                //Thêm chi tiết phòng
-                if (item.BookingDetails.Count > 0)
-                {
-                    foreach (BookingDetail bookingDetail in item.BookingDetails)
-                    {
-                        Room room = await _unitOfWork.GetRepository<Room>().GetByIdAsync(bookingDetail.RoomID);
-                        GetBookingDetailDTO bookingDetailDTO = new GetBookingDetailDTO()
-                        {
-                            RoomName = room.Name,
-                        };
-                        bookingModel.BookingDetail.Add(bookingDetailDTO);
-                    }
-                }
-                //Thêm dịch vụ
-                if (item.ServiceBookings != null)
-                {
-                    foreach (ServiceBooking serviceBooking in item.ServiceBookings)
-                    {
-                        Service service = await _unitOfWork.GetRepository<Service>().GetByIdAsync(serviceBooking.ServiceID);
-                        GetServiceBookingDTO serviceBookingDTO = new GetServiceBookingDTO()
-                        {
-                            ServiceName = service.Name,
-                            Quantity = serviceBooking.Quantity,
-                        };
-                        bookingModel.Services.Add(serviceBookingDTO);
-                    }
-                }
-                //Thêm tiền phạt nếu có
-                //if(item.Punishes != null)
-                //{
-                //    foreach(Punish punish in item.Punishes)
-                //    {
-                //        GetPunishesDTO punishesDTO = new GetPunishesDTO()
-                //        {
-                //            FacilitiesName = punish.Facilities.Name,
-                //            Quantity=punish.Quantity,
-                //            Fine=punish.Fine,
-                //        };
-                //        item.Punishes.Add(punish);
-                //    }    
-                //}    
-                //getBookingDTO.Add(bookingModel);
-                if (item.Punishes != null)
-                {
-                    foreach (Punish punish in item.Punishes)
-                    {
-                        if (punish.Facilities != null)  
-                        {
-                            GetPunishesDTO punishesDTO = new GetPunishesDTO()
-                            {
-                                FacilitiesName = punish.Facilities.Name,
-                                Quantity = punish.Quantity,
-                                Fine = punish.Fine,
-                            };
-                            bookingModel.Punishes.Add(punishesDTO);
-                        }
-                    }
-                }
-            }
             return getBookingDTO;
         }
         public async Task<GetBookingDTO> CreateBooking(PostBookingDTO model)
@@ -634,106 +594,120 @@ namespace Hotel.Application.Services
         //Checkout
         public async Task CheckOut(CheckOutDTO model)
         {
-            Booking booking = await _unitOfWork.GetRepository<Booking>().Entities
-                .Where(bk=>bk.Id == model.BookingId && bk.DeletedTime == null && bk.Status == EnumBooking.CHECKEDIN)
-                .FirstOrDefaultAsync()
-               ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy lịch đặt phòng");
-            
-            string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
-
-            //Tính tiền phạt
-            if(model.Punishes != null)
+            var strategy = _unitOfWork.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
             {
-                booking.Punishes = new List<Punish>();
-                decimal pricePunish = 0;
-                foreach(PostPunishesDTO item in model.Punishes)
+                using (await _unitOfWork.BeginTransactionAsync())
                 {
-                    Facilities facilities = await _unitOfWork.GetRepository<Facilities>().GetByIdAsync(item.FacilitiesID)
-                        ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Đồ dùng, tài sản không hợp lệ!");
-
-                    Punish punish = new Punish()
+                    try
                     {
-                        BookingID = booking.Id,
-                        FacilitiesID = item.FacilitiesID,
-                        Quantity = item.Quantity,
-                        Fine = item.Quantity * facilities.Price
-                    };
+                        Booking booking = await _unitOfWork.GetRepository<Booking>().Entities
+                            .Where(bk => bk.Id == model.BookingId && bk.DeletedTime == null && bk.Status == EnumBooking.CHECKEDIN)
+                            .FirstOrDefaultAsync()
+                           ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy lịch đặt phòng");
 
-                    booking.Punishes.Add(punish);
-                    booking.TotalAmount += punish.Fine;
-                    pricePunish += punish.Fine;
-                }
-                //Cập nhật lại tiền cần thanh toán
-                booking.UnpaidAmount = booking.TotalAmount - pricePunish;
-                booking.LastUpdatedBy = userId;
-                booking.LastUpdatedTime = CoreHelper.SystemTimeNow;
+                        string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+                        decimal pricePunish = 0;
+                        booking.Punishes = model.Punishes != null
+                          ? (await Task.WhenAll(model.Punishes.Select(async p =>
+                          {
+                              Facilities ? facility = await _unitOfWork.GetRepository<Facilities>()
+                                  .Entities.FirstOrDefaultAsync(f => f.Id.Equals(p.FacilitiesID) && !f.DeletedTime.HasValue);
 
-                //Cập nhật sau khi checkout thành công 
-                //Cập nhật lại số tiền đã thanh toán là tổng tiền hoá đơn và tiền chưa thanh toán bằng 0
+                              if (facility == null)
+                              {
+                                  await _unitOfWork.RollBackAsync();
+                                  throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy nội thất");
+                              }
 
-                //booking.UnpaidAmount = 0;
+                              Punish punish =  new Punish()
+                              {
+                                  BookingID = model.BookingId,
+                                  FacilitiesID = p.FacilitiesID,
+                                  Note = p.Note,
+                                  Fine = p.Quantity * facility.Price,
+                              };
 
-                //Lưu kết quả
-                await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
-                await _unitOfWork.SaveChangesAsync();
+                              await _unitOfWork.GetRepository<Punish>().InsertAsync(punish);
+                              await _unitOfWork.SaveChangesAsync();
+                              return punish;
 
-            }
-            //Gửi email cảm ơn kèm hoá đơn
-            //Tạo report để gửi cho khách hàng
-            GetBookingDTO getBookingDTO = new GetBookingDTO
-            {
-                Id = booking.Id,
-                CustomerId = booking.CustomerId,
-                Deposit = booking.Deposit,
-                PromotionalPrice = booking.PromotionalPrice,
-                TotalAmount = booking.TotalAmount,
-                UnpaidAmount = booking.UnpaidAmount,
-                BookingDate = booking.CreatedTime.DateTime.ToString("dd/MM/yyyy HH:mm:ss"),
-                CheckInDate = booking.CheckInDate.ToString("dd/MM/yyyy"),
-                CheckOutDate = booking.CheckOutDate.ToString("dd/MM/yyyy"),
-                PhoneNumber = booking.PhoneNumber,
-                BookingDetail = new List<GetBookingDetailDTO>(),
-                Services = new List<GetServiceBookingDTO>(),
-                Punishes = new List<GetPunishesDTO>()
-            };
+                          }))).ToList()
+                          : new List<Punish>();
 
-            
-            if (booking.Punishes!= null)
-            {
-                foreach (var item in booking.Punishes)
-                {
+                        booking.UnpaidAmount = booking.TotalAmount - pricePunish;
+                        booking.LastUpdatedBy = userId;
+                        booking.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
-                    GetPunishesDTO punishesDTO = new GetPunishesDTO
+                       
+                        //Gửi email cảm ơn kèm hoá đơn
+                        //Tạo report để gửi cho khách hàng
+                        GetBookingDTO getBookingDTO = new GetBookingDTO
+                        {
+                            Id = booking.Id,
+                            EmployeeId = booking.EmployeeId,
+                            CustomerId = booking.CustomerId,
+                            CustomerName = booking.CustomerName,
+                            PhoneNumber = booking.PhoneNumber,
+                            PromotionalPrice = booking.PromotionalPrice,
+                            Deposit = booking.Deposit,
+                            BookingDate = booking.CreatedTime.Date.ToString("dd/MM/yyyy HH:mm:ss"),
+                            TotalAmount = booking.TotalAmount,
+                            UnpaidAmount = booking.UnpaidAmount,
+                            CheckInDate = booking.CheckInDate.ToString("dd/MM/yyyy"),
+                            CheckOutDate = booking.CheckOutDate.ToString("dd/MM/yyyy"),
+                            BookingDetail = booking.BookingDetails != null ? booking.BookingDetails.Select(bkd => new GetBookingDetailDTO()
+                            {
+                                RoomName = bkd.Room != null ? bkd.Room.Name : string.Empty
+
+                            }).ToList() : new List<GetBookingDetailDTO>(),
+
+                            Services = booking.ServiceBookings != null ? booking.ServiceBookings.Select(sv => new GetServiceBookingDTO()
+                            {
+                                ServiceName = sv.Service != null ? sv.Service.Name : string.Empty,
+                                Quantity = sv.Quantity,
+
+                            }).ToList() : new List<GetServiceBookingDTO>(),
+                            Punishes = booking.Punishes != null ? booking.Punishes.Select(p => new GetPunishesDTO()
+                            {
+                                FacilitiesName = p.Facilities != null ? p.Facilities.Name : string.Empty,
+                                Quantity = p.Quantity,
+                                Fine = p.Fine,
+
+                            }).ToList() : new List<GetPunishesDTO>(),
+                        };
+
+                        //Gửi mail về cho khách hàng xác nhận đã booking thành công 
+                        //Kèm theo thông tin của booking
+                        // Gửi mail về cho khách hàng xác nhận đã booking thành công 
+                        Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(booking.CustomerId);
+                        if (customer.Email != null)
+                        {
+                            try
+                            {
+                                await _emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
+                                _logger.LogInformation("Gửi mail thành công!");
+                            }
+                            catch
+                            {
+                                _logger.LogError("Gửi mail thất bại!");
+                            }
+                        }
+                        //Update thêm điểm cho khách hàng
+                        customer.AccumulatedPoints += 20; //Cộng thêm bao nhiêu điểm
+                        booking.Status = EnumBooking.CHECKEDOUT;
+                        await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
+                        await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                    catch
                     {
-                        FacilitiesName = item.Facilities.Name,
-                        Quantity = item.Quantity,
-                        Fine = item.Fine,
-                    };
-                    getBookingDTO.Punishes.Add(punishesDTO);
+                        await _unitOfWork.RollBackAsync();
+                        throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi");
+                    }
                 }
-            }
-            //Gửi mail về cho khách hàng xác nhận đã booking thành công 
-            //Kèm theo thông tin của booking
-            // Gửi mail về cho khách hàng xác nhận đã booking thành công 
-            Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(booking.CustomerId);
-            if (customer.Email != null)
-            {
-                try
-                {
-                    await _emailService.SendBookingConfirmationEmailAsync(booking, customer.Email, getBookingDTO);
-                    _logger.LogInformation("Gửi mail thành công!");
-                }
-                catch
-                {
-                    _logger.LogError("Gửi mail thất bại!");
-                }
-            }
-            //Update thêm điểm cho khách hàng
-            customer.AccumulatedPoints += 20; //Cộng thêm bao nhiêu điểm
-            booking.Status = EnumBooking.CHECKEDOUT;
-            await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
-            await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
-            await _unitOfWork.SaveChangesAsync();
+            });
+            
         }
         public async Task HuyPhong(string id)
         {

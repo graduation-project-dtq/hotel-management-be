@@ -23,8 +23,12 @@ namespace Hotel.Domain.Entities
         public decimal  PromotionalPrice { get; set; }
         //Tổng tiền
         public decimal TotalAmount { get; set; }
+        //Tiền sau khi trừ khuyến mãi 
+        public decimal DiscountedAmount { get; set; }
+        //Tiền phạt
+        public decimal PricePunish {  get; set; }
         //Tiền chưa thanh toán
-        public decimal  UnpaidAmount {  get; set; }
+        public decimal UnpaidAmount { get; set; }
         public EnumBooking Status { get; set; }
         public string ? CustomerName {  get; set; }
         public string ? IdentityCard { get; set; }
