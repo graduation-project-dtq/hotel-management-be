@@ -294,7 +294,8 @@ namespace Hotel.Application.Services
                     catch
                     {
                         await _unitOfWork.RollBackAsync();
-                        throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Lỗi khi tạo phòng");
+                        throw;
+                        //throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Lỗi khi tạo phòng");
                     }
                 }
             });
