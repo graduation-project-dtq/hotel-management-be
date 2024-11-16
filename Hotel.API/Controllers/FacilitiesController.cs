@@ -34,7 +34,7 @@ namespace Hotel.API.Controllers
         }
 
         //Lấy nội thất theo phòng
-        [HttpGet]
+      
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
         [HttpGet("room")]
