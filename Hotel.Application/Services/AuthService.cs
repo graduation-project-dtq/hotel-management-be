@@ -47,7 +47,8 @@ namespace Hotel.Application.Services
         private string currentUser => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
         public async Task RegisterAsync(RegisterRequestDto registerRequestDto)
         {
-            Account? existAccount = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(x => x.Email == registerRequestDto.Email && x.DeletedTime == null);
+            Account? existAccount = await _unitOfWork.GetRepository<Account>().Entities
+                .FirstOrDefaultAsync(x => x.Email == registerRequestDto.Email && x.DeletedTime == null);
             if (existAccount != null)
             {
                 throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Email đã tồn tại");

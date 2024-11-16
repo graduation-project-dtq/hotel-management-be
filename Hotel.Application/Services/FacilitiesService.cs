@@ -279,6 +279,11 @@ namespace Hotel.Application.Services
             facilities.DeletedBy = currentUserId;
             facilities.DeletedTime = CoreHelper.SystemTimeNow;
 
+            List<FacilitiesRoom> facilitiesRooms = await _unitOfWork.GetRepository<FacilitiesRoom>().Entities
+                .Where(f => f.FacilitiesID.Equals(id))
+                .ToListAsync();
+
+            await _unitOfWork.GetRepository<FacilitiesRoom>().DeleteRangeAsync(facilitiesRooms);
             await _unitOfWork.GetRepository<Facilities>().UpdateAsync(facilities);
             await _unitOfWork.SaveChangesAsync();
         }

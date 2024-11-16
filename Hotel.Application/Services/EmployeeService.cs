@@ -140,27 +140,59 @@ namespace Hotel.Application.Services
             GetEmployeeDTO getEmployeeDTO = _mapper.Map<GetEmployeeDTO>(employee);
             return getEmployeeDTO;
         }
-
+        //Cập nhật thông tin nhân viên
         public async Task<GetEmployeeDTO> UpdateEmployeeAsync(string id, PutEmployeeDTO model)
         {
             if(string.IsNullOrWhiteSpace(id))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn nhân viên");
             }
+            // 1. Tìm nhân viên theo mã
             Employee employee = await _unitOfWork.GetRepository < Employee>()
                 .Entities.FirstOrDefaultAsync(e=>e.Id.Equals(id) && !e.DeletedTime.HasValue)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nhân viên không tồn tại");
-
+            //2. Gán thông tin cần update
             employee = _mapper.Map<Employee>(model);
 
             employee.LastUpdatedBy=currentUserId;
             employee.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
+            //3. lưu và CSDL
             await _unitOfWork.GetRepository<Employee>().UpdateAsync(employee);
             await _unitOfWork.SaveChangesAsync();
 
             GetEmployeeDTO getEmployeeDTO= _mapper.Map<GetEmployeeDTO>(employee);
             return getEmployeeDTO;
+        }
+        //Xoá nhân viên
+        public async Task DeleteEmployeeAsync(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn nhân viên");
+            }
+            // 1. Tìm nhân viên theo mã
+            Employee employee = await _unitOfWork.GetRepository<Employee>()
+                .Entities.FirstOrDefaultAsync(e => e.Id.Equals(id) && !e.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Nhân viên không tồn tại");
+            employee.DeletedBy = currentUserId;
+            employee.DeletedTime = CoreHelper.SystemTimeNow;
+
+            //3. lưu và CSDL
+            await _unitOfWork.GetRepository<Employee>().UpdateAsync(employee);
+            await _unitOfWork.SaveChangesAsync();
+
+            Account? account = await _unitOfWork.GetRepository<Account>().Entities
+                .Where(a => a.Id.Equals(employee.AccountID) && !a.DeletedTime.HasValue).FirstOrDefaultAsync();
+            
+            if(account!= null)
+            {
+                account.DeletedBy = currentUserId;
+                account.DeletedTime = CoreHelper.SystemTimeNow;
+
+                await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+                await _unitOfWork.SaveChangesAsync();
+            }
         }
     }
 }

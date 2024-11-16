@@ -12,6 +12,7 @@ using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Hotel.Application.Services
 {
@@ -171,11 +172,11 @@ namespace Hotel.Application.Services
                         File = item
                     };
                     string url = await _firebaseService.UploadFileAsync(postImage);
-                    Image image = new Image()
+                    Domain.Entities.Image image = new Domain.Entities.Image()
                     {
                         URL = url,
                     };
-                    await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+                    await _unitOfWork.GetRepository<Domain.Entities.Image>().InsertAsync(image);
                     await _unitOfWork.SaveChangesAsync();
                     ImageEvaluation imageEvaluation = new ImageEvaluation()
                     {
@@ -190,27 +191,77 @@ namespace Hotel.Application.Services
 
         }
         //Update đánh giá
-        public async Task UpdateEvaluationAsync(string id)
+        public async Task UpdateEvaluationAsync(string id,ICollection<IFormFile>? images, PutEvaluationDTO model)
         {
             if(string.IsNullOrWhiteSpace(id))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập mã đánh giá");
             }
-
+            //Tìm đánh giá
             Evaluation evaluation = await _unitOfWork.GetRepository<Evaluation>().Entities.Where(e=>e.Id.Equals(id) && !e.DeletedTime.HasValue).FirstOrDefaultAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy đánh giá");
+            //Cập nhật thông tin
+            evaluation =_mapper.Map<Evaluation>(model);
 
-            evaluation =_mapper.Map<Evaluation>(evaluation);
+            evaluation.LastUpdatedTime = CoreHelper.SystemTimeNow;
+            evaluation.LastUpdatedBy = curenUserId;
+            //Xử lý hình ảnh
+            if(images!= null)
+            {
+                List<ImageEvaluation> imageEvaluations = await _unitOfWork.GetRepository<ImageEvaluation>().Entities
+                    .Where(e => e.EvaluationID.Equals(evaluation.Id)).ToListAsync();
+               if(imageEvaluations!= null)
+               {
+                    await _unitOfWork.GetRepository<ImageEvaluation>().DeleteRangeAsync(imageEvaluations);
+                    await _unitOfWork.SaveChangesAsync();
+               }
+                foreach (var item in images)
+                {
+                    //Upload hình ảnh
+                    PostImageViewModel postImage = new PostImageViewModel()
+                    {
+                        File = item
+                    };
+                    string url = await _firebaseService.UploadFileAsync(postImage);
+                    Domain.Entities.Image image = new Domain.Entities.Image()
+                    {
+                        URL = url,
+                    };
+                    await _unitOfWork.GetRepository<Domain.Entities.Image>().InsertAsync(image);
+                    await _unitOfWork.SaveChangesAsync();
+                    ImageEvaluation imageEvaluation = new ImageEvaluation()
+                    {
+                        ImageID = image.Id,
+                        EvaluationID = evaluation.Id,
+                    };
 
-            evaluation.DeletedTime = CoreHelper.SystemTimeNow;
-            evaluation.DeletedBy = curenUserId;
-
-            await _unitOfWork.GetRepository<Evaluation>().InsertAsync(evaluation);
+                    await _unitOfWork.GetRepository<ImageEvaluation>().InsertAsync(imageEvaluation);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+            await _unitOfWork.GetRepository<Evaluation>().UpdateAsync(evaluation);
             await _unitOfWork.SaveChangesAsync();
         }
-        public async Task PutEvaluationAsync(PostEvaluationDTO model)
+        public async Task DeleteEvaluationAsync(string id)
         {
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn đánh giá");
+            }
+            Evaluation evaluation = await _unitOfWork.GetRepository<Evaluation>().Entities
+                .FirstOrDefaultAsync(e => e.Id.Equals(id) && !e.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy đánh giá");
 
+            evaluation.DeletedBy = curenUserId;
+            evaluation.DeletedTime = CoreHelper.SystemTimeNow;
+
+            List<ImageEvaluation> imageEvaluations = await _unitOfWork.GetRepository<ImageEvaluation>()
+                .Entities.Where(e=>e.EvaluationID.Equals(id))
+                .ToListAsync();
+
+            await _unitOfWork.GetRepository<ImageEvaluation>().DeleteRangeAsync(imageEvaluations);
+            await _unitOfWork.GetRepository<Evaluation>().UpdateAsync(evaluation);
+            await _unitOfWork.SaveChangesAsync();
         }
 
     }

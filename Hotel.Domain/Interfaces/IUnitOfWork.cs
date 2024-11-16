@@ -17,5 +17,6 @@ namespace Hotel.Domain.Interfaces
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollBackAsync();
+    
     }
 }

@@ -18,6 +18,7 @@ namespace Hotel.API.Controllers
         {
             _employeeService = employeeService;
         }
+        //Lấy thông tin nhân viên
         [HttpGet]
         public async Task<IActionResult> GetPageAsync(int index =1, int pageSize =10 , string? idSearch = null, string? nameSearch = null
            , string? email = null, string? phone = null, DateOnly? dateOfBirth = null, DateOnly? hireDate = null)
@@ -31,7 +32,7 @@ namespace Hotel.API.Controllers
                message: "Lấy danh sách nhân viên thành công!"
             ));
         }
-
+        //Tạo một nhân viên mới
         [HttpPost]
         public async Task<IActionResult> CreateEmployeeAsync(CreateEmployeeDTO createEmployeeDTO)
         {
@@ -43,5 +44,19 @@ namespace Hotel.API.Controllers
                 message: "Tạo nhân viên thành công"
             ));
         }
+        //Cập nhật thông tin nhân viên
+        [HttpPut]
+        public async Task<IActionResult> UpdateEmployeeAsync(string id, PutEmployeeDTO model)
+        {
+            GetEmployeeDTO result = await _employeeService.UpdateEmployeeAsync(id, model);
+            return Ok(new BaseResponse<GetEmployeeDTO>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Cập nhật thành công"
+            ));
+        }
+        //XOá nhân viên
+        
     }
 }

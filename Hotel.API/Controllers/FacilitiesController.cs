@@ -32,6 +32,25 @@ namespace Hotel.API.Controllers
                 message: "Lấy danh sách nội thất thành công"
             ));
         }
+
+        //Lấy nội thất theo phòng
+        [HttpGet]
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        [HttpGet("room")]
+        public async Task<IActionResult> GetFacilitiesByRoomId(int index = 1, int pageSize = 10, string roomId = "",
+         string nameSearch = "")
+        {
+            PaginatedList<GetFacilitiesRoomDTO> result = await _facilitiesService.GetFacilitiesByRoomId(index, pageSize, roomId, nameSearch);
+            return Ok(new BaseResponseModel<PaginatedList<GetFacilitiesRoomDTO>>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Lấy danh sách nội thất thành công"
+            ));
+        }
+
+        //Tạo nội thất mới
         [HttpPost]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
@@ -46,22 +65,34 @@ namespace Hotel.API.Controllers
             ));
         }
 
+        //Update nội thất
         [HttpPut]
         [Consumes("multipart/form-data")]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
-
-
-        [HttpGet("room")]
-        public async Task<IActionResult> GetFacilitiesByRoomId(int index = 1, int pageSize = 10, string roomId ="",
-         string nameSearch="")
+        public async Task<IActionResult> UpdateFacilitiesAsync(string id,[FromForm] ICollection<IFormFile>? images, [FromForm] PutFacilitiesDTO model)
         {
-            PaginatedList<GetFacilitiesRoomDTO> result = await _facilitiesService.GetFacilitiesByRoomId(index, pageSize, roomId, nameSearch);
-            return Ok(new BaseResponseModel<PaginatedList<GetFacilitiesRoomDTO>>(
+            GetFacilitiesDTO result = await _facilitiesService.UpdateFacilities(id,model, images);
+            return Ok(new BaseResponseModel<GetFacilitiesDTO>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
                 data: result,
-                message: "Lấy danh sách nội thất thành công"
+                message: "Cập nhật thành công"
             ));
         }
+
+        //Xoá nội thất
+        [HttpDelete]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> DeleteFacilitiesAsync(string id)
+        {
+            await _facilitiesService.DeleteFacilities(id);
+            return Ok(new BaseResponseModel<string ?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,
+                message: "Xoá thành công"
+            ));
+        }
+
     }
 }

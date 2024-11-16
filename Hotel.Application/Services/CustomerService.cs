@@ -4,6 +4,7 @@ using Hotel.Application.DTOs.CustomerDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
+using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
@@ -21,6 +22,8 @@ namespace Hotel.Application.Services
         private readonly IMapper _mapper;
         private readonly ILogger<CustomerService> _logger;
         private readonly IHttpContextAccessor _contextAccessor;
+        private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+
         public CustomerService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<CustomerService> logger,IHttpContextAccessor contextAccessor)
         {
             _unitOfWork = unitOfWork;
@@ -30,15 +33,11 @@ namespace Hotel.Application.Services
         }
         public async Task<GetCustomerDTO> GetCustomerByEmailAsync(string email)
         {
-            if (String.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(email))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không được để trống!");
             }
-            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            if (!Regex.IsMatch(email, emailRegex))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ!");
-            }
+           
             Customer customer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Email == email && c.DeletedTime == null).FirstOrDefaultAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy khách hàng có email là !" + email);
 
@@ -61,11 +60,6 @@ namespace Hotel.Application.Services
                 query = query.Where(r => r.Id.ToString() == idSearch);
             }
 
-            //Tìm theo id
-            if (!string.IsNullOrWhiteSpace(idSearch))
-            {
-                query = query.Where(r => r.Id.ToString() == idSearch);
-            }
 
             //Tìm theo tên
             if (!string.IsNullOrWhiteSpace(nameSearch))
@@ -141,8 +135,9 @@ namespace Hotel.Application.Services
             
             if(!string.IsNullOrWhiteSpace(model.AccountId))
             {
-                Account ? exitAccount = await _unitOfWork.GetRepository<Account>().Entities.Where(c => c.Id.Equals(model.AccountId)
-                && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
+                Account ? exitAccount = await _unitOfWork.GetRepository<Account>().Entities
+                    .Where(c => c.Id.Equals(model.AccountId) && !c.DeletedTime.HasValue)
+                    .FirstOrDefaultAsync();
 
                 if (exitAccount != null)
                 {
@@ -165,7 +160,7 @@ namespace Hotel.Application.Services
         public async Task UpdateCustomerAsync(string email, PutCustomerDTO model)
         {
             // Kiểm tra ID khách hàng
-            if (String.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(email))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID rỗng hoặc không hợp lệ!");
             }
@@ -175,13 +170,13 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ!");
             }
             // Kiểm tra tên khách hàng
-            if (String.IsNullOrWhiteSpace(model.Name))
+            if (string.IsNullOrWhiteSpace(model.Name))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống tên!");
             }
 
             // Kiểm tra giới tính khách hàng
-            if (String.IsNullOrWhiteSpace(model.Sex))
+            if (string.IsNullOrWhiteSpace(model.Sex))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống giới tính!");
             }
@@ -216,6 +211,58 @@ namespace Hotel.Application.Services
             customer.LastUpdatedBy = userID;
 
             // Cập nhật và lưu thay đổi vào DB
+            await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteCustomer(string id)
+        {
+
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn khách hàng");
+            }
+            Customer customer = await _unitOfWork.GetRepository<Customer>().Entities.FirstOrDefaultAsync(c => c.Id.Equals(id) && !c.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy");
+            //Xoá những thứ liên quan đến khách hàng
+            //Booking
+
+            List<Booking> bookings = await _unitOfWork.GetRepository<Booking>().Entities
+                .Include(b => b.BookingDetails)
+                .Include(b => b.Punishes)
+                .Include(b => b.ServiceBookings)
+                .Where(b => b.CustomerId.Equals(id) && !b.DeletedTime.HasValue)
+                .ToListAsync();
+
+            if (bookings != null )
+            {
+                foreach (Booking booking in bookings)
+                {
+                    booking.DeletedTime = CoreHelper.SystemTimeNow;
+                    booking.DeletedBy = currentUserId;
+                }
+
+                // Cập nhật danh sách bookings
+                await _unitOfWork.GetRepository<Booking>().UpdateRangeAsync(bookings);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            List<Evaluation> evaluations = await _unitOfWork.GetRepository<Evaluation>().Entities
+                .Where(e => e.CustomerId.Equals(id) && !e.DeletedTime.HasValue)
+                .ToListAsync();
+            if (evaluations != null )
+            {
+                foreach (Evaluation evaluation in evaluations)
+                {
+                    evaluation.DeletedTime = CoreHelper.SystemTimeNow;
+                    evaluation.DeletedBy = currentUserId;
+                }
+
+                // Cập nhật danh sách bookings
+                await _unitOfWork.GetRepository<Evaluation>().UpdateRangeAsync(evaluations);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            customer.DeletedTime = CoreHelper.SystemTimeNow;
+            customer.DeletedBy = currentUserId;
             await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
             await _unitOfWork.SaveChangesAsync();
         }

@@ -10,6 +10,6 @@ namespace Hotel.Application.Interfaces
         Task<GetCustomerDTO> CreateCustomerAsync(CreateCustomerDTO createCustomerDTO);
         Task UpdateCustomerAsync(string id,PutCustomerDTO model);
         Task<GetCustomerDTO> GetCustomerByEmailAsync(string email);
-       
+        Task DeleteCustomer(string id);
     }
 }

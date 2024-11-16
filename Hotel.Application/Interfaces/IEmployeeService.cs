@@ -9,5 +9,6 @@ namespace Hotel.Application.Interfaces
            ,string? email, string? phone, DateOnly? dateOfBirth, DateOnly? hireDate);
         Task<GetEmployeeDTO> CreateEmployeeAsync(CreateEmployeeDTO createEmployeeDTO);
         Task<GetEmployeeDTO> UpdateEmployeeAsync(string id, PutEmployeeDTO model);
+        Task DeleteEmployeeAsync(string Id);
     }
 }

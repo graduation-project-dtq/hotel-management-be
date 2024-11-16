@@ -9,6 +9,7 @@ namespace Hotel.Domain.Interfaces
         Task InsertAsync(T entity);
         Task DeleteAsync(string id);
         Task UpdateAsync(T entity);
-
+        Task UpdateRangeAsync(IEnumerable<T> entities);
+        Task DeleteRangeAsync(IEnumerable<T> entities);
     }
 }

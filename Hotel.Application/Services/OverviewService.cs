@@ -37,12 +37,13 @@ namespace Hotel.Application.Services
             IQueryable<Overview> query = _unitOfWork.GetRepository<Overview>().Entities
                .Where(c => !c.DeletedTime.HasValue)
                .OrderByDescending(c => c.CreatedTime);
+            //Tìm theo Id
 
             if(string.IsNullOrWhiteSpace(idSearch))
             {
                 query = query.Where(o => o.Id.Equals(idSearch));
             }
-
+            //Tìm theo id khách hàng
             if(string.IsNullOrWhiteSpace(customerID))
             {
                 query = query.Where(o => o.CustomerId.Equals(customerID));
@@ -112,7 +113,7 @@ namespace Hotel.Application.Services
         {
             //Kiểm tra Id khách hàng
             Customer customer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => !c.DeletedTime.HasValue).FirstOrDefaultAsync()
-                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Mày là thèn nào");
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không tồn tại");
 
             Booking booking =await _unitOfWork.GetRepository<Booking>().Entities.Where(b=>b.CustomerId.Equals(model.CustomerId) && !b.DeletedTime.HasValue).FirstOrDefaultAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không thể đánh giá khi chưa sử dụng dịch vụ của khách sạn");

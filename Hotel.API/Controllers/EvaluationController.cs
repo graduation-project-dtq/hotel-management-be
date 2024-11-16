@@ -53,6 +53,33 @@ namespace Hotel.API.Controllers
                 message: "Đánh giá thành công!"
             ));
         }
+        //Update đánh giá
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "CUSTOMER,ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> UpdateEvaluationAsync([FromForm]string id,[FromForm] List<IFormFile>? images, [FromForm] PutEvaluationDTO model)
+        {
+            await _evaluationService.UpdateEvaluationAsync(id,images, model);
+            return Ok(new BaseResponse<string?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,
+                message: "Cập nhật thành công!"
+            ));
+        }
 
+        //Xoá đánh giá
+        [HttpDelete]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> DeleteEvaluationAsync(string id)
+        {
+            await _evaluationService.DeleteEvaluationAsync(id);
+            return Ok(new BaseResponse<string?>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: null,
+                message: "Xoá thành công!"
+            ));
+        }
     }
 }

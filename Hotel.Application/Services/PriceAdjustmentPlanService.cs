@@ -18,7 +18,7 @@ namespace Hotel.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IMapper _mapper;
-
+        private string curerntUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
         public PriceAdjustmentPlanService(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -39,7 +39,7 @@ namespace Hotel.Application.Services
             // Áp dụng điều kiện tìm kiếm theo ID
             if (!string.IsNullOrWhiteSpace(idSearch))
             {
-                query = query.Where(r => r.Id.ToString() == idSearch);
+                query = query.Where(r => r.Id.Equals(idSearch));
                 bool exists = await query.AnyAsync();
                 if (!exists)
                 {
@@ -86,10 +86,10 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.DUPLICATE, "Trùng tên kết hoạch điều chỉnh giá phòng!");
             }
-            string userId= Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+
             PriceAdjustmentPlan plan=_mapper.Map<PriceAdjustmentPlan>(model);
-            plan.CreatedBy = userId;
-            plan.LastUpdatedBy= userId;
+            plan.CreatedBy = curerntUserId;
+            plan.LastUpdatedBy= curerntUserId;
             plan.RoomPriceAdjustments = new List<RoomPriceAdjustment>();
 
             if (model.RoomPriceAdjustmentPlans != null && model.RoomPriceAdjustmentPlans.Count > 0)
@@ -113,7 +113,7 @@ namespace Hotel.Application.Services
         }
         public async Task UpdateRoomPriceAdjustmentPlan(string id, PutPriceAdjustmentPlanDTO model)
         {
-            if(String.IsNullOrWhiteSpace(id))
+            if(string.IsNullOrWhiteSpace(id))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng không để trống ID!");
             }
@@ -132,17 +132,22 @@ namespace Hotel.Application.Services
         }
         public async Task DeleteRoomPriceAdjustmentPlan(string id)
         {
-            if(String.IsNullOrWhiteSpace(id))
+            if(string.IsNullOrWhiteSpace(id))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Không được để trống ID!");
             }    
             PriceAdjustmentPlan priceAdjustmentPlan =await _unitOfWork.GetRepository<PriceAdjustmentPlan>().GetByIdAsync(id)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy kết hoạch điều chỉnh giá phòng!");
-            string userId=Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
+           
 
-            priceAdjustmentPlan.DeletedBy=userId;
+            priceAdjustmentPlan.DeletedBy= curerntUserId;
             priceAdjustmentPlan.DeletedTime=CoreHelper.SystemTimeNow;
 
+            List<RoomPriceAdjustment>roomPriceAdjustments = await _unitOfWork.GetRepository<RoomPriceAdjustment>().Entities
+                .Where(r=>r.PriceAdjustmentPlanId.Equals(id))
+                .ToListAsync();
+
+            await _unitOfWork.GetRepository<RoomPriceAdjustment>().DeleteRangeAsync(roomPriceAdjustments);
             await _unitOfWork.GetRepository<PriceAdjustmentPlan>().UpdateAsync(priceAdjustmentPlan);
             await _unitOfWork.SaveChangesAsync();
         }

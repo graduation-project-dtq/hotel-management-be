@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Hotel.Application.DTOs.EvaluationDTO
 {
-    internal class PutEvaluationDTO
+    public class PutEvaluationDTO
     {
+        [FromForm]
+        public string CustomerId { get; set; } = string.Empty;
+      
+        [FromForm]
+        public string RoomTypeId { get; set; } = string.Empty;
+        [FromForm]
+        public string ? Comment { get; set; } = string.Empty;
+        [FromForm]
+        public float ? Starts { get; set; }
     }
 }

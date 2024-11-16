@@ -11,6 +11,7 @@ namespace Hotel.Application.Interfaces
         Task<GetRoomDTO> GetRoomById(string id);
         Task<List<GetRoomDTO>> FindRoomBooking(FindRoomDTO model);
         Task<PaginatedList<GetRoomDTO>> GetPageAsync(int index, int pageSize, string idSearch,string nameSreach, DateOnly ? dateToCheck);
-
+        Task<GetRoomDTO> UpdateRoomAsync(string id, PutRoomDTO model);
+        Task DeleteRoomAsync(string id);
     }
 }

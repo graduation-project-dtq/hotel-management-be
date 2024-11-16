@@ -55,7 +55,7 @@ namespace Hotel.Application.Services
         }
         public async Task DeleteNotification(string id)
         {
-            if(String.IsNullOrWhiteSpace(id))
+            if(string.IsNullOrWhiteSpace(id))
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng không để trống Id");
 

@@ -5,7 +5,6 @@ using Hotel.Domain.Entities;
 using Hotel.Domain.Interfaces;
 using Hotel.Infrastructure.IOW;
 using Hotel.Infrastructure.Repository;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ImageService = Hotel.Application.Services.ImageService;
@@ -89,6 +88,7 @@ namespace Hotel.Aplication.Extensions
             //FacilitiesService
             services.AddScoped<IFacilitiesService, FacilitiesService>();
 
+            //Floor
             services.AddScoped<IFloorService , FloorService>();
         }
 
