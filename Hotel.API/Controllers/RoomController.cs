@@ -80,6 +80,38 @@ namespace Hotel.API.Controllers
                     message:"Thêm phòng thành công"
                 ));
         }
+
+        [HttpPut]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> UpdateRoomAsync(string id,[FromBody] PutRoomDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var room = await _roomService.UpdateRoomAsync(id,model);
+            return Ok(new BaseResponseModel<GetRoomDTO>(
+                    statusCode: StatusCodes.Status200OK,
+                    code: ResponseCodeConstants.SUCCESS,
+                    data: room,
+                    message: "Cập nhật thành công"
+                ));
+        }
+
+
+
+        [HttpPut]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> DeleteRoomAsync(string id)
+        {
+
+             await _roomService.DeleteRoomAsync(id);
+            return Ok(new BaseResponseModel<string?>(
+                    statusCode: StatusCodes.Status200OK,
+                    code: ResponseCodeConstants.SUCCESS,
+                    data: null,
+                    message: "Xoá thành công"
+                ));
+        }
         /// <summary>
         /// Lấy danh sách phòng
         [HttpPost("FindRoom")]

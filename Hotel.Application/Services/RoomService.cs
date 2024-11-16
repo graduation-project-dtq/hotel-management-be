@@ -302,6 +302,11 @@ namespace Hotel.Application.Services
             room.DeletedBy = currentUserId;
             room.DeletedTime = CoreHelper.SystemTimeNow;
 
+            List<FacilitiesRoom> facilitiesRooms = await _unitOfWork.GetRepository<FacilitiesRoom>().Entities
+                .Where(fr => fr.RoomID.Equals(id))
+                .ToListAsync();
+
+            await _unitOfWork.GetRepository<FacilitiesRoom>().DeleteRangeAsync(facilitiesRooms);
             await _unitOfWork.GetRepository<Room>().UpdateAsync(room);
             await _unitOfWork.SaveChangesAsync();
         }
