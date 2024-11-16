@@ -10,7 +10,9 @@ namespace Hotel.Application.Interfaces
     public interface IRoomTypeDetailService
     {
         Task<List<GetRoomTypeDetailDTO>> GetAllRoomTypeDetail();
-        Task<GetRoomTypeDetailDTO> CreateRoomTypeDetail(ICollection<IFormFile> images, PostRoomTypeDetailDTO portRoomTypeDetail);
+        Task<GetRoomTypeDetailDTO> CreateRoomTypeDetail(ICollection<IFormFile> ? images, PostRoomTypeDetailDTO portRoomTypeDetail);
+        Task<GetRoomTypeDetailDTO> UpdateRoomTypeDetail(string id,ICollection<IFormFile>? images, PutRoomTypeDetailDTO portRoomTypeDetail);
+        Task DeleteRoomTypeDetailAsync(string id);
         Task<List<List<GetRoomTypeDetailDTO>>> FindRoom(int soNguoi, string roomTypeID);
         Task<List<GetRoomTypeDetailDTO>> GetByRoomTypeId(string id);
         Task<GetRoomTypeDetailDTO> GetById(string id);

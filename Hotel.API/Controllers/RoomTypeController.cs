@@ -1,11 +1,7 @@
-﻿using Hotel.Application.DTOs.EvaluationDTO;
-using Hotel.Application.DTOs.RoomTypeDTO;
+﻿using Hotel.Application.DTOs.RoomTypeDTO;
 using Hotel.Application.Interfaces;
-using Hotel.Application.Services;
-using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
-using Hotel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -68,6 +64,22 @@ namespace Hotel.API.Controllers
                 message: "Tạo thành công"
             ));
         }
+
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> UpdateRoomType([FromForm] string id, [FromForm] List<IFormFile>? images, [FromForm] PutRoomTypeDTO model)
+        {
+            GetRoomTypeDTO result = await _roomTypeService.UpdateRoomType(id,images, model);
+            return Ok(new BaseResponseModel<GetRoomTypeDTO>(
+                statusCode: StatusCodes.Status200OK,
+                code: ResponseCodeConstants.SUCCESS,
+                data: result,
+                message: "Cập nhật thành công"
+            ));
+        }
+
+
         /// <summary>
         /// Xoá loại phòng theo ID
         /// <param name="id"></param>

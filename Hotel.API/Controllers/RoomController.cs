@@ -98,13 +98,11 @@ namespace Hotel.API.Controllers
         }
 
 
-
-        [HttpPut]
+        [HttpDelete]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> DeleteRoomAsync(string id)
         {
-
-             await _roomService.DeleteRoomAsync(id);
+            await _roomService.DeleteRoomAsync(id);
             return Ok(new BaseResponseModel<string?>(
                     statusCode: StatusCodes.Status200OK,
                     code: ResponseCodeConstants.SUCCESS,

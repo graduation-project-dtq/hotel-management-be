@@ -56,6 +56,36 @@ namespace Hotel.API.Controllers
              ));
         }
 
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> UpdateRoomTypeDetail([FromForm] string id,[FromForm] List<IFormFile>? images, [FromForm] PutRoomTypeDetailDTO model)
+        {
+
+            GetRoomTypeDetailDTO result = await _roomTypeDetailService.UpdateRoomTypeDetail(id,images, model);
+            return Ok(new BaseResponse<GetRoomTypeDetailDTO>(
+             statusCode: StatusCodes.Status200OK,
+             code: ResponseCodeConstants.SUCCESS,
+             data: result,
+             message: "Cập nhật thành công"
+             ));
+        }
+
+
+        [HttpDelete]
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        public async Task<IActionResult> DeleteRoomTypeDetail(string id)
+        {
+
+            await _roomTypeDetailService.DeleteRoomTypeDetailAsync(id);
+            return Ok(new BaseResponse<string?>(
+             statusCode: StatusCodes.Status200OK,
+             code: ResponseCodeConstants.SUCCESS,
+             data: null,
+             message: "Xoá thành công"
+             ));
+        }
+
         /// <summary>
         /// Tìm kiếm loại phòng theo ID
         /// <param name="roomtypedetailId"></param>

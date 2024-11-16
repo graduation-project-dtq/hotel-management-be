@@ -235,6 +235,18 @@ namespace Hotel.Application.Services
                             .FirstOrDefaultAsync()
                             ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng");
 
+                        if(string.IsNullOrWhiteSpace(model.RoomTypeDetailId))
+                        {
+                            RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>()
+                            .Entities.FirstOrDefaultAsync(r=>r.Id.Equals(model.RoomTypeDetailId) && !r.DeletedTime.HasValue)
+                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
+                        }
+                        if (string.IsNullOrWhiteSpace(model.FloorID))
+                        {
+                            Floor floor = await _unitOfWork.GetRepository<Floor>()
+                            .Entities.FirstOrDefaultAsync(r => r.Id.Equals(model.FloorID) && !r.DeletedTime.HasValue)
+                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tầng");
+                        }
                         room = _mapper.Map<Room>(model);
                         await _unitOfWork.GetRepository<Room>().UpdateAsync(room);
                         await _unitOfWork.SaveChangesAsync();

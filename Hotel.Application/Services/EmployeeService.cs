@@ -104,7 +104,7 @@ namespace Hotel.Application.Services
             }
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
        
-            Role ? role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(r=>r.RoleName.Equals("CUSTOMER") && !r.DeletedTime.HasValue);
+            Role ? role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(r=>r.RoleName.Equals("Employee") && !r.DeletedTime.HasValue);
             account = new Account()
             {
                 Email= model.Email,

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hotel.Application.DTOs.ImageDTO;
+using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.DTOs.RoomTypeDetailDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
@@ -234,7 +235,7 @@ namespace Hotel.Application.Services
         }
 
         //Tạo loại phòng mới
-        public async Task<GetRoomTypeDetailDTO> CreateRoomTypeDetail(ICollection<IFormFile> images,PostRoomTypeDetailDTO model)
+        public async Task<GetRoomTypeDetailDTO> CreateRoomTypeDetail(ICollection<IFormFile> ? images,PostRoomTypeDetailDTO model)
         {
             RoomType roomType= await _unitOfWork.GetRepository<RoomType>().Entities
                 .Where(r=>r.Id.Equals(model.RoomTypeID) && !r.DeletedTime.HasValue)
@@ -378,7 +379,7 @@ namespace Hotel.Application.Services
                 return 0;
             }
 
-            PriceAdjustmentPlan discountPlan = adjustmentPlans
+            PriceAdjustmentPlan ? discountPlan = adjustmentPlans
                         .Where(p => p.StartDate <= CoreHelper.SystemTimeNow && p.EndDate >= CoreHelper.SystemTimeNow)
                         .OrderByDescending(p => p.StartDate)
                         .FirstOrDefault();
@@ -388,7 +389,94 @@ namespace Hotel.Application.Services
             }
             return discountPlan.AdjustmentValue;
         }
+        public async Task<GetRoomTypeDetailDTO> UpdateRoomTypeDetail(string id, ICollection<IFormFile> ? images, PutRoomTypeDetailDTO model)
+        {
+            var strategy = _unitOfWork.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
+                using (await _unitOfWork.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(id))
+                        {
+                            throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.BADREQUEST, "Vui lòng chọn loại phòng!");
+                        }
+                        RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
+                            .FirstOrDefaultAsync(r => r.Id.Equals(id) && !r.DeletedTime.HasValue)
+                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
+                        if (!string.IsNullOrWhiteSpace(model.RoomTypeID))
+                        {
+                            RoomType roomType = await _unitOfWork.GetRepository<RoomType>().Entities
+                             .FirstOrDefaultAsync(r => r.Id.Equals(id) && !r.DeletedTime.HasValue)
+                             ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!(Lớn)");
+                        }
 
-       
+                        if (images != null)
+                        {
+                            List<ImageRoomTypeDetail> imageRoomTypeDetail = await _unitOfWork.GetRepository<ImageRoomTypeDetail>()
+                            .Entities
+                            .Where(i=>i.RoomTypeDetailID.Equals(id))
+                            .ToListAsync();
+
+                            if(imageRoomTypeDetail!= null)
+                            {
+                                await _unitOfWork.GetRepository<ImageRoomTypeDetail>().DeleteRangeAsync(imageRoomTypeDetail);
+                                await _unitOfWork.SaveChangesAsync();
+                            }
+                            foreach (var item in images)
+                            {
+                                PostImageViewModel postImageView = new PostImageViewModel()
+                                {
+                                    File = item
+                                };
+                                string url = await _firebaseService.UploadFileAsync(postImageView);
+
+                                Image image = new Image()
+                                {
+                                    URL = url,
+                                    CreatedBy = currentUserId,
+                                    LastUpdatedBy = currentUserId,
+                                };
+
+                                await _unitOfWork.GetRepository<Image>().InsertAsync(image);
+                                await _unitOfWork.SaveChangesAsync();
+
+                                ImageRoomTypeDetail imageRoomType = new ImageRoomTypeDetail()
+                                {
+                                    ImageID = image.Id,
+                                    RoomTypeDetailID = roomTypeDetail.Id
+                                };
+                                await _unitOfWork.GetRepository<ImageRoomTypeDetail>().InsertAsync(imageRoomType);
+                                await _unitOfWork.SaveChangesAsync();
+                            }
+                        }
+                        roomTypeDetail =  _mapper.Map<RoomTypeDetail>(model);
+                        await _unitOfWork.GetRepository<RoomTypeDetail>().UpdateAsync(roomTypeDetail);
+                        await _unitOfWork.SaveChangesAsync();
+                        return _mapper.Map<GetRoomTypeDetailDTO>(roomTypeDetail);
+                    }
+                    catch
+                    {
+                        await _unitOfWork.RollBackAsync();
+                        throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Lỗi khi tạo phòng");
+                    }
+                }
+            });
+        }
+        public async Task DeleteRoomTypeDetailAsync(string id)
+        {
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn loại phòng");
+            }
+            RoomTypeDetail roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>()
+                .Entities.FirstOrDefaultAsync(r=>r.Id.Equals(id))
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy");
+            roomTypeDetail.DeletedBy = currentUserId;
+            roomTypeDetail.DeletedTime = CoreHelper.SystemTimeNow;
+            await _unitOfWork.GetRepository<RoomTypeDetail>().UpdateAsync(roomTypeDetail);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
