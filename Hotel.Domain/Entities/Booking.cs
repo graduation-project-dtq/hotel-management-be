@@ -29,6 +29,7 @@ namespace Hotel.Domain.Entities
         public decimal PricePunish {  get; set; }
         //Tiền chưa thanh toán
         public decimal UnpaidAmount { get; set; }
+        public int ? CustomerCount {  get; set; }
         public EnumBooking Status { get; set; }
         public string ? CustomerName {  get; set; }
         public string ? IdentityCard { get; set; }

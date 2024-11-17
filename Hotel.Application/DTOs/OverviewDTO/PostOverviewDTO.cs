@@ -18,7 +18,7 @@ namespace Hotel.Application.DTOs.OverviewDTO
         public float ViewPoint { get; set; } //View
         [Required(ErrorMessage = "Bạn chưa đánh giá phòng của khách sạn")]
         public float RoomPoint { get; set; } //Phòng
-        [Required(ErrorMessage = "Mày là thèn nào???")]
+        [Required(ErrorMessage = "Vui lòng đăng nhập")]
         public string CustomerId { get; set; } = string.Empty;
     }
 }

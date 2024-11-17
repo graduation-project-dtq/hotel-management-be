@@ -410,6 +410,7 @@ namespace Hotel.Application.Services
                             RoomType roomType = await _unitOfWork.GetRepository<RoomType>().Entities
                              .FirstOrDefaultAsync(r => r.Id.Equals(id) && !r.DeletedTime.HasValue)
                              ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!(Lớn)");
+                        roomTypeDetail.RoomTypeID = model.RoomTypeID;
                         }
 
                         if (images != null)
@@ -421,8 +422,7 @@ namespace Hotel.Application.Services
 
                             if(imageRoomTypeDetail!= null)
                             {
-                                await _unitOfWork.GetRepository<ImageRoomTypeDetail>().DeleteRangeAsync(imageRoomTypeDetail);
-                                await _unitOfWork.SaveChangesAsync();
+                                await _unitOfWork.GetRepository<ImageRoomTypeDetail>().DeleteRangeAsync(imageRoomTypeDetail);  
                             }
                             foreach (var item in images)
                             {
@@ -451,7 +451,16 @@ namespace Hotel.Application.Services
                                 await _unitOfWork.SaveChangesAsync();
                             }
                         }
-                        roomTypeDetail =  _mapper.Map<RoomTypeDetail>(model);
+                       
+                        //Map thuộc tính
+                        roomTypeDetail.Name = model.Name ?? roomTypeDetail.Name;
+                        roomTypeDetail.CapacityMax = model.CapacityMax ?? roomTypeDetail.CapacityMax;
+                        roomTypeDetail.Area = model.Area ?? roomTypeDetail.Area;
+                        roomTypeDetail.Description = model.Description ?? roomTypeDetail.Description;
+                        roomTypeDetail.BasePrice = model.BasePrice ?? roomTypeDetail.BasePrice;
+                        roomTypeDetail.LastUpdatedBy = currentUserId;
+                        roomTypeDetail.LastUpdatedTime = CoreHelper.SystemTimeNow;
+
                         await _unitOfWork.GetRepository<RoomTypeDetail>().UpdateAsync(roomTypeDetail);
                         await _unitOfWork.SaveChangesAsync();
                         return _mapper.Map<GetRoomTypeDetailDTO>(roomTypeDetail);

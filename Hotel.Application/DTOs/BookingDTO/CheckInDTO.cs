@@ -10,5 +10,7 @@ namespace Hotel.Application.DTOs.BookingDTO
         public string CustomerName { get; set; } = string.Empty;
         [Required(ErrorMessage = "Không được để trống số CMND/CCCD")]
         public string IdentityCard {  get; set; } = string.Empty;
+        [Required(ErrorMessage = "Không được để trống số lượng khách hàng")]
+        public int? CustomerCount { get; set; }
     }
 }

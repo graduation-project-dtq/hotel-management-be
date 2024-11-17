@@ -216,9 +216,94 @@ namespace Hotel.Application.Services
                 }
             });
         }
+        //public async Task<GetRoomDTO> UpdateRoomAsync(string id, PutRoomDTO model)
+        //{
+
+        //    var strategy = _unitOfWork.CreateExecutionStrategy();
+        //    return await strategy.ExecuteAsync(async () =>
+        //    {
+        //        using (await _unitOfWork.BeginTransactionAsync())
+        //        {
+        //            //try
+        //            //{
+        //                if (string.IsNullOrWhiteSpace(id))
+        //                {
+        //                    throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn phòng");
+        //                }
+        //                Room room = await _unitOfWork.GetRepository<Room>().Entities
+        //                    .Where(r => r.Id.Equals(id) && !r.DeletedTime.HasValue)
+        //                    .FirstOrDefaultAsync()
+        //                    ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng");
+
+        //                if(!string.IsNullOrWhiteSpace(model.RoomTypeDetailId))
+        //                {
+        //                    RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>()
+        //                    .Entities.FirstOrDefaultAsync(r=>r.Id.Equals(model.RoomTypeDetailId) && !r.DeletedTime.HasValue)
+        //                    ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
+        //                }
+        //                if (!string.IsNullOrWhiteSpace(model.FloorID))
+        //                {
+        //                    Floor floor = await _unitOfWork.GetRepository<Floor>()
+        //                    .Entities.FirstOrDefaultAsync(r => r.Id.Equals(model.FloorID) && !r.DeletedTime.HasValue)
+        //                    ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tầng");
+        //                }
+        //                room = _mapper.Map<Room>(model);
+        //                await _unitOfWork.GetRepository<Room>().UpdateAsync(room);
+        //                await _unitOfWork.SaveChangesAsync();
+
+        //                // Thêm tiện nghi nếu có
+        //                if (model.Facilities != null)
+        //                {
+        //                    List<FacilitiesRoom> facilitiesRooms = await _unitOfWork.GetRepository<FacilitiesRoom>().Entities
+        //                    .Where(f => f.RoomID.Equals(id))
+        //                    .ToListAsync();
+        //                    if(facilitiesRooms!= null)
+        //                    {
+        //                        await _unitOfWork.GetRepository<FacilitiesRoom>().DeleteRangeAsync(facilitiesRooms);
+        //                        await _unitOfWork.SaveChangesAsync();
+        //                    }
+        //                    foreach (var item in model.Facilities)
+        //                    {
+        //                        Facilities? facilities = await _unitOfWork.GetRepository<Facilities>()
+        //                            .Entities.FirstOrDefaultAsync(f => f.Id.Equals(item.FacilitiesId) && !f.DeletedTime.HasValue);
+
+        //                        if (facilities == null)
+        //                        {
+        //                            await _unitOfWork.RollBackAsync();
+        //                            throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tiện nghi!");
+        //                        }
+
+        //                        // Tạo mới FacilitiesRoom
+        //                        FacilitiesRoom facilitiesRoom = new FacilitiesRoom
+        //                        {
+        //                            RoomID = room.Id,
+        //                            FacilitiesID = item.FacilitiesId
+        //                        };
+
+        //                        await _unitOfWork.GetRepository<FacilitiesRoom>().InsertAsync(facilitiesRoom);
+        //                    }
+        //                }
+
+        //                // Lưu và commit giao dịch
+        //                await _unitOfWork.SaveChangesAsync();
+        //                await _unitOfWork.CommitTransactionAsync();
+
+        //                // Trả về kết quả
+        //                return _mapper.Map<GetRoomDTO>(room);
+        //            //}
+        //            //catch
+        //            //{
+        //            //    await _unitOfWork.RollBackAsync();
+        //            //    throw;
+        //            //    //throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Lỗi khi tạo phòng");
+        //            //}
+        //        }
+        //    });
+
+
+        //}
         public async Task<GetRoomDTO> UpdateRoomAsync(string id, PutRoomDTO model)
         {
-            
             var strategy = _unitOfWork.CreateExecutionStrategy();
             return await strategy.ExecuteAsync(async () =>
             {
@@ -228,39 +313,38 @@ namespace Hotel.Application.Services
                     {
                         if (string.IsNullOrWhiteSpace(id))
                         {
-                            throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn phòng");
+                            throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn phòng!");
                         }
-                        Room room = await _unitOfWork.GetRepository<Room>().Entities
-                            .Where(r => r.Id.Equals(id) && !r.DeletedTime.HasValue)
-                            .FirstOrDefaultAsync()
-                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng");
-
-                        if(string.IsNullOrWhiteSpace(model.RoomTypeDetailId))
+                        Room room = await _unitOfWork.GetRepository<Room>().Entities.FirstOrDefaultAsync(r => r.Id.Equals(id) && !r.DeletedTime.HasValue)
+                               ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy phòng!");
+                    
+                        // Kiểm tra khoá ngoại  
+                        if (!string.IsNullOrWhiteSpace(model.RoomTypeDetailId))
                         {
                             RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>()
-                            .Entities.FirstOrDefaultAsync(r=>r.Id.Equals(model.RoomTypeDetailId) && !r.DeletedTime.HasValue)
-                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
+                               .Entities.FirstOrDefaultAsync(r => r.Id == model.RoomTypeDetailId)
+                               ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
+                            room.RoomTypeDetailId = model.RoomTypeDetailId;
                         }
-                        if (string.IsNullOrWhiteSpace(model.FloorID))
+                        if (!string.IsNullOrWhiteSpace(model.FloorID))
                         {
                             Floor floor = await _unitOfWork.GetRepository<Floor>()
-                            .Entities.FirstOrDefaultAsync(r => r.Id.Equals(model.FloorID) && !r.DeletedTime.HasValue)
-                            ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tầng");
+                                .Entities.FirstOrDefaultAsync(f => f.Id == model.FloorID)
+                                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy vị trí!");
+                            room.FloorId = model.FloorID;
                         }
-                        room = _mapper.Map<Room>(model);
-                        await _unitOfWork.GetRepository<Room>().UpdateAsync(room);
-                        await _unitOfWork.SaveChangesAsync();
+                      
 
                         // Thêm tiện nghi nếu có
-                        if (model.Facilities != null)
+                        if (model.Facilities != null && model.Facilities.Any())
                         {
-                            List<FacilitiesRoom> facilitiesRooms = await _unitOfWork.GetRepository<FacilitiesRoom>().Entities
-                            .Where(f => f.RoomID.Equals(id))
-                            .ToListAsync();
+                            List<FacilitiesRoom> facilitiesRooms = await _unitOfWork.GetRepository<FacilitiesRoom>()
+                                .Entities
+                                .Where(f => f.RoomID.Equals(id))
+                                .ToListAsync();
                             if(facilitiesRooms!= null)
                             {
                                 await _unitOfWork.GetRepository<FacilitiesRoom>().DeleteRangeAsync(facilitiesRooms);
-                                await _unitOfWork.SaveChangesAsync();
                             }
                             foreach (var item in model.Facilities)
                             {
@@ -284,6 +368,15 @@ namespace Hotel.Application.Services
                             }
                         }
 
+                       if(!string.IsNullOrWhiteSpace(model.Name))
+                       {
+                            room.Name = model.Name;
+                       }
+
+                        room.LastUpdatedBy = currentUserId;
+                        room.LastUpdatedTime = CoreHelper.SystemTimeNow;
+                        await _unitOfWork.GetRepository<Room>().UpdateAsync(room);
+
                         // Lưu và commit giao dịch
                         await _unitOfWork.SaveChangesAsync();
                         await _unitOfWork.CommitTransactionAsync();
@@ -294,14 +387,12 @@ namespace Hotel.Application.Services
                     catch
                     {
                         await _unitOfWork.RollBackAsync();
-                        throw;
-                        //throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Lỗi khi tạo phòng");
+                        throw new ErrorException(StatusCodes.Status500InternalServerError, ResponseCodeConstants.INTERNAL_SERVER_ERROR, "Lỗi khi tạo phòng");
                     }
                 }
             });
-
-
         }
+
         public async Task DeleteRoomAsync(string id)
         {
             if(string.IsNullOrWhiteSpace(id))

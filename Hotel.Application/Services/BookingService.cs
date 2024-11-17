@@ -720,6 +720,76 @@ namespace Hotel.Application.Services
             };
             await _notificationService.CreateNotification(notificationDTO);
         }
+
+        //Thống kê booking theo ngày
+        public async Task<StatisticaInDTO> StatisticaInDate(DateOnly date)
+        {
+            List<Booking> bookings = await _unitOfWork.GetRepository<Booking>()
+                .Entities
+                .Where(b => !b.DeletedTime.HasValue && DateOnly.FromDateTime(b.CreatedTime.Date) ==date)
+                .ToListAsync();
+            StatisticaInDTO statisticaInDTO = new StatisticaInDTO()
+            {
+                Count = bookings != null ? bookings.Count : 0,
+                TotalAmount = bookings !=null ? bookings.Select(b => b.TotalAmount).Sum() : 0,
+                CustomerCount = bookings != null ? bookings.Select(b => b.CustomerCount ?? 0).Sum() : 0,
+
+            }; ;
+            return statisticaInDTO;
+        }
+        //Thông kê theo tháng
+        public async Task<StatisticaInDTO> StatisticaInMonth(int month, int year)
+        {
+            if(month<1 || month>12)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Tháng không hợp lệ");
+            }
+            if(year <0 || year>DateTime.Now.Year)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Năm không hợp lệ");
+
+            }
+            List<Booking> bookings = await _unitOfWork.GetRepository<Booking>()
+                .Entities
+                .Where(b => !b.DeletedTime.HasValue &&
+                            b.CreatedTime.Month == month &&
+                            b.CreatedTime.Year == year)
+                .ToListAsync();
+
+            StatisticaInDTO statisticaInDTO = new StatisticaInDTO()
+            {
+                Count = bookings.Count,
+                TotalAmount = bookings.Select(b => b.TotalAmount).Sum(),
+                CustomerCount = bookings != null ? bookings.Select(b => b.CustomerCount ?? 0).Sum() : 0,
+            };
+
+            return statisticaInDTO;
+        }
+        //Thông kê theo năm
+        public async Task<StatisticaInDTO> StatisticaInYear( int year)
+        {
+            if (year < 0 || year > DateTime.Now.Year)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Năm không hợp lệ");
+
+            }
+            List<Booking> bookings = await _unitOfWork.GetRepository<Booking>()
+                .Entities
+                .Where(b => !b.DeletedTime.HasValue &&
+                            b.CreatedTime.Year == year)
+                .ToListAsync();
+
+
+            StatisticaInDTO statisticaInDTO = new StatisticaInDTO()
+            {
+                Count = bookings.Count,
+                TotalAmount = bookings.Select(b => b.TotalAmount).Sum(),
+                CustomerCount = bookings != null ? bookings.Select(b => b.CustomerCount ?? 0).Sum() : 0,
+            };
+
+            return statisticaInDTO;
+        }
+
     }
 }
 

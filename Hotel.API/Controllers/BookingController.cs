@@ -6,7 +6,6 @@ using Hotel.Core.Constants;
 using Hotel.Domain.Enums.EnumBooking;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sprache;
 
 namespace Hotel.API.Controllers
 {
@@ -100,6 +99,44 @@ namespace Hotel.API.Controllers
              ));
         }
 
+        //Thống kê theo ngày
+        [HttpGet("date")]
+        public async Task<IActionResult>  StatisticaInDate(DateOnly date)
+        {
+            StatisticaInDTO result= await _bookingService.StatisticaInDate(date);
+            return Ok(new BaseResponse<StatisticaInDTO>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               data: result,
+               message: "Thống kê thành công!"
+            ));
+        }
+
+        //Thống kê theo tháng
+        [HttpGet("mount")]
+        public async Task<IActionResult> StatisticaInMount(int mount,int year)
+        {
+            StatisticaInDTO result = await _bookingService.StatisticaInMonth(mount,year);
+            return Ok(new BaseResponse<StatisticaInDTO>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               data: result,
+               message: "Thống kê thành công!"
+            ));
+        }
+
+        //Thống kê theo tháng
+        [HttpGet("year")]
+        public async Task<IActionResult> StatisticaInYear( int year)
+        {
+            StatisticaInDTO result = await _bookingService.StatisticaInYear(year);
+            return Ok(new BaseResponse<StatisticaInDTO>(
+               statusCode: StatusCodes.Status200OK,
+               code: ResponseCodeConstants.SUCCESS,
+               data: result,
+               message: "Thống kê thành công!"
+            ));
+        }
         /// <summary>
         /// CheckIn tại khách sạn
         /// </summary>
@@ -143,5 +180,7 @@ namespace Hotel.API.Controllers
                message: "Huỷ phòng thành công"
             ));
         }
+
+        
     }
 }
