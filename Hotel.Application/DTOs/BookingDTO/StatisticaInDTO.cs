@@ -5,5 +5,6 @@
     {
         public int Count {  get; set; }//Số lượng booking
         public decimal TotalAmount {  get; set; }
+        public int? CustomerCount { get; set; }
     }
 }
