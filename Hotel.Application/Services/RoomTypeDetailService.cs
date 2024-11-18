@@ -35,7 +35,7 @@ namespace Hotel.Application.Services
         {
             List<RoomTypeDetail> roomTypeDetails =
                 await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
-                .Include(r => r.RoomPriceAdjustments)
+                .Include(r => r.RoomType)
                 .Where(r => !r.DeletedTime.HasValue).ToListAsync();
             //Gắn thêm hình vào
             foreach (var item in roomTypeDetails)
@@ -70,6 +70,7 @@ namespace Hotel.Application.Services
                     CapacityMax = item.CapacityMax,
                     BasePrice = item.BasePrice,
                     DiscountPrice = item.BasePrice,
+                    RoomTypeID = item.RoomType != null ? item.RoomType.Id : null,
                     Area = item.Area,
                 };
                 if (item.ImageRoomTypeDetails != null)
@@ -108,8 +109,10 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn loại phòng");
             }
-            RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>().
-                Entities.FirstOrDefaultAsync(r => r.Id == id)
+            RoomTypeDetail roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>()
+                .Entities
+                .Include(r=>r.RoomType)
+                .FirstOrDefaultAsync(r => r.Id == id)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng");
 
             GetRoomTypeDetailDTO getRoomType = new GetRoomTypeDetailDTO()
@@ -120,6 +123,7 @@ namespace Hotel.Application.Services
                 CapacityMax = roomTypeDetail.CapacityMax,
                 BasePrice = roomTypeDetail.BasePrice,
                 DiscountPrice = roomTypeDetail.BasePrice,
+                RoomTypeID = roomTypeDetail.RoomType != null ? roomTypeDetail.RoomType.Id : null,
                 Area = roomTypeDetail.Area,
             };
             decimal discount = await GetDiscountPrice(roomTypeDetail.Id);
@@ -159,7 +163,7 @@ namespace Hotel.Application.Services
             }
             List<RoomTypeDetail> roomTypeDetails =
                 await _unitOfWork.GetRepository<RoomTypeDetail>().Entities
-                .Include(r => r.RoomPriceAdjustments)
+                .Include(r => r.RoomType)
                 .Where(r => r.RoomTypeID == id).ToListAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy loại phòng!");
             //Gắn thêm hình vào
@@ -196,6 +200,7 @@ namespace Hotel.Application.Services
                     CapacityMax = item.CapacityMax,
                     BasePrice = item.BasePrice,
                     DiscountPrice = item.BasePrice,
+                    RoomTypeID= item.RoomType!=null ? item.RoomType.Id : null,
                     Area = item.Area,
                 };
                 if (item.ImageRoomTypeDetails != null)
