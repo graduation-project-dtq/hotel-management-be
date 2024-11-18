@@ -10,7 +10,7 @@ namespace Hotel.Application.Interfaces
     {
         Task<List<GetRoomTypeDTO>> GetAllRoomType();
         Task<GetRoomTypeDTO> CreateRoomType(ICollection<IFormFile>? images,PortRoomTypeDTO model);
-        Task<GetRoomTypeDTO> UpdateRoomType(string id,ICollection<IFormFile>? images, PutRoomTypeDTO model);
+        Task UpdateRoomType(string id,ICollection<IFormFile>? images, PutRoomTypeDTO model);
         Task DeleteRoomType(string id);
         Task<GetRoomTypeDTO> GetRoomTypeById(string id);
 

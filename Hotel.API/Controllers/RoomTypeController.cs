@@ -70,11 +70,11 @@ namespace Hotel.API.Controllers
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> UpdateRoomType([FromForm] string id, [FromForm] List<IFormFile>? images, [FromForm] PutRoomTypeDTO model)
         {
-            GetRoomTypeDTO result = await _roomTypeService.UpdateRoomType(id,images, model);
-            return Ok(new BaseResponseModel<GetRoomTypeDTO>(
+             await _roomTypeService.UpdateRoomType(id,images, model);
+            return Ok(new BaseResponseModel<string ?>(
                 statusCode: StatusCodes.Status200OK,
                 code: ResponseCodeConstants.SUCCESS,
-                data: result,
+                data: null,
                 message: "Cập nhật thành công"
             ));
         }

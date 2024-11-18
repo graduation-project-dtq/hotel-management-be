@@ -5,6 +5,7 @@ using Hotel.Core.Constants;
 using Hotel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Hotel.API.Controllers
 {
@@ -62,11 +63,11 @@ namespace Hotel.API.Controllers
         public async Task<IActionResult> UpdateRoomTypeDetail([FromForm] string id,[FromForm] List<IFormFile>? images, [FromForm] PutRoomTypeDetailDTO model)
         {
 
-            GetRoomTypeDetailDTO result = await _roomTypeDetailService.UpdateRoomTypeDetail(id,images, model);
-            return Ok(new BaseResponse<GetRoomTypeDetailDTO>(
+            await _roomTypeDetailService.UpdateRoomTypeDetail(id,images, model);
+            return Ok(new BaseResponse<string ?>(
              statusCode: StatusCodes.Status200OK,
              code: ResponseCodeConstants.SUCCESS,
-             data: result,
+             data: null,
              message: "Cập nhật thành công"
              ));
         }
