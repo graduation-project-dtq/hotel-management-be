@@ -120,10 +120,14 @@ namespace Hotel.Application.Services
              .Select(e => new GetFacilitiesRoomDTO
              {
                  //Map thuộc tính
+                 Id=e.Facilities!=null ? e.Facilities.Id : string.Empty,
                  roomId=e.RoomID,
-                 Name = e.Facilities.Name,
-                 Description = e.Facilities.Description,
-                 Price = e.Facilities.Price,
+                 Name = e.Facilities != null ? e.Facilities.Name : string.Empty,
+                 Description =e.Facilities != null ? e.Facilities.Description : string.Empty,
+
+                 Quantity = e.Quantity,
+                 Price =  e.Facilities != null ? e.Facilities.Price : 0,
+
                  Images = e.Facilities.ImageFacilities != null ? e.Facilities.ImageFacilities.Select(img => new GetImage()
                  {
                      URL = img.Image != null && img.Image.URL != null

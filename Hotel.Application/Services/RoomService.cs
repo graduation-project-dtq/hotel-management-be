@@ -146,12 +146,9 @@ namespace Hotel.Application.Services
         //Tìm theo id
         public async Task<GetRoomDTO> GetRoomById(string id)
         {
-            var regex = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-]+$");
-            if (!regex.IsMatch(id.Trim()))
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "ID không hợp lệ! Không được chứa ký tự đặc biệt.");
-            }
-            var room = await _unitOfWork.GetRepository<Room>().Entities.FirstOrDefaultAsync(r=>r.Id == id)
+            Room room = await _unitOfWork.GetRepository<Room>()
+                .Entities
+                .FirstOrDefaultAsync(r=>r.Id == id && !r.DeletedTime.HasValue)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy");
 
             GetRoomDTO getRoomDTO=_mapper.Map<GetRoomDTO>(room);
