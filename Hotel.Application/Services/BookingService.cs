@@ -683,6 +683,7 @@ namespace Hotel.Application.Services
                         await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                         await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
                         await _unitOfWork.SaveChangesAsync();
+                        await _unitOfWork.CommitTransactionAsync();
                     }
                     catch
                     {
