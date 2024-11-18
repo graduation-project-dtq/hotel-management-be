@@ -121,7 +121,6 @@ namespace Hotel.Application.Services
              {
                  //Map thuộc tính
                  roomId=e.RoomID,
-                 roomName=e.Room.Name,
                  Name = e.Facilities.Name,
                  Description = e.Facilities.Description,
                  Price = e.Facilities.Price,

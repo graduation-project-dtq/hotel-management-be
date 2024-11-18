@@ -9,6 +9,7 @@ namespace Hotel.Application.DTOs.FacilitiesDTO
     public class GetFacilitiesRoomDTO : GetFacilitiesDTO
     {
         public string roomId { get; set; } = string.Empty;
-        public string roomName { get; set; } = string.Empty;
+       
+        public int Quantity { get; set; }
     }
 }

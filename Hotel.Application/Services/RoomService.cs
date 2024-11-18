@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hotel.Application.DTOs.FacilitiesDTO;
 using Hotel.Application.DTOs.RoomDTO;
 using Hotel.Application.Extensions;
 using Hotel.Application.Interfaces;
@@ -42,6 +43,8 @@ namespace Hotel.Application.Services
             IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
                 .Include(r => r.Floor)
                 .Include(r => r.RoomTypeDetail)
+                .Include(r=>r.FacilitiesRooms)
+                    .ThenInclude(f=>f.Facilities)
                 .Where(c => !c.DeletedTime.HasValue)
                 .OrderByDescending(c => c.CreatedTime);
 
@@ -106,7 +109,15 @@ namespace Hotel.Application.Services
                     FloorID = item.Floor != null ? item.Floor.Name : null,
                     RoomTypeDetailId = item.RoomTypeDetail != null ? item.RoomTypeDetail.Name : null,
                     Name = item.Name,
-                    Status = roomStatus  // Gán trạng thái cho DTO
+                    Status = roomStatus ,
+                    FacilitiesRoomDTOs = item.FacilitiesRooms != null ? item.FacilitiesRooms.Select(f=>new GetFacilitiesRoomDTO
+                    {
+                        roomId=item.Id,
+                        Id=f.Facilities!= null ? f.Facilities.Id : string.Empty,
+                        Quantity=f.Quantity,
+                        Name= f.Facilities != null ? f.Facilities.Name : string.Empty,
+                        Price= f.Facilities != null ? f.Facilities.Price : 0,
+                    }).ToList() : new List<GetFacilitiesRoomDTO>(),
                 };
                 responseItems.Add(response);
             }
