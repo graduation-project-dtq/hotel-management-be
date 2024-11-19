@@ -568,6 +568,7 @@ namespace Hotel.Application.Services
             booking.Status = EnumBooking.CHECKEDIN;
             booking.CustomerName = model.CustomerName;
             booking.IdentityCard = model.IdentityCard;
+            booking.CustomerCount = model.CustomerCount;
             booking.LastUpdatedBy = userId;
             booking.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
