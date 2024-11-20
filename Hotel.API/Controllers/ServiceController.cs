@@ -51,7 +51,7 @@ namespace Hotel.API.Controllers
             ));
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> UpdateService([FromForm] string id,[FromForm] PutServiceDTO model, [FromForm] List<IFormFile> ? images)
         {
@@ -65,7 +65,7 @@ namespace Hotel.API.Controllers
             ));
 
         }
-        [HttpDelete("{id}")]
+        [HttpDelete]
         [Authorize(Roles = "ADMIN,EMPLOYEE")]
         public async Task<IActionResult> DeleteService(string id)
         {

@@ -164,7 +164,11 @@ namespace Hotel.Application.Services
 
             string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
 
-            voucher = _mapper.Map<Voucher>(model);
+            voucher.CustomerId = model.CustomerId ?? voucher.CustomerId;
+            voucher.DiscountAmount=model.DiscountAmount ?? voucher.DiscountAmount;
+            voucher.Description = model.Description ?? voucher.Description;
+            voucher.StartDate = model.StartDate ?? voucher.StartDate;
+            voucher.EndDate = model.EndDate ?? voucher.EndDate;
             voucher.LastUpdatedBy = userId;
             voucher.LastUpdatedTime = CoreHelper.SystemTimeNow;
             await _unitOfWork.GetRepository<Voucher>().UpdateAsync(voucher);
