@@ -13,5 +13,6 @@ namespace Hotel.Application.Interfaces
         Task DeleteAccount(string id);
         Task ChangePassWordAsync(string email,string password, string newPassWord, string reNewPassWord);
         Task LockAccount(string id);
+        Task UnLockAccount(string id);
     }
 }
