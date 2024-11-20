@@ -126,7 +126,32 @@ namespace Hotel.API.Controllers
                    statusCode: StatusCodes.Status200OK,
                    code: ResponseCodeConstants.SUCCESS,
                    data: null,
-                   message: "Đổi mật khẩu thành công"));
+                   message: "Đổi mật khẩu thành công")
+            );
+        }
+
+        [HttpPost("lock-account")]
+        public async Task<IActionResult> LockAccountAsync(string id)
+        {
+            await _authService.LockAccount(id);
+            return Ok(new BaseResponse<string?>(
+                   statusCode: StatusCodes.Status200OK,
+                   code: ResponseCodeConstants.SUCCESS,
+                   data: null,
+                   message: "Khoá tài khoản thành công")
+            );
+        }
+
+        [HttpPost("unlock-account")]
+        public async Task<IActionResult> UnLockAccountAsync(string id)
+        {
+            await _authService.UnLockAccount(id);
+            return Ok(new BaseResponse<string?>(
+                   statusCode: StatusCodes.Status200OK,
+                   code: ResponseCodeConstants.SUCCESS,
+                   data: null,
+                   message: "Mở khoá tài khoản thành công")
+            );
         }
     }
 }
