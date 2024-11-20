@@ -107,7 +107,6 @@ namespace Hotel.Application.Services
             Role ? role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(r=>r.RoleName.Equals("Employee") && !r.DeletedTime.HasValue);
             Account account = new Account()
             {
-               
                 Email= model.Email,
                 Name= model.Name,
                 Password = passwordHasher.HashPassword(new Account(), "Admin123@"), 
@@ -129,10 +128,17 @@ namespace Hotel.Application.Services
             //Tạo nhân viên
             Employee employee = new Employee()
             {
-                Id = account.Id
+                Id = account.Id,
+                AccountID = account.Id,
+                Name=model.Name,
+                Email=model.Email,
+                Phone=model.Phone,
+                IdentityCard=model.IdentityCard,
+                Sex=model.Sex,
+                DateOfBirth=model.DateOfBirth,
+                Address=model.Address,
             };
-            employee =_mapper.Map<Employee>(model);
-            employee.AccountID = account.Id;
+          
             employee.HireDate= DateOnly.FromDateTime(DateTime.Now);
             employee.CreatedBy = currentUserId;
             employee.LastUpdatedBy = currentUserId;
