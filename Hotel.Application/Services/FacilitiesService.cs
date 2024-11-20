@@ -101,13 +101,13 @@ namespace Hotel.Application.Services
 
             }
             IQueryable<FacilitiesRoom> query = _unitOfWork.GetRepository<FacilitiesRoom>().Entities
-               .Where(e => e.Room.Id.Equals(roomId));
+               .Where(e => e.Room !=null && e.Room.Id.Equals(roomId)); 
 
           
             //Tìm theo tên
             if (!string.IsNullOrWhiteSpace(nameSearch))
             {
-                query = query.Where(r => r.Facilities.Name.Contains( nameSearch));
+                query = query.Where(r => r.Facilities!=null && r.Facilities.Name.Contains( nameSearch));
             }
 
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
@@ -128,7 +128,7 @@ namespace Hotel.Application.Services
                  Quantity = e.Quantity,
                  Price =  e.Facilities != null ? e.Facilities.Price : 0,
 
-                 Images = e.Facilities.ImageFacilities != null ? e.Facilities.ImageFacilities.Select(img => new GetImage()
+                 Images = e.Facilities!= null && e.Facilities.ImageFacilities != null ? e.Facilities.ImageFacilities.Select(img => new GetImage()
                  {
                      URL = img.Image != null && img.Image.URL != null
                          ? img.Image.URL
@@ -218,8 +218,9 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND
                     , "Không tìm thấy trang thiết bị");
             }
-            facilities = _mapper.Map<Facilities>(model);
-
+            facilities.Name = model.Name ?? facilities.Name;
+            facilities.Price=model.Price ?? facilities.Price;
+            facilities.Description=model.Description ?? facilities.Description;
             if(images!= null)
             {
                 //Xoá ảnh củ
@@ -227,11 +228,12 @@ namespace Hotel.Application.Services
                     .Entities.Where(i => i.FacilitiesID.Equals(id)).ToListAsync();
                 if(imageFacilities!=null)
                 {
-                    foreach(ImageFacilities item in imageFacilities)
-                    {
-                        await _unitOfWork.GetRepository<ImageFacilities>().DeleteAsync(item.FacilitiesID);
-                        await _unitOfWork.SaveChangesAsync();
-                    }
+                    //foreach(ImageFacilities item in imageFacilities)
+                    //{
+                    //    await _unitOfWork.GetRepository<ImageFacilities>().DeleteAsync(item.FacilitiesID);
+                    //    await _unitOfWork.SaveChangesAsync();
+                    //}
+                    await _unitOfWork.GetRepository<ImageFacilities>().DeleteRangeAsync(imageFacilities);
                 }
                 foreach (var item in images)
                 {
@@ -257,7 +259,7 @@ namespace Hotel.Application.Services
                 }
             }
 
-            await _unitOfWork.GetRepository<Facilities>().InsertAsync(facilities);
+            await _unitOfWork.GetRepository<Facilities>().UpdateAsync(facilities);
             await _unitOfWork.SaveChangesAsync();
 
             GetFacilitiesDTO getFacilitiesDTO = _mapper.Map<GetFacilitiesDTO>(facilities);

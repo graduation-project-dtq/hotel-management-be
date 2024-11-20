@@ -1,6 +1,7 @@
 ﻿
 using Hotel.Application.DTOs.VoucherDTO;
 using Hotel.Application.PaggingItems;
+using Hotel.Domain.Enums.EnumVoucher;
 
 namespace Hotel.Application.Interfaces
 {
@@ -11,5 +12,7 @@ namespace Hotel.Application.Interfaces
         Task CreateVoucher(PostVoucherDTO model);
         Task UpdateVoucher(string id, PutVoucherDTO model);
         Task DeleteVoucher(string id);
+        Task<List<GetVoucherDTO>> GetVoucherActive();
+        Task CreateVoucherForCustomer(EnumVoucher enumVoucher, PostVoucherDTO model);
     }
 }

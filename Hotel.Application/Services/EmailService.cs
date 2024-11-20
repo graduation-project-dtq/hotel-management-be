@@ -182,7 +182,7 @@ public class EmailService : IEmailService
     }
     private async Task<string> CreateEmailBody(GetBookingDTO bookingDTO)
     {
-        Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(bookingDTO.CustomerId);
+        Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(bookingDTO.CustomerId ?? string.Empty);
 
         var sb = new StringBuilder();
         sb.AppendLine("<h1 style='color: #2E86C1; font-family: Arial, sans-serif;'>Xác nhận đặt phòng thành công</h1>");
@@ -205,13 +205,17 @@ public class EmailService : IEmailService
         sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
         sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Chi tiết phòng</th>");
         sb.AppendLine("</tr>");
-        foreach (var detail in bookingDTO.BookingDetail)
+        if(bookingDTO.BookingDetail!=null)
         {
-            sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{detail.RoomName}</td></tr>");
-        }
-
+            foreach (var detail in bookingDTO.BookingDetail)
+            {
+                sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{detail.RoomName}</td></tr>");
+            }
+        }    
+       
         // Dịch vụ
-        if (bookingDTO.Services.Count > 0)
+
+        if (bookingDTO.Services!=null)
         {
             sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
             sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Dịch vụ</th>");
@@ -227,9 +231,10 @@ public class EmailService : IEmailService
         sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
         sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Thông tin thanh toán</th>");
         sb.AppendLine("</tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.TotalAmount:N0} VND</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tiền khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
         sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số tiền đã đặt cọc:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.Deposit:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tiền khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.TotalAmount:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền sau khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.DiscountedAmount:N0} VND</td></tr>");
         sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số tiền chưa thanh toán:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.UnpaidAmount:N0} VND</td></tr>");
 
         // Kết thúc bảng
@@ -242,7 +247,7 @@ public class EmailService : IEmailService
 
     private async Task<string> CreateEmailBodyFinal(GetBookingDTO bookingDTO)
     {
-        Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(bookingDTO.CustomerId);
+        Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(bookingDTO.CustomerId ?? string.Empty);
 
         var sb = new StringBuilder();
         sb.AppendLine("<h2 style='color: #2E86C1;'>Cảm ơn quý khách hàng đã sử dụng dịch vụ của khách sạn <br>Xin hân hạnh phục vụ quý khách lần kế tiếp</h2>");
@@ -265,14 +270,15 @@ public class EmailService : IEmailService
         sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold; font-size: 14px;'>");
         sb.AppendLine("<th colspan='2' style='padding: 12px;'>Chi tiết phòng</th>");
         sb.AppendLine("</tr>");
-
-        foreach (var detail in bookingDTO.BookingDetail)
+        if(bookingDTO.BookingDetail!=null)
         {
-            sb.AppendLine($"<tr><td colspan='2' style='padding: 10px;'><strong>Phòng:</strong></td><td style='padding: 10px;'>{detail.RoomName}</td></tr>");
+            foreach (var detail in bookingDTO.BookingDetail)
+            {
+                sb.AppendLine($"<tr><td colspan='2' style='padding: 10px;'><strong>Phòng:</strong></td><td style='padding: 10px;'>{detail.RoomName}</td></tr>");
+            }
         }
-
         // Dịch vụ
-        if (bookingDTO.Services.Count > 0)
+        if (bookingDTO.Services!=null)
         {
             sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold; font-size: 14px;'>");
             sb.AppendLine("<th colspan='3' style='padding: 12px;'>Dịch vụ</th>");
@@ -286,7 +292,7 @@ public class EmailService : IEmailService
         }
 
         // Phạt tiền
-        if (bookingDTO.Punishes.Count > 0)
+        if (bookingDTO.Punishes!=null)
         {
             sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold; font-size: 14px;'>");
             sb.AppendLine("<th colspan='3' style='padding: 12px;'>Phạt tiền</th>");

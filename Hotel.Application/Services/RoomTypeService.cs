@@ -162,6 +162,8 @@ namespace Hotel.Application.Services
             }
 
             RoomType? getroomType = await _unitOfWork.GetRepository<RoomType>().Entities
+                .Include(r=>r.ImageRoomTypes!)
+                    .ThenInclude(i=>i.Image!)
                 .Where(r=>r.Id.Equals(roomType.Id) && !r.DeletedTime.HasValue).FirstOrDefaultAsync();
 
             GetRoomTypeDTO getRoomTypeDTO = new GetRoomTypeDTO()
@@ -171,7 +173,7 @@ namespace Hotel.Application.Services
                 Description= getroomType.Description,
                 ImageRoomTypes = getroomType.ImageRoomTypes != null ? getroomType.ImageRoomTypes.Select(img=> new GetImageRoomTypeDTO()
                 {
-                    URL=img.ImageID != null ? img.Image.URL : string.Empty,
+                    URL= img.Image.URL!=null ? img.Image.URL : string.Empty,
                 }).ToList(): new List<GetImageRoomTypeDTO>()
             };
             return getRoomTypeDTO;

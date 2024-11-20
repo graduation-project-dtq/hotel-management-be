@@ -41,9 +41,9 @@ namespace Hotel.Application.Services
 
             // Lấy tất cả các phòng chưa bị xóa
             IQueryable<Room> query = _unitOfWork.GetRepository<Room>().Entities
-                .Include(r => r.Floor)
-                .Include(r => r.RoomTypeDetail)
-                .Include(r=>r.FacilitiesRooms)
+                .Include(r => r.Floor!)
+                .Include(r => r.RoomTypeDetail!)
+                .Include(r=>r.FacilitiesRooms!)
                     .ThenInclude(f=>f.Facilities)
                 .Where(c => !c.DeletedTime.HasValue)
                 .OrderByDescending(c => c.CreatedTime);
@@ -354,7 +354,7 @@ namespace Hotel.Application.Services
                 .Where(bd => bd.Room.DeletedTime == null &&
                              bd.Room.IsActive == true &&
                              bd.Room.RoomTypeDetailId == model.RoomTypeDetailID &&
-                             (bd.Booking.CheckInDate < model.CheckOutDate && bd.Booking.CheckOutDate > model.CheckInDate))
+                             (bd.Booking!=null && bd.Booking.CheckInDate < model.CheckOutDate && bd.Booking.CheckOutDate > model.CheckInDate))
                 .Select(bd => bd.RoomID)
                 .ToListAsync();
 
@@ -366,7 +366,7 @@ namespace Hotel.Application.Services
             }).ToList());
             if (roomDTOs.Count == 0)
             {
-                return null;
+                return new List<GetRoomDTO>();
             }
             return roomDTOs;
         }

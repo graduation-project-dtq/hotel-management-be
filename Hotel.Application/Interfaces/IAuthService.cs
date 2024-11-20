@@ -1,9 +1,4 @@
 ﻿using Hotel.Application.DTOs.UserDTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hotel.Application.Interfaces
 {
@@ -16,5 +11,7 @@ namespace Hotel.Application.Interfaces
         Task ReponseCode(string email);
         Task<LoginResponseDto> SignInWithGoogleAsync(GoogleSignInDto googleSignInDto);
         Task DeleteAccount(string id);
+        Task ChangePassWordAsync(string email,string password, string newPassWord, string reNewPassWord);
+        Task LockAccount(string id);
     }
 }

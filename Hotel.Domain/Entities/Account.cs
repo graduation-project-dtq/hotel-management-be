@@ -17,6 +17,7 @@ namespace Hotel.Domain.Entities
         [ForeignKey("Role")]
         public string RoleId { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public bool IsLocked { get; set; }
         public bool IsAdmin { get; set; }
         public string ? Code { get; set; }
     }

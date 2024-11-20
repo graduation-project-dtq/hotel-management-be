@@ -291,7 +291,7 @@ namespace Hotel.Application.Services
                 .Where(r => r.Id.Equals(roomTypeDetail.Id) && !r.DeletedTime.HasValue).FirstOrDefaultAsync();
             GetRoomTypeDetailDTO getRoomTypeDetailDTO = _mapper.Map<GetRoomTypeDetailDTO>(resultRoomType);
 
-            getRoomTypeDetailDTO.DiscountPrice = resultRoomType.BasePrice;
+            getRoomTypeDetailDTO.DiscountPrice = resultRoomType!=null ? resultRoomType.BasePrice : 0;
             getRoomTypeDetailDTO.ImageRoomTypeDetailDTOs = resultRoomType.ImageRoomTypeDetails != null ?
                                resultRoomType.ImageRoomTypeDetails.Select(img => new GetImageRoomTypeDetailDTO()
                                {
@@ -359,7 +359,7 @@ namespace Hotel.Application.Services
         public async Task<decimal> GetDiscountPrice(string roomTypeDetailId)
         {
             List<RoomPriceAdjustment> roomPriceAdjustments = await _unitOfWork.GetRepository<RoomPriceAdjustment>().Entities.Where(r => r.RoomTypeDetailId == roomTypeDetailId).ToListAsync();
-            if (roomPriceAdjustments == null && roomPriceAdjustments.Count == 0)
+            if (roomPriceAdjustments == null )
             {
                 return 0;
             }

@@ -57,12 +57,12 @@ namespace Hotel.Application.Services
             }
 
             IQueryable<Booking> query = _unitOfWork.GetRepository<Booking>().Entities
-                 .Include(c => c.Customer)
-                 .Include(bk => bk.BookingDetails)
-                    .ThenInclude(bd => bd.Room)
-                 .Include(bk => bk.ServiceBookings)
-                    .ThenInclude(sv=>sv.Service)
-                 .Include(bk=>bk.Punishes)
+                 .Include(c => c.Customer!)
+                 .Include(bk => bk.BookingDetails!)
+                    .ThenInclude(bd => bd.Room!)
+                 .Include(bk => bk.ServiceBookings!)
+                    .ThenInclude(sv=>sv.Service!)
+                 .Include(bk=>bk.Punishes!)
                     .ThenInclude(p=>p.Facilities)
                  .Where(c => !c.DeletedTime.HasValue)
                  .OrderByDescending(c => c.CreatedTime);
@@ -91,7 +91,7 @@ namespace Hotel.Application.Services
             //Tìm theo tên khách hàng
             if (!string.IsNullOrWhiteSpace(customerName))
             {
-                query = query.Where(r => r.Customer.Name.ToString().Contains(customerName));
+                query = query.Where(r => r.Customer!=null && r.Customer.Name.ToString().Contains(customerName));
             }
             //Tìm theo ngày đặt phòng
             if (bookingDate != null)
@@ -174,12 +174,12 @@ namespace Hotel.Application.Services
             }
             //Lấy danh sách theo điều kiện
             List<Booking> bookings = await _unitOfWork.GetRepository<Booking>().Entities
-                .Include(c => c.Customer)
-                 .Include(bk => bk.BookingDetails)
-                    .ThenInclude(bd => bd.Room)
-                 .Include(bk => bk.ServiceBookings)
-                    .ThenInclude(sv => sv.Service)
-                 .Include(bk => bk.Punishes)
+                .Include(c => c.Customer!)
+                 .Include(bk => bk.BookingDetails!)
+                    .ThenInclude(bd => bd.Room!)
+                 .Include(bk => bk.ServiceBookings!)
+                    .ThenInclude(sv => sv.Service!)
+                 .Include(bk => bk.Punishes!)
                     .ThenInclude(p => p.Facilities)
                 .Where(b => b.CustomerId == customerId && b.Status == enumBooking && !b.DeletedTime.HasValue).ToListAsync();
             //Mapping 
@@ -267,15 +267,20 @@ namespace Hotel.Application.Services
                 CreatedTime = CoreHelper.SystemTimeNow,
                 LastUpdatedTime = CoreHelper.SystemTimeNow,
                 Status = EnumBooking.UNCONFIRMED,
-                TotalAmount = 0,
+                //Tiền
                 Deposit = model.Deposit,
-                PhoneNumber = model.PhoneNumber,
+                PromotionalPrice = voucher.DiscountAmount,
+                TotalAmount = 0,
+                DiscountedAmount=0,
                 UnpaidAmount = 0,
+                PricePunish=0,
+                //------------
+                PhoneNumber = model.PhoneNumber,
                 CheckInDate = model.CheckInDate,
                 CheckOutDate = model.CheckOutDate,
                 BookingDetails = new List<BookingDetail>(),
                 ServiceBookings = new List<ServiceBooking>(),
-                PromotionalPrice = voucher.DiscountAmount,
+                
                 VoucherId = voucher.Id,
                 Customer = null,
                 IdentityCard = null,
@@ -374,10 +379,22 @@ namespace Hotel.Application.Services
           
             //Trừ số lượng voucher
             voucher.Quantity = voucher.Quantity - 1;
-            booking.TotalAmount = booking.TotalAmount - booking.PromotionalPrice;
+            if(booking.PromotionalPrice >= booking.TotalAmount)
+            {
+                booking.DiscountedAmount = 0;
+                booking.UnpaidAmount = 0;
+            }    
+            booking.DiscountedAmount = booking.TotalAmount - booking.PromotionalPrice;
             if (booking.Deposit > 0)
             {
-                booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
+                if(booking.Deposit ==booking.TotalAmount)
+                {
+                    booking.UnpaidAmount = 0;
+                }    
+                else
+                {
+                    booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
+                }
             }
            
             if (voucher.Quantity == 0)
@@ -406,6 +423,7 @@ namespace Hotel.Application.Services
                 PromotionalPrice = booking.PromotionalPrice,
                 TotalAmount = booking.TotalAmount,
                 UnpaidAmount = booking.UnpaidAmount,
+                DiscountedAmount=booking.DiscountedAmount,
                 BookingDate = booking.CreatedTime.DateTime.ToString("dd/MM/yyyy HH:mm:ss"),
                 CheckInDate = booking.CheckInDate.ToString("dd/MM/yyyy"),
                 CheckOutDate = booking.CheckOutDate.ToString("dd/MM/yyyy"),
@@ -679,7 +697,7 @@ namespace Hotel.Application.Services
                             }
                         }
                         //Update thêm điểm cho khách hàng
-                        customer.AccumulatedPoints += 20; //Cộng thêm bao nhiêu điểm
+                        customer.AccumulatedPoints += (int)(booking.DiscountedAmount / 10000); //Cộng thêm bao nhiêu điểm
                         booking.Status = EnumBooking.CHECKEDOUT;
                         await _unitOfWork.GetRepository<Booking>().UpdateAsync(booking);
                         await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);

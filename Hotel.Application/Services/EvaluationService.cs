@@ -149,7 +149,7 @@ namespace Hotel.Application.Services
                         .ThenInclude(r => r.RoomTypeDetail!)
                             .ThenInclude(rt=>rt.RoomType!)
                 .FirstOrDefaultAsync(b => b.BookingDetails != null && b.BookingDetails
-                    .Any(bd => bd.Room != null && bd.Room.RoomTypeDetail.RoomType != null && bd.Room.RoomTypeDetail.RoomType.Id == model.RoomTypeId))
+                    .Any(bd => bd.Room != null && bd.Room!=null && bd.Room.RoomTypeDetail!=null && bd.Room.RoomTypeDetail.RoomType != null && bd.Room.RoomTypeDetail.RoomType.Id == model.RoomTypeId))
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Bạn chưa thuê phòng nên không thể đánh giá!");
 
             //Thêm đánh giá

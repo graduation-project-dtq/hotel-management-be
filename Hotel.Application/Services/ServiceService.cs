@@ -174,9 +174,9 @@ namespace Hotel.Application.Services
             Service service = await _unitOfWork.GetRepository<Service>().GetByIdAsync(id)
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy dịch vụ!");
           
-            service.Name= model.Name;
-            service.Price = model.Price;
-            service.Description= model.Description;
+            service.Name= model.Name ?? service.Name;
+            service.Price = model.Price ?? service.Price;
+            service.Description= model.Description ?? service.Description;
             service.LastUpdatedBy = userID;
             service.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
@@ -185,13 +185,10 @@ namespace Hotel.Application.Services
 
             if(images != null)
             {
-                if (service.ImageServices != null)
+                List<Hotel.Domain.Entities.ImageService> imageService = await _unitOfWork.GetRepository<Hotel.Domain.Entities.ImageService>().Entities.Where(i=>i.ServiceID.Equals(id)).ToListAsync();
+                if (imageService != null)
                 {
-                    foreach (var item in service.ImageServices)
-                    {
-                        await _unitOfWork.GetRepository<ImageService>().DeleteAsync(item.ServiceID);
-                        await _unitOfWork.SaveChangesAsync();
-                    }
+                    await _unitOfWork.GetRepository<Hotel.Domain.Entities.ImageService>().DeleteRangeAsync(imageService);
                 }
                 //Thêm ảnh mới
                 foreach (var item in images)
@@ -211,12 +208,12 @@ namespace Hotel.Application.Services
                     await _unitOfWork.GetRepository<Image>().InsertAsync(image);
                     await _unitOfWork.SaveChangesAsync();
 
-                    Hotel.Domain.Entities.ImageService imageService = new Hotel.Domain.Entities.ImageService()
+                    Hotel.Domain.Entities.ImageService insertImageService = new Hotel.Domain.Entities.ImageService()
                     {
                         ImageID = image.Id,
                         ServiceID = service.Id,
                     };
-                    await _unitOfWork.GetRepository<Hotel.Domain.Entities.ImageService>().InsertAsync(imageService);
+                    await _unitOfWork.GetRepository<Hotel.Domain.Entities.ImageService>().InsertAsync(insertImageService);
                     await _unitOfWork.SaveChangesAsync();
 
                 }

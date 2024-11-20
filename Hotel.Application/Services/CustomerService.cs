@@ -70,12 +70,12 @@ namespace Hotel.Application.Services
             //Tìm theo SDT
             if (!string.IsNullOrWhiteSpace(phoneNumberSearch))
             {
-                query = query.Where(r => r.Phone.Equals(phoneNumberSearch));
+                query = query.Where(r => r.Phone!=null && r.Phone.Equals(phoneNumberSearch));
             }
             //Tìm theo CCCD
             if (!string.IsNullOrWhiteSpace(identityCardSearch))
             {
-                query = query.Where(r => r.IdentityCard.Equals(identityCardSearch));
+                query = query.Where(r => r.IdentityCard != null && r.IdentityCard.Equals(identityCardSearch));
             }
             var totalCount = await query.CountAsync();  // Tổng số bản ghi
             if (totalCount == 0)
@@ -104,7 +104,7 @@ namespace Hotel.Application.Services
             Customer ? exitCustomer = new Customer();
             if (!string.IsNullOrWhiteSpace(model.IdentityCard))
             {
-                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.IdentityCard.Equals(model.IdentityCard)
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.IdentityCard!=null && c.IdentityCard.Equals(model.IdentityCard)
                 && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
 
                 if (exitCustomer != null)
@@ -114,7 +114,7 @@ namespace Hotel.Application.Services
             }
             if (!string.IsNullOrWhiteSpace(model.Phone))
             {
-                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Phone.Equals(model.Phone)
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Phone != null && c.Phone.Equals(model.Phone)
                 && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
 
                 if (exitCustomer != null)
@@ -124,7 +124,7 @@ namespace Hotel.Application.Services
             }
             if (!string.IsNullOrWhiteSpace(model.Email))
             {
-                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Email.Equals(model.Email)
+                exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c => c.Email!=null && c.Email.Equals(model.Email)
                 && !c.DeletedTime.HasValue).FirstOrDefaultAsync();
 
                 if (exitCustomer != null)

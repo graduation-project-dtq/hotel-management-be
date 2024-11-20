@@ -118,6 +118,15 @@ namespace Hotel.API.Controllers
             }
         }
 
-     
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassWordAsync(string email, string password, string newPassWord, string reNewPassWord)
+        {
+            await _authService.ChangePassWordAsync(email,password,newPassWord,reNewPassWord);
+            return Ok(new BaseResponse<string?>(
+                   statusCode: StatusCodes.Status200OK,
+                   code: ResponseCodeConstants.SUCCESS,
+                   data: null,
+                   message: "Đổi mật khẩu thành công"));
+        }
     }
 }

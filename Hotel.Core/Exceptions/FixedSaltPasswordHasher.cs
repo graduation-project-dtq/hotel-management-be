@@ -85,21 +85,21 @@ namespace Hotel.Core.Exceptions
         private PasswordHasherOptions GetOptions()
         {
             var options = new PasswordHasherOptions();
-            if (typeof(PasswordHasher<TUser>).GetField("_compatibilityMode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance) != null)
+
+            var compatibilityField = typeof(PasswordHasher<TUser>).GetField("_compatibilityMode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (compatibilityField != null)
             {
-                options.CompatibilityMode = (PasswordHasherCompatibilityMode)typeof(PasswordHasher<TUser>)
-                    .GetField("_compatibilityMode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    .GetValue(this);
+                options.CompatibilityMode = (PasswordHasherCompatibilityMode)compatibilityField.GetValue(this)!;
             }
 
-            if (typeof(PasswordHasher<TUser>).GetField("_iterCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance) != null)
+            var iterationField = typeof(PasswordHasher<TUser>).GetField("_iterCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (iterationField != null)
             {
-                options.IterationCount = (int)typeof(PasswordHasher<TUser>)
-                    .GetField("_iterCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    .GetValue(this);
+                options.IterationCount = (int)iterationField.GetValue(this)!;
             }
 
             return options;
         }
+
     }
 }

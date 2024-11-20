@@ -125,9 +125,7 @@ namespace Hotel.Infrastructure.Data
              .Property(f => f.DiscountAmount)
              .HasColumnType("decimal(18, 2)");
 
-            modelBuilder.Entity<Voucher>()
-                .HasIndex(v => v.Code)
-                .IsUnique();
+          
 
 
             // Định nghĩa cho bảng Booking

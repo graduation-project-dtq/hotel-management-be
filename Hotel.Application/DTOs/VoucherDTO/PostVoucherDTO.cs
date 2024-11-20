@@ -6,7 +6,7 @@ namespace Hotel.Application.DTOs.VoucherDTO
     {
         [Required(ErrorMessage = "Vui lòng nhập tên giảm giá")]
         public string Name { get; set; } = string.Empty;
-        public string? CustomerId { get; set; }
+        //public string? CustomerId { get; set; }
         public string ? Description { get; set; } 
         [Required(ErrorMessage ="Vui lòng nhập số tiền giảm giá")]
         public decimal DiscountAmount { get; set; }
@@ -14,8 +14,7 @@ namespace Hotel.Application.DTOs.VoucherDTO
         public DateOnly StartDate { get; set; }
         [Required(ErrorMessage = "Vui lòng nhập ngày giảm giá")]
         public DateOnly EndDate { get; set; }
+        [Required(ErrorMessage = "Vui lòng nhập số lượng")]
         public int Quantity { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập mã giảm giá")]
-        public string Code { get; set; } = string.Empty;
     }
 }

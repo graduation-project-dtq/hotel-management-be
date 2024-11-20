@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace Hotel.Application.Services
 {
@@ -25,6 +26,8 @@ namespace Hotel.Application.Services
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IHttpContextAccessor _contextAccessor;
+
+        private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
         public AuthService(IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<AuthService> logger,
@@ -62,9 +65,9 @@ namespace Hotel.Application.Services
             account.Password = passwordHasher.HashPassword(account, account.Password);
             account.RoleId = "c401bb08da484925900a63575c3717f8";
             account.IsActive = false;
-
+            account.IsLocked=false;
             //Check SDT
-            Customer ? exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c=>c.Phone.ToString()==registerRequestDto.Phone).FirstOrDefaultAsync();
+            Customer ? exitCustomer = await _unitOfWork.GetRepository<Customer>().Entities.Where(c=>c.Phone!=null && c.Phone.Equals(registerRequestDto.Phone)).FirstOrDefaultAsync();
 
             if(exitCustomer != null)
             {
@@ -100,15 +103,19 @@ namespace Hotel.Application.Services
             //check status
             if (account.IsActive == false)
             {
-                throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.BADREQUEST, "Tài khoản chưa được kích hoạt");
+                throw new ErrorException(StatusCodes.Status403Forbidden, ResponseCodeConstants.FORBIDDEN, "Tài khoản chưa được kích hoạt");
             }
 
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
-            string hashedInputPassWord = passwordHasher.HashPassword(null, loginRequestDto.Password);
+            string hashedInputPassWord = passwordHasher.HashPassword(new Account(), loginRequestDto.Password);
             if (hashedInputPassWord != account.Password)
             {
                 throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Sai tài khoản hoặc mật khẩy");
             }
+            if(account.IsLocked==true)
+            {
+                throw new ErrorException(StatusCodes.Status403Forbidden, ResponseCodeConstants.FORBIDDEN, "Tài khoản đã bị khoá. Vui lòng liên hệ để biết thêm thông tin");
+            }    
             Role role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(x => x.Id == account.RoleId && x.DeletedTime == null) ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Role not found for the account");
             string roleName = role.RoleName;
             TokenResponseDto tokenResponseDto = _tokenService.GenerateToken(account, roleName);
@@ -146,6 +153,10 @@ namespace Hotel.Application.Services
 
             Account account = await _unitOfWork.GetRepository<Account>().Entities.Where( a=>a.Email.Equals(email) && !a.DeletedTime.HasValue).FirstOrDefaultAsync()
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìm thấy tài khoản ngươi dùng");
+            if(account.IsLocked)
+            {
+                throw new ErrorException(StatusCodes.Status403Forbidden, ResponseCodeConstants.FORBIDDEN, "Tài khoản đã bị khoá. Vui lòng liên hệ để biết thêm thông tin");
+            }    
             if(account.IsActive)
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Tài khoản đã xác thực rồi");
@@ -203,7 +214,7 @@ namespace Hotel.Application.Services
                     RoleId = "c401bb08da484925900a63575c3717f8", // RoleId cho Customer
                     CreatedTime = CoreHelper.SystemTimeNow,
                     LastUpdatedTime = CoreHelper.SystemTimeNow,
-                    Password = passwordHasher.HashPassword(null, randomPassword),
+                    Password = passwordHasher.HashPassword(new Account(), randomPassword),
                     Code = randActiveCode() // Tạo mã xác thực (có thể không cần thiết cho Google Sign-In)
                 };
 
@@ -291,6 +302,98 @@ namespace Hotel.Application.Services
             }
             account.DeletedTime = CoreHelper.SystemTimeNow;
             account.DeletedBy = currentUser;
+
+            await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        //Đổi mật khẩu
+        public async Task ChangePassWordAsync(string email, string password, string newPassWord, string reNewPassWord)
+        {
+            if(string.IsNullOrWhiteSpace(email))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập email");
+            }
+            if (!Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Email không hợp lệ");
+            }
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập mật khẩu");
+            }
+            if (string.IsNullOrWhiteSpace(newPassWord))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập mật khẩu mới");
+            }
+            if (!Regex.IsMatch(newPassWord, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT,
+                    "Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
+            }
+            if (string.IsNullOrWhiteSpace(reNewPassWord))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập lại mật khẩu mới");
+            }
+            if (newPassWord != reNewPassWord)
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Xác nhận mật khẩu không trùng");
+            }
+            Account account = await _unitOfWork.GetRepository<Account>().Entities
+                .FirstOrDefaultAsync(a=>a.Email.Equals(email) && !a.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Tài khoản không tồn tại");
+            FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
+            string hashedInputPassWord = passwordHasher.HashPassword(account, password);
+            if (hashedInputPassWord != account.Password)
+            {
+                throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Sai mật khẩu");
+            }
+           
+            //FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
+            account.Password = passwordHasher.HashPassword(account, newPassWord);
+
+            await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task LockAccount(string id)
+        {
+            if(string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn tài khoản");
+            }
+            Account account = await _unitOfWork.GetRepository<Account>()
+                .Entities
+                .FirstOrDefaultAsync(a=>a.Id.Equals(id) && !a.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìn thấy tài khoản người dùng");
+            if(account.IsLocked)
+            {
+                throw new ErrorException(StatusCodes.Status403Forbidden, ResponseCodeConstants.FORBIDDEN, "Tài khoản này đã bị khoá");
+            }
+
+            account.IsLocked= true;
+            account.LastUpdatedBy = currentUser;
+            account.LastUpdatedTime = CoreHelper.SystemTimeNow;
+
+            await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
+            await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task UnLockAccount(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng chọn tài khoản");
+            }
+            Account account = await _unitOfWork.GetRepository<Account>()
+                .Entities
+                .FirstOrDefaultAsync(a => a.Id.Equals(id) && !a.DeletedTime.HasValue)
+                ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Không tìn thấy tài khoản người dùng");
+            if (!account.IsLocked)
+            {
+                throw new ErrorException(StatusCodes.Status403Forbidden, ResponseCodeConstants.FORBIDDEN, "Tài khoản này chưa bị khoá");
+            }
+
+            account.IsLocked = false;
+            account.LastUpdatedBy = currentUser;
+            account.LastUpdatedTime = CoreHelper.SystemTimeNow;
 
             await _unitOfWork.GetRepository<Account>().UpdateAsync(account);
             await _unitOfWork.SaveChangesAsync();

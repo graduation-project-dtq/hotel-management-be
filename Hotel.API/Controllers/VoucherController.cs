@@ -1,11 +1,10 @@
-﻿using Hotel.Application.DTOs.RoomDTO;
-using Hotel.Application.DTOs.VoucherDTO;
+﻿using Hotel.Application.DTOs.VoucherDTO;
 using Hotel.Application.Interfaces;
 using Hotel.Application.PaggingItems;
-using Hotel.Application.Services;
 using Hotel.Core.Base;
 using Hotel.Core.Constants;
 using Hotel.Domain.Base;
+using Hotel.Domain.Enums.EnumVoucher;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotel.API.Controllers
@@ -42,11 +41,33 @@ namespace Hotel.API.Controllers
               message: "Lấy danh sách voucher của khách hàng thành công!"
            ));
         }
-
+        [HttpGet("active")]
+        public async Task<IActionResult> GetVoucherActive()
+        {
+            List<GetVoucherDTO> result = await _voucherService.GetVoucherActive();
+            return Ok(new BaseResponse<List<GetVoucherDTO>>(
+              statusCode: StatusCodes.Status200OK,
+              code: ResponseCodeConstants.SUCCESS,
+              data: result,
+              message: "Lấy danh sách voucher thành công!"
+           ));
+        }
         [HttpPost]
         public async Task<IActionResult> CreateVoucher(PostVoucherDTO model)
         {
             await _voucherService.CreateVoucher(model);
+            return Ok(new BaseResponse<string?>(
+              statusCode: StatusCodes.Status200OK,
+              code: ResponseCodeConstants.SUCCESS,
+              data: null,
+              message: "Tạo voucher thành công!"
+           ));
+        }
+
+        [HttpPost("customer")]
+        public async Task<IActionResult> CreateVoucherForCustomer(EnumVoucher enumVoucher, PostVoucherDTO model)
+        {
+            await _voucherService.CreateVoucherForCustomer(enumVoucher,model);
             return Ok(new BaseResponse<string?>(
               statusCode: StatusCodes.Status200OK,
               code: ResponseCodeConstants.SUCCESS,

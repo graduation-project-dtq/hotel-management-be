@@ -12,13 +12,14 @@ namespace Hotel.Application.DTOs.BookingDTO
         public string ?CustomerId { get; set; }
         public string? CustomerName { get; set; }
         public string? PhoneNumber {  get; set; }
-     
+        //Tiền đặt cọc
         public decimal? Deposit { get; set; }
         //Tiền khuyến mãi
         public decimal? PromotionalPrice { get; set; }
-
         //Tổng tiền
         public decimal TotalAmount { get; set; }
+        //Tiền sau khuyến mãi
+        public decimal DiscountedAmount { get; set; }
         //Tiền chưa thanh toán
         public decimal? UnpaidAmount { get; set; }
         public string? BookingDate { get; set; }

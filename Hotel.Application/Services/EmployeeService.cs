@@ -97,23 +97,22 @@ namespace Hotel.Application.Services
         public async Task<GetEmployeeDTO> CreateEmployeeAsync(CreateEmployeeDTO model)
         {
             //Kiểm tra trùng email
-            Account? account = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(a => a.Email.Equals(model.Email) && !a.DeletedTime.HasValue);
-            if (account != null)
+            Account? exitaccount = await _unitOfWork.GetRepository<Account>().Entities.FirstOrDefaultAsync(a => a.Email.Equals(model.Email) && !a.DeletedTime.HasValue);
+            if (exitaccount != null)
             {
                 throw new ErrorException(StatusCodes.Status406NotAcceptable, ResponseCodeConstants.EXISTED, "Email đã tồn tại");
             }
             FixedSaltPasswordHasher<Account> passwordHasher = new FixedSaltPasswordHasher<Account>(Options.Create(new PasswordHasherOptions()));
        
             Role ? role = await _unitOfWork.GetRepository<Role>().Entities.FirstOrDefaultAsync(r=>r.RoleName.Equals("Employee") && !r.DeletedTime.HasValue);
-            account = new Account()
+            Account account = new Account()
             {
                 Email= model.Email,
                 Name= model.Name,
-                Password = passwordHasher.HashPassword(account, "Admin123@"), 
-                RoleId=role.Id,
+                Password = passwordHasher.HashPassword(new Account(), "Admin123@"), 
+                RoleId=role != null ?role.Id : string.Empty,
                 IsActive=false,
                 IsAdmin=true,
-
             };
 
             account.CreatedBy= currentUserId;

@@ -7,6 +7,7 @@ using Hotel.Core.Common;
 using Hotel.Core.Constants;
 using Hotel.Core.Exceptions;
 using Hotel.Domain.Entities;
+using Hotel.Domain.Enums.EnumVoucher;
 using Hotel.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ namespace Hotel.Application.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<VoucherService> _logger;
+        private string currentUserId => Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);  
         private Regex regex = new Regex(@"^[1-9]\d*$");
 
         public VoucherService(IUnitOfWork unitOfWork,IMapper mapper, IHttpContextAccessor contextAccessor,ILogger<VoucherService> logger)
@@ -77,6 +79,20 @@ namespace Hotel.Application.Services
             );
             return responsePaginatedList;
         }
+        //Lấy danh sách voucher
+        public async Task<List<GetVoucherDTO>> GetVoucherActive()
+        {
+            List<Voucher> vouchers = await _unitOfWork.GetRepository<Voucher>().Entities
+                  .Where(v => !v.DeletedTime.HasValue 
+                        && v.IsActive==true && string.IsNullOrWhiteSpace(v.CustomerId)
+                        && v.StartDate <= CoreHelper.SystemDateOnly
+                        && v.EndDate >= CoreHelper.SystemDateOnly
+                        )
+                  .ToListAsync();
+           
+            List<GetVoucherDTO> voucherModel = _mapper.Map<List<GetVoucherDTO>>(vouchers);
+            return voucherModel;
+        }
         public async Task<List<GetVoucherDTO>> GetVoucherByCustomerId(string customerID)
         {
             if(String.IsNullOrEmpty(customerID))
@@ -87,14 +103,32 @@ namespace Hotel.Application.Services
                 ?? throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không tồn tại!");
 
             List<Voucher> vouchers = await _unitOfWork.GetRepository<Voucher>().Entities
-                  .Where(v => (v.CustomerId == null || v.CustomerId == customerID) && v.IsActive == true  && v.DeletedTime == null)
+                  .Where(v => (v.CustomerId == null || v.CustomerId.Equals(customerID))
+                        && v.IsActive == true  && v.DeletedTime == null
+                        && v.StartDate <=CoreHelper.SystemDateOnly
+                        && v.EndDate >= CoreHelper.SystemDateOnly 
+                        )
                   .ToListAsync();
-            Console.WriteLine($"CustomerId: {customerID}, Found Vouchers: {vouchers.Count}");
-            //
-            //if(vouchers.Count == 0)
-            //{
-            //    throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Khách hàng không có voucher!");
-            //}
+            List<string> voucherId = new List<string>();
+            List<Booking> booking = await _unitOfWork.GetRepository<Booking>()
+                .Entities
+                .Where(b => b.CustomerId.Equals(customerID))
+                .ToListAsync();
+            foreach (Booking b in booking)
+            {
+                if(!string.IsNullOrWhiteSpace(b.VoucherId))
+                {
+                    voucherId.Add(b.VoucherId);
+                }
+            }
+            foreach(string item in voucherId)
+            {
+                Voucher? voucher = vouchers.Where(v=>v.Id.Equals(item)).FirstOrDefault();
+                if(voucher!= null)
+                {
+                    vouchers.Remove(voucher);
+                }    
+            }
             List<GetVoucherDTO> voucherModel = _mapper.Map<List<GetVoucherDTO>>(vouchers);
             return voucherModel;
         }
@@ -105,12 +139,6 @@ namespace Hotel.Application.Services
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Vui lòng nhập đúng số lượng voucher!");
             }
 
-            Voucher voucher = await _unitOfWork.GetRepository<Voucher>().Entities.Where(v=>v.Code.Equals(model.Code) && v.IsActive == true).FirstOrDefaultAsync();
-            if (voucher != null)
-            {
-                throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Mã voucher đã tồn tại!");
-
-            }
             if (model.StartDate > model.EndDate)
             {
                 throw new ErrorException(StatusCodes.Status400BadRequest, ResponseCodeConstants.INVALID_INPUT, "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!");
@@ -155,6 +183,41 @@ namespace Hotel.Application.Services
             voucher.DeletedTime = CoreHelper.SystemTimeNow;
             await _unitOfWork.GetRepository<Voucher>().UpdateAsync(voucher);
             await _unitOfWork.SaveChangesAsync();
+        }
+        public async Task CreateVoucherForCustomer(EnumVoucher enumVoucher,PostVoucherDTO model)
+        {
+            List<Customer> customers = await _unitOfWork.GetRepository<Customer>()
+                .Entities
+                .Where(c => !c.DeletedTime.HasValue)
+                .ToListAsync();
+
+
+            if (enumVoucher == EnumVoucher.SilverCustomer)
+            {
+                customers = customers.Where(c => c.AccumulatedPoints >= 200 && c.AccumulatedPoints < 500).ToList();
+            }
+            else if (enumVoucher == EnumVoucher.GoldCustomer)
+            {
+                customers = customers.Where(c => c.AccumulatedPoints >= 500 && c.AccumulatedPoints < 1000).ToList();
+            }
+            else 
+            {
+                customers = customers.Where(c => c.AccumulatedPoints >= 1000).ToList();
+            }
+            if (customers != null)
+            {
+                foreach (Customer customer in customers)
+                {
+                    Voucher voucher = _mapper.Map<Voucher>(model);
+                    voucher.IsActive=true;
+                    voucher.CustomerId = customer.Id;
+                    voucher.CreatedBy = currentUserId;
+                    voucher.LastUpdatedBy = currentUserId;
+
+                    await _unitOfWork.GetRepository<Voucher>().InsertAsync(voucher);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
         }
     }
 }

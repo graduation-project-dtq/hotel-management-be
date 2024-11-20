@@ -15,7 +15,6 @@ namespace Hotel.Domain.Entities
         public DateOnly EndDate { get; set; }
         public int Quantity { get; set; }
         public bool IsActive { get; set; }
-        public string Code { get; set; } = string.Empty;
         public DateTime? UsedDate { get; set; }
         public virtual ICollection<Booking>? Bookings { get; set; }
         public virtual Customer ? Customer { get; set; }
