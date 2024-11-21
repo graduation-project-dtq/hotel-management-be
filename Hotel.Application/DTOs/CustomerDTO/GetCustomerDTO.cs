@@ -13,5 +13,6 @@ namespace Hotel.Application.DTOs.CustomerDTO
         public string? Address { get; set; }
         public int? CredibilityScore { get; set; } //Điểm uy tín
         public int? AccumulatedPoints { get; set; } //Điểm tích luỹ
+        public bool IsLocked { get; set; }
     }
 }

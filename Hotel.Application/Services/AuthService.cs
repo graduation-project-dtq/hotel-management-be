@@ -229,6 +229,7 @@ namespace Hotel.Application.Services
                     LastUpdatedTime = CoreHelper.SystemTimeNow,
                     CredibilityScore = 100,
                     AccumulatedPoints = 0,
+                    IsLocked = false,
                 };
 
                 await _unitOfWork.GetRepository<Account>().InsertAsync(account);
@@ -368,7 +369,22 @@ namespace Hotel.Application.Services
             {
                 throw new ErrorException(StatusCodes.Status403Forbidden, ResponseCodeConstants.FORBIDDEN, "Tài khoản này đã bị khoá");
             }
-
+            Customer ?customer = await _unitOfWork.GetRepository<Customer>().Entities
+                .FirstOrDefaultAsync(c=>c.AccountID.Equals(id));
+            if ((customer!=null))
+            {
+                customer.IsLocked = true;
+                await _unitOfWork.GetRepository<Customer>().UpdateAsync(customer);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            Employee? employee = await _unitOfWork.GetRepository<Employee>().Entities
+                .FirstOrDefaultAsync(e => e.AccountID!=null &&e.AccountID.Equals(id));
+            if ((employee != null))
+            {
+                employee.IsLocked = true;
+                await _unitOfWork.GetRepository<Employee>().UpdateAsync(employee);
+                await _unitOfWork.SaveChangesAsync();
+            }
             account.IsLocked= true;
             account.LastUpdatedBy = currentUser;
             account.LastUpdatedTime = CoreHelper.SystemTimeNow;

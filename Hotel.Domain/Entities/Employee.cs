@@ -15,6 +15,7 @@ namespace Hotel.Domain.Entities
         public string ? Email { get; set; }
         public string Address { get; set; } = string.Empty;
         public DateOnly HireDate { get; set; }
+        public bool IsLocked { get; set; }
         public virtual Account? Account { get; set; }
         public virtual ICollection<Booking> ? Bookings { get; set; }
     }

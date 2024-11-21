@@ -17,18 +17,13 @@ namespace Hotel.Domain.Entities
         public string PhoneNumber {  get; set; } = string.Empty;
         public DateOnly CheckInDate { get; set; }
         public DateOnly CheckOutDate { get; set; }
-        //Tiền đặt cọc
-        public decimal  Deposit {  get; set; }
-        //Tiền khuyến mãi
-        public decimal  PromotionalPrice { get; set; }
-        //Tổng tiền
-        public decimal TotalAmount { get; set; }
-        //Tiền sau khi trừ khuyến mãi 
-        public decimal DiscountedAmount { get; set; }
-        //Tiền phạt
-        public decimal PricePunish {  get; set; }
-        //Tiền chưa thanh toán
-        public decimal UnpaidAmount { get; set; }
+     
+        public decimal  Deposit {  get; set; }   //Tiền đặt cọc
+        public decimal  PromotionalPrice { get; set; }  //Tiền khuyến mãi
+        public decimal TotalAmount { get; set; } //Tổng tiền
+        public decimal DiscountedAmount { get; set; }   //Tiền sau khi trừ khuyến mãi 
+        public decimal PricePunish {  get; set; }  //Tiền phạt
+        public decimal UnpaidAmount { get; set; }  //Tiền chưa thanh toán
         public int ? CustomerCount {  get; set; }
         public EnumBooking Status { get; set; }
         public string ? CustomerName {  get; set; }
