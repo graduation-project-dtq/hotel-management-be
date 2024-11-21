@@ -75,6 +75,7 @@ namespace Hotel.Application.Services
                     CreateBy= account !=null ? account.Name : item.CreatedBy,
                     Name = item.Name,
                      Price=item.Price,
+                     Description=item.Description,
                 };
                 response.GetImageServiceDTOs = new List<GetImageServiceDTO>();
 
