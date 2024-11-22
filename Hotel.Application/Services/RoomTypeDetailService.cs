@@ -95,7 +95,7 @@ namespace Hotel.Application.Services
                 decimal discount = await GetDiscountPrice(roomTypeDetailDTO.Id);
                 if (discount > 0)
                 {
-                    roomTypeDetailDTO.DiscountPrice = discount;
+                    roomTypeDetailDTO.DiscountPrice = roomTypeDetailDTO.BasePrice- discount;
                 }
                 list.Add(roomTypeDetailDTO);
             }
@@ -129,7 +129,7 @@ namespace Hotel.Application.Services
             decimal discount = await GetDiscountPrice(roomTypeDetail.Id);
             if (discount > 0)
             {
-                getRoomType.DiscountPrice = discount;
+                getRoomType.DiscountPrice =getRoomType.BasePrice - discount;
             }
             getRoomType.ImageRoomTypeDetailDTOs = new List<GetImageRoomTypeDetailDTO>();
 
@@ -225,7 +225,7 @@ namespace Hotel.Application.Services
                 decimal discount = await GetDiscountPrice(item.Id);
                 if (discount > 0)
                 {
-                    roomTypeDetailDTO.DiscountPrice = discount;
+                    roomTypeDetailDTO.DiscountPrice =roomTypeDetailDTO.BasePrice - discount;
                 }
                 list.Add(roomTypeDetailDTO);
             }
