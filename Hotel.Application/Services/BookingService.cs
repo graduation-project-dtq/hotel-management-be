@@ -330,20 +330,22 @@ namespace Hotel.Application.Services
                     await _unitOfWork.SaveChangesAsync();
 
                     //Tính tiền
-                    decimal price = await _roomTypeDetailService.GetDiscountPrice(bookingDetail.Room != null ? bookingDetail.Room.RoomTypeDetailId : string.Empty);
+                    decimal price = await _roomTypeDetailService.GetDiscountPrice(item.RoomTypeDetailID);
+                    int dayhere = model.CheckOutDate.DayNumber - model.CheckInDate.DayNumber;
+                    _logger.LogError(dayhere.ToString());
                     if (price != 0)
                     {
-                        booking.TotalAmount += price;
+                        booking.TotalAmount = booking.TotalAmount + (price * dayhere);
                     }
                     else
                     {
-                        Room ? room = await _unitOfWork.GetRepository<Room>().Entities
-                            .Include(r => r.RoomTypeDetail)
-                            .Where(r => r.Id == bookingDetail.RoomID)
+                        RoomTypeDetail ? roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>()
+                            .Entities
+                            .Where(r=>r.Id.Equals(item.RoomTypeDetailID))
                             .FirstOrDefaultAsync();
-                        if (room != null)
+                        if(roomTypeDetail!= null)
                         {
-                            booking.TotalAmount += room.RoomTypeDetail != null ? room.RoomTypeDetail.BasePrice : 0;
+                            booking.TotalAmount += (roomTypeDetail.BasePrice * dayhere);
                         }
                     }
                 }
@@ -361,22 +363,24 @@ namespace Hotel.Application.Services
                         throw new ErrorException(StatusCodes.Status404NotFound, ResponseCodeConstants.NOT_FOUND, "Dịch vụ không tồn tại!");
                     }
 
-                    ServiceBooking service = new ServiceBooking()
+                    ServiceBooking serviceBooking = new ServiceBooking()
                     {
                         BookingID = booking.Id,
                         ServiceID = item.ServiceID,
                         Quantity = item.Quantity,
                     };
 
-                    await _unitOfWork.GetRepository<ServiceBooking>().InsertAsync(service);
+                    await _unitOfWork.GetRepository<ServiceBooking>().InsertAsync(serviceBooking);
 
+                    Service? service = await _unitOfWork.GetRepository<Service>()
+                        .Entities
+                        .Where(s => s.Id.Equals(item.ServiceID))
+                        .FirstOrDefaultAsync();
                     //Tính tiền dịch vụ
-                    booking.TotalAmount += service.Service != null ? service.Service.Price : 0 * service.Quantity;
+                    booking.TotalAmount +=  service.Price  * item.Quantity;
                 }
             }
 
-           
-          
             //Trừ số lượng voucher
             voucher.Quantity = voucher.Quantity - 1;
             if(booking.PromotionalPrice >= booking.TotalAmount)
@@ -387,7 +391,7 @@ namespace Hotel.Application.Services
             booking.DiscountedAmount = booking.TotalAmount - booking.PromotionalPrice;
             if (booking.Deposit > 0)
             {
-                if(booking.Deposit ==booking.TotalAmount)
+                if(booking.Deposit == booking.TotalAmount)
                 {
                     booking.UnpaidAmount = 0;
                 }    

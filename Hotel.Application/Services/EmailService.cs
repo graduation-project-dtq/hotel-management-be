@@ -180,70 +180,133 @@ public class EmailService : IEmailService
 
         return sb.ToString();
     }
+    //private async Task<string> CreateEmailBody(GetBookingDTO bookingDTO)
+    //{
+    //    Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(bookingDTO.CustomerId ?? string.Empty);
+
+    //    var sb = new StringBuilder();
+    //    sb.AppendLine("<h1 style='color: #2E86C1; font-family: Arial, sans-serif;'>Xác nhận đặt phòng thành công</h1>");
+
+    //    // Bắt đầu bảng
+    //    sb.AppendLine("<table style='width: 100%; border: 1px solid #ddd; border-collapse: collapse; font-family: Arial, sans-serif;'>");
+
+    //    // Thông tin đặt phòng
+    //    sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
+    //    sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Thông tin đặt phòng</th>");
+    //    sb.AppendLine("</tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Mã đặt phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.Id}</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tên khách hàng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{customer.Name}</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số điện thoại:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.PhoneNumber}</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Ngày đặt:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.BookingDate}</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Ngày nhận phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.CheckInDate}</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Ngày trả phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.CheckOutDate}</td></tr>");
+
+    //    // Chi tiết phòng
+    //    sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
+    //    sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Chi tiết phòng</th>");
+    //    sb.AppendLine("</tr>");
+    //    if(bookingDTO.BookingDetail!=null)
+    //    {
+    //        foreach (var detail in bookingDTO.BookingDetail)
+    //        {
+    //            sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{detail.RoomName}</td></tr>");
+    //        }
+    //    }    
+
+    //    // Dịch vụ
+
+    //    if (bookingDTO.Services!=null)
+    //    {
+    //        sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
+    //        sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Dịch vụ</th>");
+    //        sb.AppendLine("</tr>");
+    //        sb.AppendLine("<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tên dịch vụ:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>Số lượng</td></tr>");
+    //        foreach (var service in bookingDTO.Services)
+    //        {
+    //            sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>{service.ServiceName}</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{service.Quantity}</td></tr>");
+    //        }
+    //    }
+
+    //    // Thông tin thanh toán
+    //    sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
+    //    sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Thông tin thanh toán</th>");
+    //    sb.AppendLine("</tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số tiền đã đặt cọc:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.Deposit:N0} VND</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tiền khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.TotalAmount:N0} VND</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền sau khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.DiscountedAmount:N0} VND</td></tr>");
+    //    sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số tiền chưa thanh toán:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.UnpaidAmount:N0} VND</td></tr>");
+
+    //    // Kết thúc bảng
+    //    sb.AppendLine("</table>");
+
+    //    return sb.ToString();
+    //}
     private async Task<string> CreateEmailBody(GetBookingDTO bookingDTO)
     {
         Customer customer = await _unitOfWork.GetRepository<Customer>().GetByIdAsync(bookingDTO.CustomerId ?? string.Empty);
 
         var sb = new StringBuilder();
-        sb.AppendLine("<h1 style='color: #2E86C1; font-family: Arial, sans-serif;'>Xác nhận đặt phòng thành công</h1>");
 
-        // Bắt đầu bảng
-        sb.AppendLine("<table style='width: 100%; border: 1px solid #ddd; border-collapse: collapse; font-family: Arial, sans-serif;'>");
+        // Header
+        sb.AppendLine("<div style='font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;'>");
+        sb.AppendLine("<div style='background-color: #2E86C1; color: white; padding: 20px; border-radius: 8px;'>");
+        sb.AppendLine("<h2 style='margin: 0; font-size: 24px; text-align: center;'>Xác nhận đặt phòng thành công</h2>");
+        sb.AppendLine("</div>");
+
+        // Body
+        sb.AppendLine("<div style='background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);'>");
 
         // Thông tin đặt phòng
-        sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
-        sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Thông tin đặt phòng</th>");
-        sb.AppendLine("</tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Mã đặt phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.Id}</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tên khách hàng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{customer.Name}</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số điện thoại:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.PhoneNumber}</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Ngày đặt:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.BookingDate}</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Ngày nhận phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.CheckInDate}</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Ngày trả phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.CheckOutDate}</td></tr>");
+        sb.AppendLine("<h3 style='color: #2E86C1;'>Thông tin đặt phòng</h3>");
+        sb.AppendLine("<table style='width: 100%; border: none; font-size: 14px;'>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Mã đặt phòng:</strong></td><td style='padding: 8px;'>{bookingDTO.Id}</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Tên khách hàng:</strong></td><td style='padding: 8px;'>{customer.Name}</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Số điện thoại:</strong></td><td style='padding: 8px;'>{bookingDTO.PhoneNumber}</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Ngày đặt:</strong></td><td style='padding: 8px;'>{bookingDTO.BookingDate}</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Ngày nhận phòng:</strong></td><td style='padding: 8px;'>{bookingDTO.CheckInDate}</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Ngày trả phòng:</strong></td><td style='padding: 8px;'>{bookingDTO.CheckOutDate}</td></tr>");
+        sb.AppendLine("</table>");
 
         // Chi tiết phòng
-        sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
-        sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Chi tiết phòng</th>");
-        sb.AppendLine("</tr>");
-        if(bookingDTO.BookingDetail!=null)
+        if (bookingDTO.BookingDetail != null && bookingDTO.BookingDetail.Any())
         {
+            sb.AppendLine("<h3 style='color: #2E86C1;'>Chi tiết phòng</h3>");
+            sb.AppendLine("<ul style='padding-left: 20px;'>");
             foreach (var detail in bookingDTO.BookingDetail)
             {
-                sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Phòng:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{detail.RoomName}</td></tr>");
+                sb.AppendLine($"<li>Phòng: {detail.RoomName}</li>");
             }
-        }    
-       
-        // Dịch vụ
+            sb.AppendLine("</ul>");
+        }
 
-        if (bookingDTO.Services!=null)
+        // Dịch vụ
+        if (bookingDTO.Services != null && bookingDTO.Services.Any())
         {
-            sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
-            sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Dịch vụ</th>");
-            sb.AppendLine("</tr>");
-            sb.AppendLine("<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tên dịch vụ:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>Số lượng</td></tr>");
+            sb.AppendLine("<h3 style='color: #2E86C1;'>Dịch vụ</h3>");
+            sb.AppendLine("<ul style='padding-left: 20px;'>");
             foreach (var service in bookingDTO.Services)
             {
-                sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>{service.ServiceName}</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{service.Quantity}</td></tr>");
+                sb.AppendLine($"<li>{service.ServiceName}: {service.Quantity}</li>");
             }
+            sb.AppendLine("</ul>");
         }
 
         // Thông tin thanh toán
-        sb.AppendLine("<tr style='background-color: #f2f2f2; text-align: center; font-weight: bold;'>");
-        sb.AppendLine("<th colspan='2' style='padding: 12px; border: 1px solid #ddd;'>Thông tin thanh toán</th>");
-        sb.AppendLine("</tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số tiền đã đặt cọc:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.Deposit:N0} VND</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tiền khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.TotalAmount:N0} VND</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Tổng tiền sau khuyến mãi:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.DiscountedAmount:N0} VND</td></tr>");
-        sb.AppendLine($"<tr><td style='padding: 10px; border: 1px solid #ddd;'><strong>Số tiền chưa thanh toán:</strong></td><td style='padding: 10px; border: 1px solid #ddd;'>{bookingDTO.UnpaidAmount:N0} VND</td></tr>");
-
-        // Kết thúc bảng
+        sb.AppendLine("<h3 style='color: #2E86C1;'>Thông tin thanh toán</h3>");
+        sb.AppendLine("<table style='width: 100%; border: none; font-size: 14px;'>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Số tiền đã đặt cọc:</strong></td><td style='padding: 8px;'>{bookingDTO.Deposit:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Tiền khuyến mãi:</strong></td><td style='padding: 8px;'>{bookingDTO.PromotionalPrice:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Tổng tiền:</strong></td><td style='padding: 8px;'>{bookingDTO.TotalAmount:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Tổng tiền sau khuyến mãi:</strong></td><td style='padding: 8px;'>{bookingDTO.DiscountedAmount:N0} VND</td></tr>");
+        sb.AppendLine($"<tr><td style='padding: 8px;'><strong>Số tiền chưa thanh toán:</strong></td><td style='padding: 8px;'>{bookingDTO.UnpaidAmount:N0} VND</td></tr>");
         sb.AppendLine("</table>");
+
+        sb.AppendLine("</div>"); // End of Body
+        sb.AppendLine("</div>"); // End of Email
 
         return sb.ToString();
     }
-   
-
 
     private async Task<string> CreateEmailBodyFinal(GetBookingDTO bookingDTO)
     {
