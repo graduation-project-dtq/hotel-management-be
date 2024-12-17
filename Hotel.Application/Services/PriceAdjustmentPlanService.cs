@@ -123,7 +123,13 @@ namespace Hotel.Application.Services
 
 
             string userId = Authentication.GetUserIdFromHttpContextAccessor(_contextAccessor);
-            priceAdjustmentPlan = _mapper.Map<PriceAdjustmentPlan>(model);
+
+            priceAdjustmentPlan.Name = model.Name ?? priceAdjustmentPlan.Name;
+            priceAdjustmentPlan.AdjustmentValue = model.AdjustmentValue ?? priceAdjustmentPlan.AdjustmentValue;
+            priceAdjustmentPlan.StartDate = model.StartDate ?? priceAdjustmentPlan.StartDate;
+            priceAdjustmentPlan.EndDate = model.EndDate ?? priceAdjustmentPlan.EndDate;
+            priceAdjustmentPlan.Description = model.Description ?? priceAdjustmentPlan.Description;
+         
             priceAdjustmentPlan.LastUpdatedBy = userId;
             priceAdjustmentPlan.LastUpdatedTime = CoreHelper.SystemTimeNow;
 

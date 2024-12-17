@@ -202,7 +202,8 @@ namespace Hotel.Application.Services
                                 FacilitiesRoom facilitiesRoom = new FacilitiesRoom
                                 {
                                     RoomID = room.Id,
-                                    FacilitiesID = item.FacilitiesId
+                                    FacilitiesID = item.FacilitiesId,
+                                    Quantity = item.Quantity,
                                 };
 
                                 await _unitOfWork.GetRepository<FacilitiesRoom>().InsertAsync(facilitiesRoom);
@@ -284,7 +285,8 @@ namespace Hotel.Application.Services
                                 FacilitiesRoom facilitiesRoom = new FacilitiesRoom
                                 {
                                     RoomID = room.Id,
-                                    FacilitiesID = item.FacilitiesId
+                                    FacilitiesID = item.FacilitiesId,
+                                    Quantity = item.Quantity,
                                 };
 
                                 await _unitOfWork.GetRepository<FacilitiesRoom>().InsertAsync(facilitiesRoom);

@@ -16,6 +16,7 @@ namespace Hotel.Application.Interfaces
         Task CheckIn(CheckInDTO model);
         Task CheckOut(CheckOutDTO model);
         Task HuyPhong(string id);
+
         Task<StatisticaInDTO> StatisticaInDate(DateOnly date);
         Task<StatisticaInDTO> StatisticaInMonth(int month, int year);
         Task<StatisticaInDTO> StatisticaInYear(int year);

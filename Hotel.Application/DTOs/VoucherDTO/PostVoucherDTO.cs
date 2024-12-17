@@ -14,7 +14,6 @@ namespace Hotel.Application.DTOs.VoucherDTO
         public DateOnly StartDate { get; set; }
         [Required(ErrorMessage = "Vui lòng nhập ngày giảm giá")]
         public DateOnly EndDate { get; set; }
-        [Required(ErrorMessage = "Vui lòng nhập số lượng")]
-        public int Quantity { get; set; }
+        public int ? Quantity { get; set; }
     }
 }

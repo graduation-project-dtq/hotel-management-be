@@ -397,7 +397,7 @@ namespace Hotel.Application.Services
                 }    
                 else
                 {
-                    booking.UnpaidAmount = booking.TotalAmount - booking.Deposit;
+                    booking.UnpaidAmount = booking.DiscountedAmount - booking.Deposit;
                 }
             }
            
