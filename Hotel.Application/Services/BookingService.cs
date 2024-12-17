@@ -328,24 +328,31 @@ namespace Hotel.Application.Services
                     booking.BookingDetails.Add(bookingDetail);
                     await _unitOfWork.GetRepository<BookingDetail>().InsertAsync(bookingDetail);
                     await _unitOfWork.SaveChangesAsync();
-
+                    RoomTypeDetail? roomTypeDetail = await _unitOfWork.GetRepository<RoomTypeDetail>()
+                           .Entities
+                           .Where(r => r.Id.Equals(item.RoomTypeDetailID))
+                           .FirstOrDefaultAsync();
                     //Tính tiền
                     decimal price = await _roomTypeDetailService.GetDiscountPrice(item.RoomTypeDetailID);
                     int dayhere = model.CheckOutDate.DayNumber - model.CheckInDate.DayNumber;
                     _logger.LogError(dayhere.ToString());
                     if (price != 0)
                     {
-                        booking.TotalAmount = booking.TotalAmount + (price * dayhere);
+                        decimal checkprice = roomTypeDetail.BasePrice -price;
+                        _logger.LogError("Tien phong" + checkprice.ToString());
+                        booking.TotalAmount = booking.TotalAmount + (checkprice * dayhere);
+                        _logger.LogError("Tien phong" + booking.TotalAmount);
+                        //_logger.LogError("Tien phong" + price.ToString());
+                        //booking.TotalAmount = booking.TotalAmount + (price * dayhere);
                     }
                     else
                     {
-                        RoomTypeDetail ? roomTypeDetail= await _unitOfWork.GetRepository<RoomTypeDetail>()
-                            .Entities
-                            .Where(r=>r.Id.Equals(item.RoomTypeDetailID))
-                            .FirstOrDefaultAsync();
+                       
                         if(roomTypeDetail!= null)
                         {
-                            booking.TotalAmount += (roomTypeDetail.BasePrice * dayhere);
+                            decimal checkprice = roomTypeDetail.BasePrice * dayhere;
+                            _logger.LogError("Tien phong" + checkprice.ToString());
+                            booking.TotalAmount = booking.TotalAmount + (roomTypeDetail.BasePrice * dayhere);
                         }
                     }
                 }
